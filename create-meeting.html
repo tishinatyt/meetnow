@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MeetNow — Створити зустріч</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --card: #1a1a1a;
+    --card-hover: #202020;
+    --border: #2a2a2a;
+    --accent: #FF6B35;
+    --accent-dim: rgba(255,107,53,0.12);
+    --accent-border: rgba(255,107,53,0.6);
+    --text: #ffffff;
+    --muted: #888888;
+    --success: #22c55e;
+  }
+
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+  #app { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 16px 60px; }
+
+  /* Logo */
+  .logo { font-size: 18px; font-weight: 800; color: var(--text); padding: 20px 0 4px; text-align: center; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+
+  /* Progress */
+  #progress-wrap { width: 100%; max-width: 480px; padding: 20px 0 0; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  #progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+  #progress-track { height: 3px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  #progress-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+
+  /* Steps */
+  .step { width: 100%; max-width: 480px; display: none; flex-direction: column; padding-top: 36px; animation: stepIn 0.3s ease; }
+  .step.active { display: flex; }
+  @keyframes stepIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes stepOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+  .step.leaving { display: flex; animation: stepOut 0.18s ease forwards; pointer-events: none; }
+
+  .step-num { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .step-q { font-size: 24px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+  .step-hint { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+  /* Format cards */
+  .format-cards { display: flex; flex-direction: column; gap: 12px; }
+  .format-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    width: 100%;
+  }
+  .format-card:hover { background: var(--card-hover); border-color: #3a3a3a; }
+  .format-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .format-card:active { transform: scale(0.98); }
+  .format-icon { font-size: 28px; flex-shrink: 0; width: 48px; height: 48px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .format-info { flex: 1; }
+  .format-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .format-desc { font-size: 13px; color: var(--muted); }
+  .format-badge {
+    font-size: 12px; font-weight: 700;
+    background: rgba(255,107,53,0.15);
+    color: var(--accent);
+    border-radius: 100px;
+    padding: 4px 10px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .format-card.selected .format-badge { opacity: 1; }
+
+  /* Gender options */
+  .gender-opts { display: flex; flex-direction: column; gap: 10px; }
+  .gender-opt {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
+    text-align: left;
+  }
+  .gender-opt:hover { border-color: #3a3a3a; }
+  .gender-opt.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .gender-radio {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gender-opt.selected .gender-radio { border-color: var(--accent); background: var(--accent); }
+  .gender-opt.selected .gender-radio::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; display: block; }
+
+  /* Summary */
+  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .summary-val { font-size: 15px; font-weight: 700; color: var(--text); }
+  .summary-val.accent { color: var(--accent); font-size: 18px; }
+
+  .deposit-note { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; padding: 14px 16px; background: rgba(255,107,53,0.06); border: 1px solid rgba(255,107,53,0.15); border-radius: 12px; }
+  .deposit-note strong { color: var(--text); }
+
+  /* Buttons */
+  .nav { display: flex; gap: 10px; margin-top: 28px; }
+  .btn-back { background: none; border: 2px solid var(--border); color: var(--muted); border-radius: 100px; padding: 13px 20px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0; }
+  .btn-back:hover { border-color: var(--text); color: var(--text); }
+  .btn-next { flex: 1; background: var(--accent); color: #fff; border: none; border-radius: 100px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 24px rgba(255,107,53,0.35); }
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+  .btn-next:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(255,107,53,0.45); }
+  .btn-pay { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 14px; padding: 18px; font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit; transition: opacity 0.15s, transform 0.15s; box-shadow: 0 4px 28px rgba(255,107,53,0.4); }
+  .btn-pay:hover { transform: translateY(-1px); }
+  .btn-pay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .liqpay-note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; }
+
+  /* Success */
+  #success { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 80px; animation: stepIn 0.4s ease; }
+  #success.active { display: flex; }
+  .success-icon { width: 88px; height: 88px; background: rgba(255,107,53,0.12); border: 2px solid var(--accent); border-radius: 50%; font-size: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+  #success h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+  #success .sub { color: var(--muted); font-size: 16px; line-height: 1.65; max-width: 340px; margin-bottom: 28px; }
+  #success .format-pill { display: inline-block; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); font-size: 14px; font-weight: 700; border-radius: 100px; padding: 8px 20px; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600; transition: transform 0.3s ease; z-index: 100; white-space: nowrap; max-width: 90vw; text-align: center; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="logo">Meet<span>Now</span></div>
+
+  <div id="progress-wrap">
+    <div id="progress-meta">
+      <span id="prog-label">Крок 1 з 3</span>
+      <span id="prog-pct">33%</span>
+    </div>
+    <div id="progress-track"><div id="progress-fill" style="width:33%"></div></div>
+  </div>
+
+  <!-- STEP 1: Format -->
+  <div class="step active" id="step-1">
+    <div class="step-num">Крок 1</div>
+    <div class="step-q">Обери формат</div>
+    <div class="step-hint">Скільки людей має бути на зустрічі?</div>
+    <div class="format-cards">
+      <button class="format-card" data-val="2" onclick="selectFormat(this)">
+        <div class="format-icon">👥</div>
+        <div class="format-info">
+          <div class="format-title">На двох</div>
+          <div class="format-desc">Тет-а-тет зустріч — особистий формат</div>
+        </div>
+        <div class="format-badge">2 особи</div>
+      </button>
+      <button class="format-card" data-val="4" onclick="selectFormat(this)">
+        <div class="format-icon">🍽️</div>
+        <div class="format-info">
+          <div class="format-title">Четверо</div>
+          <div class="format-desc">Невелика компанія — жвава розмова</div>
+        </div>
+        <div class="format-badge">4 особи</div>
+      </button>
+      <button class="format-card" data-val="6" onclick="selectFormat(this)">
+        <div class="format-icon">🎉</div>
+        <div class="format-info">
+          <div class="format-title">Шестеро</div>
+          <div class="format-desc">Жвава група — як Timeleft</div>
+        </div>
+        <div class="format-badge">6 осіб</div>
+      </button>
+    </div>
+    <div class="nav">
+      <button class="btn-next" id="next-1" disabled onclick="advance(1)">Далі →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Gender preference -->
+  <div class="step" id="step-2">
+    <div class="step-num">Крок 2</div>
+    <div class="step-q">Хто має бути на зустрічі?</div>
+    <div class="step-hint">Стать учасників групи</div>
+    <div class="gender-opts">
+      <button class="gender-opt" data-val="male" onclick="selectGender(this)">
+        <div class="gender-radio"></div>Тільки чоловіки
+      </button>
+      <button class="gender-opt" data-val="female" onclick="selectGender(this)">
+        <div class="gender-radio"></div>Тільки жінки
+      </button>
+      <button class="gender-opt selected" data-val="any" onclick="selectGender(this)">
+        <div class="gender-radio"></div>Не має значення
+      </button>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="back(2)">← Назад</button>
+      <button class="btn-next" id="next-2" onclick="advance(2)">Далі →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Summary + pay -->
+  <div class="step" id="step-3">
+    <div class="step-num">Крок 3</div>
+    <div class="step-q">Підтвердження</div>
+    <div class="step-hint">Перевір деталі та сплати депозит</div>
+
+    <div class="summary-card">
+      <div class="summary-row">
+        <span class="summary-label">Формат</span>
+        <span class="summary-val" id="sum-format">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Учасники</span>
+        <span class="summary-val" id="sum-gender">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Депозит</span>
+        <span class="summary-val accent">150 грн</span>
+      </div>
+    </div>
+
+    <div class="deposit-note">
+      <strong>Як працює депозит:</strong> повертається після зустрічі. Якщо не прийшов без попередження — депозит не повертається.
+    </div>
+
+    <button class="btn-pay" id="btn-pay" onclick="pay()">Сплатити депозит 150 грн</button>
+    <div class="liqpay-note">Оплата через LiqPay</div>
+
+    <div class="nav" style="margin-top:16px">
+      <button class="btn-back" style="width:100%" onclick="back(3)">← Назад</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success">
+    <div class="success-icon">🎯</div>
+    <h2>Ти в черзі!</h2>
+    <p class="sub">Ми підберемо тобі групу і повідомимо найближчим часом.</p>
+    <div class="format-pill" id="success-format"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://pqasdmiqnlyyjwmmqeyc.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s'
+);
+
+// ── State ──
+const state = { format: null, gender: 'any' };
+
+const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'Четверо (4 особи)', '6': 'Шестеро (6 осіб)' };
+const GENDER_LABELS = { male: 'Тільки чоловіки', female: 'Тільки жінки', any: 'Не має значення' };
+
+// ── UUID helper ──
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+}
+
+function getUserId() {
+  let id = localStorage.getItem('meetnow_user_id');
+  if (!id) { id = uuidv4(); localStorage.setItem('meetnow_user_id', id); }
+  return id;
+}
+
+// ── Progress ──
+function updateProgress(step) {
+  const pct = Math.round((step / 3) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Крок ${step} з 3`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+// ── Format select ──
+function selectFormat(el) {
+  document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.format = el.dataset.val;
+  document.getElementById('next-1').disabled = false;
+}
+
+// ── Gender select ──
+function selectGender(el) {
+  document.querySelectorAll('.gender-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.gender = el.dataset.val;
+}
+
+// ── Navigate forward ──
+function advance(step) {
+  const cur = document.getElementById(`step-${step}`);
+  const nxt = document.getElementById(`step-${step + 1}`);
+  if (!nxt) return;
+
+  if (step === 2) {
+    // Populate summary
+    document.getElementById('sum-format').textContent = FORMAT_LABELS[state.format] || '—';
+    document.getElementById('sum-gender').textContent = GENDER_LABELS[state.gender] || '—';
+  }
+
+  cur.classList.add('leaving');
+  setTimeout(() => {
+    cur.classList.remove('active', 'leaving');
+    nxt.classList.add('active');
+    updateProgress(step + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 180);
+}
+
+// ── Navigate back ──
+function back(step) {
+  document.getElementById(`step-${step}`).classList.remove('active');
+  const prev = document.getElementById(`step-${step - 1}`);
+  prev.classList.add('active');
+  updateProgress(step - 1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Pay & queue ──
+async function pay() {
+  const btn = document.getElementById('btn-pay');
+  btn.disabled = true;
+  btn.textContent = 'Додаємо в чергу…';
+
+  const userId = getUserId();
+
+  const entry = {
+    user_id: userId,
+    format_size: parseInt(state.format),
+    gender_preference: state.gender,
+    status: 'waiting',
+  };
+
+  try {
+    const { error } = await sb.from('match_queue').insert(entry);
+    if (error) throw error;
+    showSuccess();
+  } catch (err) {
+    console.error(err);
+    toast('Помилка: ' + (err.message || JSON.stringify(err)));
+    btn.disabled = false;
+    btn.textContent = 'Сплатити депозит 150 грн';
+  }
+}
+
+function showSuccess() {
+  document.getElementById('step-3').classList.remove('active');
+  document.getElementById('progress-wrap').style.display = 'none';
+  const fmt = FORMAT_LABELS[state.format] || '';
+  document.getElementById('success-format').textContent = 'Формат: ' + fmt;
+  document.getElementById('success').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Toast ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
