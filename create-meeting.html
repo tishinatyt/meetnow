@@ -67,7 +67,7 @@
   .format-card:active { transform: scale(0.98); }
   .format-icon { font-size: 28px; flex-shrink: 0; width: 48px; height: 48px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
   .format-info { flex: 1; }
-  .format-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .format-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; }
   .format-desc { font-size: 13px; color: var(--muted); }
   .format-badge {
     font-size: 12px; font-weight: 700;
@@ -178,7 +178,7 @@
       <button class="format-card" data-val="4" onclick="selectFormat(this)">
         <div class="format-icon">🍽️</div>
         <div class="format-info">
-          <div class="format-title">Четверо</div>
+          <div class="format-title">На четверох</div>
           <div class="format-desc">Невелика компанія — жвава розмова</div>
         </div>
         <div class="format-badge">4 особи</div>
@@ -274,7 +274,7 @@ const sb = createClient(
 // ── State ──
 const state = { format: null, gender: 'any' };
 
-const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'Четверо (4 особи)', '6': 'Шестеро (6 осіб)' };
+const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'На четверох (4 особи)', '6': 'Шестеро (6 осіб)' };
 const GENDER_LABELS = { male: 'Тільки чоловіки', female: 'Тільки жінки', any: 'Не має значення' };
 
 // ── UUID helper ──
