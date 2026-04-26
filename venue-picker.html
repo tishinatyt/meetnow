@@ -203,7 +203,7 @@
 <div id="toast"></div>
 
 <script>
-const GOOGLE_API_KEY = 'YOUR_KEY_HERE';
+const GOOGLE_API_KEY = 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ';
 const CENTER = { lat: 51.4982, lng: 31.2893 }; // Чернігів
 const RADIUS  = 2000;
 const MIN_RATING = 4.0;
@@ -242,7 +242,7 @@ function loadPlaces(types) {
   hideError();
 
   if (typeof google === 'undefined') {
-    showError('Google Maps API key не вказано або скрипт не завантажено. Замініть YOUR_KEY_HERE на реальний ключ у змінній GOOGLE_API_KEY.');
+    showError('Google Maps API key не вказано або скрипт не завантажено. Замініть AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ на реальний ключ у змінній GOOGLE_API_KEY.');
     showDemoCards();
     return;
   }
@@ -429,10 +429,10 @@ function toast(msg) {
 
 // ── Init ──
 window.addEventListener('load', () => {
-  if (GOOGLE_API_KEY === 'YOUR_KEY_HERE' || typeof google === 'undefined') {
+  if (GOOGLE_API_KEY === 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ' || typeof google === 'undefined') {
     showDemoCards();
-    if (GOOGLE_API_KEY === 'YOUR_KEY_HERE') {
-      showError('Демо-режим: замініть YOUR_KEY_HERE на реальний Google Places API ключ у файлі.');
+    if (GOOGLE_API_KEY === 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ') {
+      showError('Демо-режим: замініть AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ на реальний Google Places API ключ у файлі.');
     }
   } else {
     loadPlaces(TYPE_MAP[currentFilter]);
@@ -447,8 +447,8 @@ if (saved) {
 </script>
 
 <!-- Load Google Maps JS API with Places library -->
-<!-- Replace YOUR_KEY_HERE below as well -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE&libraries=places" async defer
+<!-- Replace AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ below as well -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ&libraries=places" async defer
   onerror="console.warn('Google Maps failed to load — running in demo mode')"></script>
 
 </body>
