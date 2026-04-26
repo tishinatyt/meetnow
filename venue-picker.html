@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MeetNow — Вибір закладу</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f;
+    --card: #1a1a1a;
+    --card2: #1f1f1f;
+    --border: #2a2a2a;
+    --accent: #FF6B35;
+    --accent-dim: rgba(255,107,53,0.12);
+    --text: #ffffff;
+    --muted: #888888;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #ef4444;
+  }
+  html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ── Header ── */
+  .header {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 0;
+    max-width: 480px; margin: 0 auto; width: 100%;
+  }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .header-title { font-size: 16px; font-weight: 700; color: var(--text); }
+
+  /* ── Filters ── */
+  .filters {
+    display: flex; gap: 8px;
+    overflow-x: auto; padding-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: #444; color: var(--text); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── Main ── */
+  #main { max-width: 480px; margin: 0 auto; padding: 16px 16px 120px; }
+
+  /* ── Skeleton ── */
+  .skeleton-card { background: var(--card); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
+  .skeleton-img { height: 160px; background: var(--card2); animation: pulse 1.4s ease-in-out infinite; }
+  .skeleton-body { padding: 14px 16px; }
+  .skeleton-line { height: 14px; background: var(--card2); border-radius: 100px; margin-bottom: 10px; animation: pulse 1.4s ease-in-out infinite; }
+  .skeleton-line.w60 { width: 60%; }
+  .skeleton-line.w40 { width: 40%; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ── Venue card ── */
+  .venue-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .venue-card.chosen { border-color: var(--green); }
+  .venue-img {
+    width: 100%; height: 160px;
+    object-fit: cover; display: block;
+    background: var(--card2);
+  }
+  .venue-img-placeholder {
+    width: 100%; height: 160px;
+    background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; color: var(--border);
+  }
+  .venue-body { padding: 14px 16px 16px; }
+  .venue-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .venue-name { font-size: 16px; font-weight: 700; line-height: 1.3; flex: 1; }
+  .venue-status {
+    font-size: 11px; font-weight: 700; border-radius: 100px;
+    padding: 3px 9px; flex-shrink: 0;
+  }
+  .venue-status.open { background: rgba(34,197,94,0.15); color: var(--green); }
+  .venue-status.closed { background: rgba(239,68,68,0.12); color: var(--red); }
+  .venue-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .stars { color: #f59e0b; font-size: 13px; letter-spacing: 1px; }
+  .rating-num { font-size: 14px; font-weight: 700; }
+  .rating-count { font-size: 12px; color: var(--muted); }
+  .venue-addr { font-size: 13px; color: var(--muted); line-height: 1.4; margin-bottom: 14px; }
+  .btn-choose {
+    width: 100%; border: none; border-radius: 10px;
+    padding: 13px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+    background: var(--accent); color: #fff;
+    box-shadow: 0 3px 16px rgba(255,107,53,0.3);
+  }
+  .btn-choose:hover { opacity: 0.9; }
+  .btn-choose.chosen {
+    background: var(--green-dim);
+    color: var(--green);
+    box-shadow: none;
+    border: 1.5px solid var(--green);
+    cursor: default;
+  }
+
+  /* ── Empty ── */
+  #empty { display: none; text-align: center; padding: 60px 24px; }
+  #empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  #empty h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  #empty p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ── Bottom bar ── */
+  #bottom-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 14px 16px;
+    z-index: 20;
+  }
+  #btn-confirm {
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; border-radius: 12px;
+    padding: 16px; font-size: 16px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 4px 24px rgba(255,107,53,0.35);
+  }
+  #btn-confirm:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+  #btn-confirm:not(:disabled):hover { transform: translateY(-1px); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 88px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a; border: 1px solid var(--green);
+    color: var(--green); padding: 11px 22px;
+    border-radius: 100px; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    z-index: 30; white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Error ── */
+  #api-error {
+    display: none;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 12px; padding: 14px 16px;
+    font-size: 13px; color: #fca5a5; line-height: 1.5;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">Meet<span>Now</span></div>
+    <div class="header-title">Вибір закладу</div>
+  </div>
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-type="all" onclick="setFilter(this)">Всі</button>
+    <button class="filter-btn" data-type="cafe" onclick="setFilter(this)">Кав'ярня</button>
+    <button class="filter-btn" data-type="bar" onclick="setFilter(this)">Бар</button>
+    <button class="filter-btn" data-type="restaurant" onclick="setFilter(this)">Ресторан</button>
+    <button class="filter-btn" data-type="night_club" onclick="setFilter(this)">Коктейльний бар</button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="api-error"></div>
+  <div id="list"></div>
+  <div id="empty">
+    <div class="empty-icon">🔍</div>
+    <h3>Не знайдено закладів</h3>
+    <p>Спробуй інший фільтр або розшир зону пошуку</p>
+  </div>
+</div>
+
+<div id="bottom-bar">
+  <button id="btn-confirm" disabled onclick="confirm()">Підтвердити вибір</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const GOOGLE_API_KEY = 'YOUR_KEY_HERE';
+const CENTER = { lat: 51.4982, lng: 31.2893 }; // Чернігів
+const RADIUS  = 2000;
+const MIN_RATING = 4.0;
+
+const TYPE_MAP = {
+  all:        ['cafe', 'bar', 'restaurant'],
+  cafe:       ['cafe'],
+  bar:        ['bar'],
+  restaurant: ['restaurant'],
+  night_club: ['night_club'],
+};
+
+let currentFilter = 'all';
+let allPlaces = [];
+let chosenVenue = null;
+let chosenCardEl = null;
+
+// ── Fetch places ──
+async function fetchPlaces(types) {
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
+    `?location=${CENTER.lat},${CENTER.lng}` +
+    `&radius=${RADIUS}` +
+    `&type=${types[0]}` +
+    `&minpricinglevel=0` +
+    `&key=${GOOGLE_API_KEY}`;
+
+  // Browser can't call Places API directly (CORS).
+  // Use a proxy endpoint or enable it via Maps JS API.
+  // Falling back to Maps JS SDK if available.
+  throw new Error('Direct REST call blocked by CORS — use Maps JS SDK below');
+}
+
+// ── Load via Maps JS SDK (Places library) ──
+function loadPlaces(types) {
+  showSkeleton();
+  hideError();
+
+  if (typeof google === 'undefined') {
+    showError('Google Maps API key не вказано або скрипт не завантажено. Замініть YOUR_KEY_HERE на реальний ключ у змінній GOOGLE_API_KEY.');
+    showDemoCards();
+    return;
+  }
+
+  const service = new google.maps.places.PlacesService(document.createElement('div'));
+  const results = [];
+  let pending = types.length;
+
+  types.forEach(type => {
+    service.nearbySearch({
+      location: CENTER,
+      radius: RADIUS,
+      type: type,
+    }, (res, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && res) {
+        res.forEach(p => {
+          if ((p.rating || 0) >= MIN_RATING && !results.find(r => r.place_id === p.place_id)) {
+            results.push(p);
+          }
+        });
+      }
+      pending--;
+      if (pending === 0) {
+        allPlaces = results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        renderCards(allPlaces);
+      }
+    });
+  });
+}
+
+// ── Demo cards (when no API key) ──
+function showDemoCards() {
+  const demo = [
+    { place_id: 'd1', name: 'Ресторан «Градецький»', rating: 4.7, user_ratings_total: 312, vicinity: 'просп. Миру, 40, Чернігів', opening_hours: { open_now: true }, types: ['restaurant'] },
+    { place_id: 'd2', name: 'Кав\'ярня «Мокко»', rating: 4.6, user_ratings_total: 184, vicinity: 'вул. Шевченка, 15, Чернігів', opening_hours: { open_now: true }, types: ['cafe'] },
+    { place_id: 'd3', name: 'Бар «Чорний кот»', rating: 4.5, user_ratings_total: 97, vicinity: 'вул. Магістратська, 7, Чернігів', opening_hours: { open_now: false }, types: ['bar'] },
+    { place_id: 'd4', name: 'Ресторан «Старий Чернігів»', rating: 4.4, user_ratings_total: 256, vicinity: 'вул. Гетьмана Полуботка, 3, Чернігів', opening_hours: { open_now: true }, types: ['restaurant'] },
+    { place_id: 'd5', name: 'Cocktail Bar «Negroni»', rating: 4.8, user_ratings_total: 143, vicinity: 'просп. Перемоги, 22, Чернігів', opening_hours: { open_now: true }, types: ['night_club', 'bar'] },
+  ];
+  allPlaces = demo;
+  renderCards(demo);
+}
+
+// ── Filter ──
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.type;
+
+  if (typeof google !== 'undefined') {
+    loadPlaces(TYPE_MAP[currentFilter]);
+  } else {
+    const filtered = currentFilter === 'all'
+      ? allPlaces
+      : allPlaces.filter(p => p.types && p.types.some(t => TYPE_MAP[currentFilter].includes(t)));
+    renderCards(filtered);
+  }
+}
+
+// ── Render ──
+function renderCards(places) {
+  const list = document.getElementById('list');
+  const empty = document.getElementById('empty');
+  list.innerHTML = '';
+
+  if (!places.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  places.forEach(p => {
+    const isOpen = p.opening_hours?.open_now;
+    const isChosen = chosenVenue?.place_id === p.place_id;
+    const stars = starsHtml(p.rating || 0);
+    const photoUrl = p.photos?.[0]
+      ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=480&photoreference=${p.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+      : null;
+
+    const card = document.createElement('div');
+    card.className = 'venue-card' + (isChosen ? ' chosen' : '');
+    card.dataset.placeId = p.place_id;
+    card.innerHTML = `
+      ${photoUrl
+        ? `<img class="venue-img" src="${photoUrl}" alt="${p.name}" loading="lazy" onerror="this.parentNode.querySelector('.venue-img-placeholder').style.display='flex';this.remove()">`
+        : ''}
+      <div class="venue-img-placeholder" style="display:${photoUrl ? 'none' : 'flex'}">🍽️</div>
+      <div class="venue-body">
+        <div class="venue-row1">
+          <div class="venue-name">${p.name}</div>
+          ${isOpen !== undefined
+            ? `<div class="venue-status ${isOpen ? 'open' : 'closed'}">${isOpen ? 'Відкрито' : 'Закрито'}</div>`
+            : ''}
+        </div>
+        <div class="venue-rating">
+          <span class="stars">${stars}</span>
+          <span class="rating-num">${(p.rating || 0).toFixed(1)}</span>
+          <span class="rating-count">(${p.user_ratings_total || 0} відгуків)</span>
+        </div>
+        <div class="venue-addr">${p.vicinity || ''}</div>
+        <button class="btn-choose${isChosen ? ' chosen' : ''}"
+          onclick="choose(this, ${JSON.stringify({ place_id: p.place_id, name: p.name, address: p.vicinity || '' }).replace(/"/g, '&quot;')})">
+          ${isChosen ? 'Обрано ✓' : 'Обрати'}
+        </button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ── Choose venue ──
+function choose(btn, venue) {
+  if (btn.classList.contains('chosen')) return;
+
+  // Reset previous
+  document.querySelectorAll('.btn-choose.chosen').forEach(b => {
+    b.classList.remove('chosen');
+    b.textContent = 'Обрати';
+    b.closest('.venue-card').classList.remove('chosen');
+  });
+
+  btn.classList.add('chosen');
+  btn.textContent = 'Обрано ✓';
+  btn.closest('.venue-card').classList.add('chosen');
+
+  chosenVenue = venue;
+  localStorage.setItem('meetnow_venue', JSON.stringify(venue));
+  document.getElementById('btn-confirm').disabled = false;
+
+  toast('Заклад обрано! ✓');
+}
+
+// ── Confirm ──
+function confirm() {
+  if (!chosenVenue) return;
+  toast('Збережено: ' + chosenVenue.name);
+  setTimeout(() => {
+    document.getElementById('btn-confirm').textContent = '✓ Підтверджено';
+    document.getElementById('btn-confirm').style.background = 'var(--green)';
+    document.getElementById('btn-confirm').style.boxShadow = '0 4px 20px rgba(34,197,94,0.3)';
+    document.getElementById('btn-confirm').disabled = true;
+  }, 400);
+}
+
+// ── Helpers ──
+function starsHtml(rating) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  let s = '★'.repeat(full);
+  if (half) s += '½';
+  s += '☆'.repeat(5 - full - (half ? 1 : 0));
+  return s;
+}
+
+function showSkeleton() {
+  const list = document.getElementById('list');
+  list.innerHTML = [1,2,3].map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line" style="width:70%"></div>
+        <div class="skeleton-line w60"></div>
+        <div class="skeleton-line w40"></div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('empty').style.display = 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('api-error');
+  el.innerHTML = `⚠️ ${msg}`;
+  el.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('api-error').style.display = 'none';
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ──
+window.addEventListener('load', () => {
+  if (GOOGLE_API_KEY === 'YOUR_KEY_HERE' || typeof google === 'undefined') {
+    showDemoCards();
+    if (GOOGLE_API_KEY === 'YOUR_KEY_HERE') {
+      showError('Демо-режим: замініть YOUR_KEY_HERE на реальний Google Places API ключ у файлі.');
+    }
+  } else {
+    loadPlaces(TYPE_MAP[currentFilter]);
+  }
+});
+
+// Restore chosen from localStorage
+const saved = localStorage.getItem('meetnow_venue');
+if (saved) {
+  try { chosenVenue = JSON.parse(saved); } catch {}
+}
+</script>
+
+<!-- Load Google Maps JS API with Places library -->
+<!-- Replace YOUR_KEY_HERE below as well -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE&libraries=places" async defer
+  onerror="console.warn('Google Maps failed to load — running in demo mode')"></script>
+
+</body>
+</html>
