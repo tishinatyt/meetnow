@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MeetNow — Вибір закладу</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ&libraries=places"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -203,7 +204,6 @@
 <div id="toast"></div>
 
 <script>
-const GOOGLE_API_KEY = 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ';
 const CENTER = { lat: 51.4982, lng: 31.2893 }; // Чернігів
 const RADIUS  = 2000;
 const MIN_RATING = 4.0;
@@ -219,22 +219,6 @@ const TYPE_MAP = {
 let currentFilter = 'all';
 let allPlaces = [];
 let chosenVenue = null;
-let chosenCardEl = null;
-
-// ── Fetch places ──
-async function fetchPlaces(types) {
-  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
-    `?location=${CENTER.lat},${CENTER.lng}` +
-    `&radius=${RADIUS}` +
-    `&type=${types[0]}` +
-    `&minpricinglevel=0` +
-    `&key=${GOOGLE_API_KEY}`;
-
-  // Browser can't call Places API directly (CORS).
-  // Use a proxy endpoint or enable it via Maps JS API.
-  // Falling back to Maps JS SDK if available.
-  throw new Error('Direct REST call blocked by CORS — use Maps JS SDK below');
-}
 
 // ── Load via Maps JS SDK (Places library) ──
 function loadPlaces(types) {
@@ -242,12 +226,13 @@ function loadPlaces(types) {
   hideError();
 
   if (typeof google === 'undefined') {
-    showError('Google Maps API key не вказано або скрипт не завантажено. Замініть AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ на реальний ключ у змінній GOOGLE_API_KEY.');
+    showError('Google Maps не завантажився. Перевір API ключ або мережу.');
     showDemoCards();
     return;
   }
 
-  const service = new google.maps.places.PlacesService(document.createElement('div'));
+  const map = new google.maps.Map(document.createElement('div'));
+  const service = new google.maps.places.PlacesService(map);
   const results = [];
   let pending = types.length;
 
@@ -273,7 +258,7 @@ function loadPlaces(types) {
   });
 }
 
-// ── Demo cards (when no API key) ──
+// ── Demo cards (when Maps API unavailable) ──
 function showDemoCards() {
   const demo = [
     { place_id: 'd1', name: 'Ресторан «Градецький»', rating: 4.7, user_ratings_total: 312, vicinity: 'просп. Миру, 40, Чернігів', opening_hours: { open_now: true }, types: ['restaurant'] },
@@ -315,9 +300,7 @@ function renderCards(places) {
     const isOpen = p.opening_hours?.open_now;
     const isChosen = chosenVenue?.place_id === p.place_id;
     const stars = starsHtml(p.rating || 0);
-    const photoUrl = p.photos?.[0]
-      ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=480&photoreference=${p.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-      : null;
+    const photoUrl = p.photos?.[0]?.getUrl({ maxWidth: 480 }) || null;
 
     const card = document.createElement('div');
     card.className = 'venue-card' + (isChosen ? ' chosen' : '');
@@ -354,7 +337,6 @@ function renderCards(places) {
 function choose(btn, venue) {
   if (btn.classList.contains('chosen')) return;
 
-  // Reset previous
   document.querySelectorAll('.btn-choose.chosen').forEach(b => {
     b.classList.remove('chosen');
     b.textContent = 'Обрати';
@@ -429,11 +411,9 @@ function toast(msg) {
 
 // ── Init ──
 window.addEventListener('load', () => {
-  if (GOOGLE_API_KEY === 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ' || typeof google === 'undefined') {
+  if (typeof google === 'undefined') {
+    showError('Google Maps не завантажився. Перевір API ключ або мережу.');
     showDemoCards();
-    if (GOOGLE_API_KEY === 'AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ') {
-      showError('Демо-режим: замініть AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ на реальний Google Places API ключ у файлі.');
-    }
   } else {
     loadPlaces(TYPE_MAP[currentFilter]);
   }
@@ -445,11 +425,6 @@ if (saved) {
   try { chosenVenue = JSON.parse(saved); } catch {}
 }
 </script>
-
-<!-- Load Google Maps JS API with Places library -->
-<!-- Replace AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ below as well -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ&libraries=places" async defer
-  onerror="console.warn('Google Maps failed to load — running in demo mode')"></script>
 
 </body>
 </html>
