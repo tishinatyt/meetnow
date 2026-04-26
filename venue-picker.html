@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MeetNow — Вибір закладу</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyZWfIpF_-6b2_ZdfjtrPlDaa_NC-7QmQ&libraries=places,marker&v=beta"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -198,77 +198,47 @@
 </div>
 
 <div id="bottom-bar">
-  <button id="btn-confirm" disabled onclick="confirm()">Підтвердити вибір</button>
+  <button id="btn-confirm" disabled onclick="confirmVenue()">Підтвердити вибір</button>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const CENTER = { lat: 51.4982, lng: 31.2893 }; // Чернігів
-const RADIUS  = 2000;
-const MIN_RATING = 4.0;
-
-const TYPE_MAP = {
-  all:        ['cafe', 'bar', 'restaurant'],
-  cafe:       ['cafe'],
-  bar:        ['bar'],
-  restaurant: ['restaurant'],
-  night_club: ['night_club'],
-};
-
 let currentFilter = 'all';
-let allPlaces = [];
 let chosenVenue = null;
 
-// ── Load via Maps JS SDK (Places library) ──
-function loadPlaces(types) {
-  showSkeleton();
-  hideError();
+// ── New Places API ──
+async function loadVenues(type) {
+  const { Place, SearchNearbyRankPreference } = await google.maps.importLibrary('places');
 
-  if (typeof google === 'undefined') {
-    showError('Google Maps не завантажився. Перевір API ключ або мережу.');
-    showDemoCards();
-    return;
-  }
+  const types = type === 'all' ? ['cafe', 'bar', 'restaurant'] : [type];
 
-  const map = new google.maps.Map(document.createElement('div'));
-  const service = new google.maps.places.PlacesService(map);
-  const results = [];
-  let pending = types.length;
+  const request = {
+    fields: ['displayName', 'location', 'rating', 'userRatingCount', 'photos', 'formattedAddress', 'regularOpeningHours', 'businessStatus'],
+    locationRestriction: {
+      center: { lat: 51.4982, lng: 31.2893 },
+      radius: 2000,
+    },
+    includedPrimaryTypes: types,
+    maxResultCount: 10,
+    rankPreference: SearchNearbyRankPreference.POPULARITY,
+    language: 'uk',
+    region: 'ua',
+  };
 
-  types.forEach(type => {
-    service.nearbySearch({
-      location: CENTER,
-      radius: RADIUS,
-      type: type,
-    }, (res, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && res) {
-        res.forEach(p => {
-          if ((p.rating || 0) >= MIN_RATING && !results.find(r => r.place_id === p.place_id)) {
-            results.push(p);
-          }
-        });
-      }
-      pending--;
-      if (pending === 0) {
-        allPlaces = results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        renderCards(allPlaces);
-      }
-    });
-  });
-}
+  const { places } = await Place.searchNearby(request);
 
-// ── Demo cards (when Maps API unavailable) ──
-function showDemoCards() {
-  const demo = [
-    { place_id: 'd1', name: 'Ресторан «Градецький»', rating: 4.7, user_ratings_total: 312, vicinity: 'просп. Миру, 40, Чернігів', opening_hours: { open_now: true }, types: ['restaurant'] },
-    { place_id: 'd2', name: 'Кав\'ярня «Мокко»', rating: 4.6, user_ratings_total: 184, vicinity: 'вул. Шевченка, 15, Чернігів', opening_hours: { open_now: true }, types: ['cafe'] },
-    { place_id: 'd3', name: 'Бар «Чорний кот»', rating: 4.5, user_ratings_total: 97, vicinity: 'вул. Магістратська, 7, Чернігів', opening_hours: { open_now: false }, types: ['bar'] },
-    { place_id: 'd4', name: 'Ресторан «Старий Чернігів»', rating: 4.4, user_ratings_total: 256, vicinity: 'вул. Гетьмана Полуботка, 3, Чернігів', opening_hours: { open_now: true }, types: ['restaurant'] },
-    { place_id: 'd5', name: 'Cocktail Bar «Negroni»', rating: 4.8, user_ratings_total: 143, vicinity: 'просп. Перемоги, 22, Чернігів', opening_hours: { open_now: true }, types: ['night_club', 'bar'] },
-  ];
-  allPlaces = demo;
-  renderCards(demo);
+  return places
+    .filter(p => p.rating >= 4.0)
+    .map(p => ({
+      id: p.id,
+      name: p.displayName,
+      rating: p.rating,
+      userRatingCount: p.userRatingCount,
+      address: p.formattedAddress,
+      isOpen: p.regularOpeningHours?.isOpen?.() ?? null,
+      photo: p.photos?.[0]?.getURI({ maxWidth: 400 }) ?? null,
+    }));
 }
 
 // ── Filter ──
@@ -276,15 +246,21 @@ function setFilter(btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentFilter = btn.dataset.type;
+  fetchAndRender(currentFilter);
+}
 
-  if (typeof google !== 'undefined') {
-    loadPlaces(TYPE_MAP[currentFilter]);
-  } else {
-    const filtered = currentFilter === 'all'
-      ? allPlaces
-      : allPlaces.filter(p => p.types && p.types.some(t => TYPE_MAP[currentFilter].includes(t)));
-    renderCards(filtered);
-  }
+// ── Fetch + render ──
+function fetchAndRender(type) {
+  showSkeleton();
+  hideError();
+
+  loadVenues(type)
+    .then(venues => renderCards(venues))
+    .catch(err => {
+      console.error(err);
+      showError('Не вдалося завантажити заклади: ' + err.message);
+      renderCards([]);
+    });
 }
 
 // ── Render ──
@@ -297,34 +273,32 @@ function renderCards(places) {
   empty.style.display = 'none';
 
   places.forEach(p => {
-    const isOpen = p.opening_hours?.open_now;
-    const isChosen = chosenVenue?.place_id === p.place_id;
+    const isChosen = chosenVenue?.id === p.id;
     const stars = starsHtml(p.rating || 0);
-    const photoUrl = p.photos?.[0]?.getUrl({ maxWidth: 480 }) || null;
 
     const card = document.createElement('div');
     card.className = 'venue-card' + (isChosen ? ' chosen' : '');
-    card.dataset.placeId = p.place_id;
+    card.dataset.placeId = p.id;
     card.innerHTML = `
-      ${photoUrl
-        ? `<img class="venue-img" src="${photoUrl}" alt="${p.name}" loading="lazy" onerror="this.parentNode.querySelector('.venue-img-placeholder').style.display='flex';this.remove()">`
+      ${p.photo
+        ? `<img class="venue-img" src="${p.photo}" alt="${p.name}" loading="lazy" onerror="this.parentNode.querySelector('.venue-img-placeholder').style.display='flex';this.remove()">`
         : ''}
-      <div class="venue-img-placeholder" style="display:${photoUrl ? 'none' : 'flex'}">🍽️</div>
+      <div class="venue-img-placeholder" style="display:${p.photo ? 'none' : 'flex'}">🍽️</div>
       <div class="venue-body">
         <div class="venue-row1">
           <div class="venue-name">${p.name}</div>
-          ${isOpen !== undefined
-            ? `<div class="venue-status ${isOpen ? 'open' : 'closed'}">${isOpen ? 'Відкрито' : 'Закрито'}</div>`
+          ${p.isOpen !== null
+            ? `<div class="venue-status ${p.isOpen ? 'open' : 'closed'}">${p.isOpen ? 'Відкрито' : 'Закрито'}</div>`
             : ''}
         </div>
         <div class="venue-rating">
           <span class="stars">${stars}</span>
           <span class="rating-num">${(p.rating || 0).toFixed(1)}</span>
-          <span class="rating-count">(${p.user_ratings_total || 0} відгуків)</span>
+          <span class="rating-count">(${p.userRatingCount || 0} відгуків)</span>
         </div>
-        <div class="venue-addr">${p.vicinity || ''}</div>
+        <div class="venue-addr">${p.address || ''}</div>
         <button class="btn-choose${isChosen ? ' chosen' : ''}"
-          onclick="choose(this, ${JSON.stringify({ place_id: p.place_id, name: p.name, address: p.vicinity || '' }).replace(/"/g, '&quot;')})">
+          onclick="choose(this, ${JSON.stringify({ id: p.id, name: p.name, address: p.address || '' }).replace(/"/g, '&quot;')})">
           ${isChosen ? 'Обрано ✓' : 'Обрати'}
         </button>
       </div>
@@ -355,14 +329,15 @@ function choose(btn, venue) {
 }
 
 // ── Confirm ──
-function confirm() {
+function confirmVenue() {
   if (!chosenVenue) return;
   toast('Збережено: ' + chosenVenue.name);
   setTimeout(() => {
-    document.getElementById('btn-confirm').textContent = '✓ Підтверджено';
-    document.getElementById('btn-confirm').style.background = 'var(--green)';
-    document.getElementById('btn-confirm').style.boxShadow = '0 4px 20px rgba(34,197,94,0.3)';
-    document.getElementById('btn-confirm').disabled = true;
+    const btn = document.getElementById('btn-confirm');
+    btn.textContent = '✓ Підтверджено';
+    btn.style.background = 'var(--green)';
+    btn.style.boxShadow = '0 4px 20px rgba(34,197,94,0.3)';
+    btn.disabled = true;
   }, 400);
 }
 
@@ -410,20 +385,12 @@ function toast(msg) {
 }
 
 // ── Init ──
-window.addEventListener('load', () => {
-  if (typeof google === 'undefined') {
-    showError('Google Maps не завантажився. Перевір API ключ або мережу.');
-    showDemoCards();
-  } else {
-    loadPlaces(TYPE_MAP[currentFilter]);
-  }
-});
-
-// Restore chosen from localStorage
 const saved = localStorage.getItem('meetnow_venue');
 if (saved) {
   try { chosenVenue = JSON.parse(saved); } catch {}
 }
+
+window.addEventListener('load', () => fetchAndRender(currentFilter));
 </script>
 
 </body>
