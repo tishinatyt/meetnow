@@ -479,6 +479,8 @@ async function payLiqPay() {
       gender_preference: meeting.gender_preference,
       venue_name: chosenVenue.name,
       venue_address: chosenVenue.address,
+      activity_type: meeting.activity_type || null,
+      deposit: meeting.deposit || 0,
       status: 'waiting',
     };
 
