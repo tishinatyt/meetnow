@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetNow Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F8F7F4;
+  --white: #FFFFFF;
+  --border: #E5E5E5;
+  --accent: #FF6B35;
+  --accent-dim: #FFF4F0;
+  --text: #1A1A1A;
+  --muted: #666666;
+  --sidebar: #1A1A1A;
+  --sidebar-text: rgba(255,255,255,0.7);
+  --sidebar-active: rgba(255,107,53,0.15);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.10);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.10);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.10);
+  --yellow: #f59e0b;
+  --yellow-dim: rgba(245,158,11,0.10);
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* ── Layout ── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--sidebar);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 40;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  font-size: 18px; font-weight: 900;
+  color: #fff; letter-spacing: -0.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo span { color: var(--accent); }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+  padding: 20px 20px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 20px; font-size: 13px; font-weight: 600;
+  color: var(--sidebar-text); cursor: pointer;
+  transition: all 0.15s; border-radius: 0;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: inherit;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active { background: var(--sidebar-active); color: var(--accent); }
+.nav-badge {
+  margin-left: auto; background: var(--accent);
+  color: #fff; font-size: 10px; font-weight: 800;
+  border-radius: 100px; padding: 2px 7px; min-width: 20px; text-align: center;
+}
+
+/* ── Main content ── */
+.main {
+  margin-left: 220px;
+  flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ── Top bar ── */
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 30;
+}
+.topbar-title { font-size: 16px; font-weight: 800; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.btn-refresh {
+  background: none; border: 1.5px solid var(--border);
+  color: var(--muted); border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Content area ── */
+.content { padding: 28px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── Stat cards ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.stat-icon { font-size: 24px; }
+.stat-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.stat-val { font-size: 32px; font-weight: 900; color: var(--text); letter-spacing: -1px; }
+.stat-card.accent-green { border-color: rgba(34,197,94,0.3); }
+.stat-card.accent-orange { border-color: rgba(255,107,53,0.3); }
+.stat-card.accent-blue { border-color: rgba(59,130,246,0.3); }
+.stat-card.accent-yellow { border-color: rgba(245,158,11,0.3); }
+
+/* ── Section header ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.section-title { font-size: 20px; font-weight: 800; }
+
+/* ── Filters bar ── */
+.filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-select {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  font-family: inherit; outline: none; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.filter-select:focus { border-color: var(--accent); }
+
+/* ── Table ── */
+.table-wrap { background: var(--white); border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: var(--bg); }
+th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(0,0,0,0.015); }
+.td-muted { color: var(--muted); font-size: 12px; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-block; border-radius: 100px;
+  padding: 3px 10px; font-size: 11px; font-weight: 700;
+  white-space: nowrap;
+}
+.badge-pending { background: var(--yellow-dim); color: #92400e; }
+.badge-published, .badge-approved, .badge-matched { background: var(--green-dim); color: #15803d; }
+.badge-cancelled, .badge-rejected { background: var(--red-dim); color: #b91c1c; }
+.badge-waiting { background: var(--blue-dim); color: #1d4ed8; }
+.badge-expired { background: rgba(0,0,0,0.07); color: var(--muted); }
+
+/* ── Action buttons ── */
+.btn-action {
+  border: none; border-radius: 7px;
+  padding: 5px 10px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.btn-action:hover { opacity: 0.82; }
+.btn-approve { background: var(--green-dim); color: #15803d; }
+.btn-reject  { background: var(--red-dim); color: #b91c1c; }
+.btn-delete  { background: var(--red-dim); color: #b91c1c; }
+.btn-cancel-q { background: var(--yellow-dim); color: #92400e; }
+.btn-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Tabs ── */
+.tabs-bar { display: flex; gap: 4px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; width: fit-content; }
+.tab-btn {
+  background: none; border: none; border-radius: 8px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  color: var(--muted); cursor: pointer; font-family: inherit;
+  transition: all 0.15s; white-space: nowrap;
+}
+.tab-btn.active { background: var(--white); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* ── Event cards ── */
+.events-grid { display: grid; gap: 16px; }
+.event-admin-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 20px;
+}
+.event-admin-card.card-pending { border-color: rgba(245,158,11,0.4); }
+.event-admin-card.card-published { border-color: rgba(34,197,94,0.4); }
+.event-admin-card.card-cancelled { opacity: 0.65; }
+.event-admin-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.event-admin-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.event-admin-meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.event-admin-meta span { display: flex; align-items: center; gap: 4px; }
+.event-admin-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.registrations-list { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+.registrations-list h4 { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.reg-item { font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+.reg-item:last-child { border-bottom: none; }
+
+/* ── Match button ── */
+.btn-match {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 10px 20px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 3px 16px rgba(255,107,53,0.3);
+}
+.btn-match:hover { transform: translateY(-1px); }
+.btn-match:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 14px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  padding: 11px 22px; border-radius: 100px;
+  font-size: 14px; font-weight: 600;
+  transition: transform 0.3s; z-index: 99;
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.success { background: var(--green); color: #fff; }
+#toast.error { background: var(--red); color: #fff; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; }
+  .main { margin-left: 0; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Meet<span>Now</span> <span style="font-size:11px;font-weight:600;opacity:0.5">Admin</span></div>
+    <div class="sidebar-label">Навігація</div>
+    <button class="nav-item active" onclick="showSection('dashboard', this)">📊 Дашборд</button>
+    <button class="nav-item" onclick="showSection('users', this)">👥 Користувачі</button>
+    <button class="nav-item" onclick="showSection('queue', this)">🎯 Черга матчингу <span class="nav-badge" id="badge-queue">…</span></button>
+    <button class="nav-item" onclick="showSection('events', this)">🎪 Заходи <span class="nav-badge" id="badge-events">…</span></button>
+    <button class="nav-item" onclick="showSection('organizers', this)">🏢 Організатори <span class="nav-badge" id="badge-orgs">…</span></button>
+
+    <div style="margin-top:auto;padding:20px;font-size:11px;color:rgba(255,255,255,0.25);">MeetNow Admin v1.0</div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Дашборд</div>
+      <div class="topbar-right">
+        <button class="btn-refresh" onclick="reloadSection()">↻ Оновити</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="section active" id="section-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card accent-green">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Всього користувачів</div>
+            <div class="stat-val" id="stat-users">…</div>
+          </div>
+          <div class="stat-card accent-blue">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-label">В черзі матчингу</div>
+            <div class="stat-val" id="stat-queue">…</div>
+          </div>
+          <div class="stat-card accent-orange">
+            <div class="stat-icon">🎪</div>
+            <div class="stat-label">Заходів на модерації</div>
+            <div class="stat-val" id="stat-events">…</div>
+          </div>
+          <div class="stat-card accent-yellow">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-label">Організаторів на розгляді</div>
+            <div class="stat-val" id="stat-orgs">…</div>
+          </div>
+        </div>
+
+        <div style="background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:24px;">
+          <div style="font-size:16px;font-weight:800;margin-bottom:16px;">Останні дії</div>
+          <div id="recent-activity" style="color:var(--muted);font-size:14px;">Завантаження…</div>
+        </div>
+      </div>
+
+      <!-- ── USERS ── -->
+      <div class="section" id="section-users">
+        <div class="section-header">
+          <div class="section-title">Користувачі</div>
+        </div>
+        <div class="filters-bar">
+          <select class="filter-select" id="filter-gender" onchange="filterUsers()">
+            <option value="">Всі статі</option>
+            <option value="male">Чоловік</option>
+            <option value="female">Жінка</option>
+            <option value="other">Інше</option>
+          </select>
+          <select class="filter-select" id="filter-age" onchange="filterUsers()">
+            <option value="">Всі вікові групи</option>
+            <option value="18-29">18–29</option>
+            <option value="30-39">30–39</option>
+            <option value="40-49">40–49</option>
+            <option value="50+">50+</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата реєстрації</th>
+                <th>Стать</th>
+                <th>Вік</th>
+                <th>Цілі</th>
+                <th>Тип особистості</th>
+                <th>Галузь</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"><tr><td colspan="7" class="loading">Завантаження…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── QUEUE ── -->
+      <div class="section" id="section-queue">
+        <div class="section-header">
+          <div class="section-title">Черга матчингу</div>
+          <button class="btn-match" id="btn-run-match" onclick="runMatching()">⚡ Запустити матчинг</button>
+        </div>
+        <div class="filters-bar">
+          <select class="filter-select" id="filter-queue-status" onchange="filterQueue()">
+            <option value="">Всі статуси</option>
+            <option value="waiting">Waiting</option>
+            <option value="matched">Matched</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Формат</th>
+                <th>Заклад</th>
+                <th>Статус</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="queue-tbody"><tr><td colspan="5" class="loading">Завантаження…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── EVENTS ── -->
+      <div class="section" id="section-events">
+        <div class="section-header">
+          <div class="section-title">Заходи</div>
+        </div>
+        <div class="tabs-bar">
+          <button class="tab-btn active" onclick="setEventTab('pending', this)">На модерації</button>
+          <button class="tab-btn" onclick="setEventTab('published', this)">Опубліковані</button>
+          <button class="tab-btn" onclick="setEventTab('cancelled', this)">Скасовані</button>
+        </div>
+        <div id="events-container"><div class="loading">Завантаження…</div></div>
+      </div>
+
+      <!-- ── ORGANIZERS ── -->
+      <div class="section" id="section-organizers">
+        <div class="section-header">
+          <div class="section-title">Організатори</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Назва</th>
+                <th>Тип</th>
+                <th>Контакт</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Статус</th>
+                <th>Дата</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="orgs-tbody"><tr><td colspan="8" class="loading">Завантаження…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<div id="toast"></div>
+
+<script>
+// ── Auth ──
+(function checkAuth() {
+  const stored = sessionStorage.getItem('mn_admin_auth');
+  if (stored === 'ok') return;
+  const pwd = prompt('🔐 Введіть пароль адмін-панелі:');
+  if (pwd === 'meetnow2026') {
+    sessionStorage.setItem('mn_admin_auth', 'ok');
+  } else {
+    window.location.href = 'index.html';
+  }
+})();
+
+const SB_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
+
+// ── API helpers ──
+async function sbGet(table, params = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Accept': 'application/json' },
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sbPatch(table, id, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json', 'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// ── Count helper ──
+async function sbCount(table, filter = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}&select=id`, {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Accept': 'application/json', 'Prefer': 'count=exact' },
+  });
+  return parseInt(r.headers.get('Content-Range')?.split('/')[1] || '0');
+}
+
+// ── Navigation ──
+let currentSection = 'dashboard';
+const TITLES = { dashboard: 'Дашборд', users: 'Користувачі', queue: 'Черга матчингу', events: 'Заходи', organizers: 'Організатори' };
+
+function showSection(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('topbar-title').textContent = TITLES[name];
+  currentSection = name;
+  loadSection(name);
+}
+
+function reloadSection() { loadSection(currentSection); }
+
+function loadSection(name) {
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'users') loadUsers();
+  else if (name === 'queue') loadQueue();
+  else if (name === 'events') loadEvents(currentEventTab);
+  else if (name === 'organizers') loadOrganizers();
+}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const [uCount, qCount, eCount, oCount] = await Promise.all([
+      sbCount('users'),
+      sbCount('match_queue', 'status=eq.waiting'),
+      sbCount('events', 'status=eq.pending'),
+      sbCount('organizers', 'status=eq.pending'),
+    ]);
+    document.getElementById('stat-users').textContent  = uCount;
+    document.getElementById('stat-queue').textContent  = qCount;
+    document.getElementById('stat-events').textContent = eCount;
+    document.getElementById('stat-orgs').textContent   = oCount;
+
+    // Update sidebar badges
+    document.getElementById('badge-queue').textContent  = qCount  || '';
+    document.getElementById('badge-events').textContent = eCount  || '';
+    document.getElementById('badge-orgs').textContent   = oCount  || '';
+
+    // Recent: last 5 users
+    const recent = await sbGet('users', 'order=created_at.desc&limit=5&select=id,gender,age_group,created_at');
+    if (recent.length) {
+      document.getElementById('recent-activity').innerHTML = recent.map(u =>
+        `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:16px;color:var(--text)">
+          <span style="color:var(--muted)">${fmtDate(u.created_at)}</span>
+          <span>Новий користувач · ${u.gender || '—'} · ${u.age_group || '—'}</span>
+        </div>`
+      ).join('') + '<div style="font-size:12px;color:var(--muted);padding-top:8px">Останні 5 реєстрацій</div>';
+    } else {
+      document.getElementById('recent-activity').textContent = 'Немає даних';
+    }
+  } catch (err) {
+    toast('Помилка завантаження: ' + err.message, 'error');
+  }
+}
+
+// ════════════════════════════════════════
+// USERS
+// ════════════════════════════════════════
+let allUsers = [];
+
+async function loadUsers() {
+  document.getElementById('users-tbody').innerHTML = '<tr><td colspan="7" class="loading">Завантаження…</td></tr>';
+  try {
+    allUsers = await sbGet('users', 'order=created_at.desc&select=id,created_at,gender,age_group,goals,personality_type,industry');
+    renderUsers(allUsers);
+  } catch (err) {
+    document.getElementById('users-tbody').innerHTML = `<tr><td colspan="7" style="color:var(--red);padding:16px">Помилка: ${err.message}</td></tr>`;
+  }
+}
+
+function filterUsers() {
+  const g = document.getElementById('filter-gender').value;
+  const a = document.getElementById('filter-age').value;
+  const filtered = allUsers.filter(u =>
+    (!g || u.gender === g) && (!a || u.age_group === a)
+  );
+  renderUsers(filtered);
+}
+
+const GENDER_UK = { male: 'Чоловік', female: 'Жінка', other: 'Інше' };
+
+function renderUsers(users) {
+  if (!users.length) {
+    document.getElementById('users-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">👤</div>Користувачів не знайдено</div></td></tr>';
+    return;
+  }
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td class="td-muted">${fmtDate(u.created_at)}</td>
+      <td>${GENDER_UK[u.gender] || u.gender || '—'}</td>
+      <td>${u.age_group || '—'}</td>
+      <td>${Array.isArray(u.goals) ? u.goals.join(', ') : (u.goals || '—')}</td>
+      <td>${u.personality_type || '—'}</td>
+      <td>${u.industry || '—'}</td>
+      <td><button class="btn-action btn-delete" onclick="deleteUser('${u.id}', this)">🗑 Видалити</button></td>
+    </tr>`).join('');
+}
+
+async function deleteUser(id, btn) {
+  if (!confirm('Видалити користувача? Це незворотно.')) return;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await sbDelete('users', id);
+    allUsers = allUsers.filter(u => u.id !== id);
+    renderUsers(allUsers);
+    toast('Користувача видалено', 'success');
+  } catch (err) {
+    toast('Помилка: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = '🗑 Видалити';
+  }
+}
+
+// ════════════════════════════════════════
+// QUEUE
+// ════════════════════════════════════════
+let allQueue = [];
+
+async function loadQueue() {
+  document.getElementById('queue-tbody').innerHTML = '<tr><td colspan="5" class="loading">Завантаження…</td></tr>';
+  try {
+    allQueue = await sbGet('match_queue', 'order=created_at.desc&select=id,created_at,user_id,format_size,gender_preference,venue_name,venue_address,status');
+    renderQueue(allQueue);
+  } catch (err) {
+    document.getElementById('queue-tbody').innerHTML = `<tr><td colspan="5" style="color:var(--red);padding:16px">Помилка: ${err.message}</td></tr>`;
+  }
+}
+
+function filterQueue() {
+  const s = document.getElementById('filter-queue-status').value;
+  renderQueue(s ? allQueue.filter(q => q.status === s) : allQueue);
+}
+
+const STATUS_BADGE = {
+  waiting: 'badge-waiting', matched: 'badge-matched',
+  expired: 'badge-expired', pending: 'badge-pending',
+  published: 'badge-published', approved: 'badge-approved',
+  cancelled: 'badge-cancelled', rejected: 'badge-rejected',
+};
+
+function renderQueue(rows) {
+  if (!rows.length) {
+    document.getElementById('queue-tbody').innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🎯</div>Черга порожня</div></td></tr>';
+    return;
+  }
+  document.getElementById('queue-tbody').innerHTML = rows.map(q => `
+    <tr>
+      <td class="td-muted">${fmtDate(q.created_at)}</td>
+      <td><strong>${q.format_size || '?'} особи</strong><br><span class="td-muted">${q.gender_preference || ''}</span></td>
+      <td>${esc(q.venue_name || '—')}<br><span class="td-muted">${esc(q.venue_address || '')}</span></td>
+      <td><span class="badge ${STATUS_BADGE[q.status] || ''}">${q.status}</span></td>
+      <td>
+        ${q.status === 'waiting'
+          ? `<button class="btn-action btn-cancel-q" onclick="cancelQueue('${q.id}', this)">✕ Скасувати</button>`
+          : ''}
+      </td>
+    </tr>`).join('');
+}
+
+async function cancelQueue(id, btn) {
+  if (!confirm('Скасувати цей запис у черзі?')) return;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await sbPatch('match_queue', id, { status: 'expired' });
+    const item = allQueue.find(q => q.id === id);
+    if (item) item.status = 'expired';
+    renderQueue(allQueue);
+    toast('Скасовано', 'success');
+  } catch (err) {
+    toast('Помилка: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = '✕ Скасувати';
+  }
+}
+
+async function runMatching() {
+  const waiting = allQueue.filter(q => q.status === 'waiting');
+  if (!waiting.length) { alert('Немає записів у статусі waiting.'); return; }
+
+  const btn = document.getElementById('btn-run-match');
+  btn.disabled = true; btn.textContent = 'Матчинг…';
+
+  // Group by format_size
+  const groups = {};
+  waiting.forEach(q => {
+    const sz = q.format_size || 4;
+    if (!groups[sz]) groups[sz] = [];
+    groups[sz].push(q);
+  });
+
+  let report = '📊 Результат матчингу:\n\n';
+  const toMatch = [];
+
+  for (const [size, items] of Object.entries(groups)) {
+    const sz = parseInt(size);
+    const complete = Math.floor(items.length / sz);
+    report += `Формат ${sz} осіб: ${items.length} у черзі → ${complete} груп сформовано\n`;
+    for (let i = 0; i < complete * sz; i++) toMatch.push(items[i].id);
+  }
+
+  alert(report);
+
+  // Update matched records
+  let updated = 0;
+  for (const id of toMatch) {
+    try {
+      await sbPatch('match_queue', id, { status: 'matched' });
+      const item = allQueue.find(q => q.id === id);
+      if (item) item.status = 'matched';
+      updated++;
+    } catch {}
+  }
+
+  renderQueue(allQueue);
+  btn.disabled = false; btn.textContent = '⚡ Запустити матчинг';
+  toast(`Матчинг завершено: ${updated} записів оновлено`, 'success');
+  loadDashboard();
+}
+
+// ════════════════════════════════════════
+// EVENTS
+// ════════════════════════════════════════
+let currentEventTab = 'pending';
+let allEvents = [];
+let regMap = {};
+
+async function loadEvents(status = 'pending') {
+  currentEventTab = status;
+  const container = document.getElementById('events-container');
+  container.innerHTML = '<div class="loading">Завантаження…</div>';
+  try {
+    allEvents = await sbGet('events',
+      `status=eq.${status}&order=created_at.desc&select=id,title,event_type,description,date,venue_name,venue_address,max_participants,price,organizer_id,status`
+    );
+
+    // Fetch registration counts
+    regMap = {};
+    if (allEvents.length) {
+      const ids = allEvents.map(e => e.id);
+      try {
+        const regs = await sbGet('event_registrations',
+          `event_id=in.(${ids.join(',')})&select=event_id,id,name,phone,status`
+        );
+        regs.forEach(r => {
+          if (!regMap[r.event_id]) regMap[r.event_id] = [];
+          regMap[r.event_id].push(r);
+        });
+      } catch {}
+    }
+
+    renderEvents(allEvents, status);
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--red);padding:16px">Помилка: ${err.message}</div>`;
+  }
+}
+
+const TYPE_LABELS = {
+  coffee:'☕ Кава', bar:'🍷 Бар', dinner:'🍽️ Вечеря', cinema:'🎬 Кіно',
+  running:'🏃 Пробіжка', active:'🎳 Боулінг', walk:'🚶 Прогулянка',
+  workshop:'🎨 Майстер-клас', culture:'🎭 Концерт',
+};
+
+function renderEvents(events, status) {
+  const container = document.getElementById('events-container');
+  if (!events.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🎪</div>Немає заходів у цьому статусі</div>';
+    return;
+  }
+  container.innerHTML = events.map(ev => {
+    const regs = (regMap[ev.id] || []).filter(r => r.status !== 'cancelled');
+    const regCount = regs.length;
+    const dateStr = ev.date ? new Date(ev.date).toLocaleString('uk-UA', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : '—';
+    const regListHtml = status === 'published' && regs.length
+      ? `<div class="registrations-list">
+          <h4>Зареєстровані (${regs.length})</h4>
+          ${regs.map(r => `<div class="reg-item"><span>${esc(r.name || '—')}</span><span class="td-muted">${esc(r.phone || '')}</span></div>`).join('')}
+        </div>`
+      : '';
+
+    const actions = status === 'pending'
+      ? `<button class="btn-action btn-approve" onclick="updateEvent('${ev.id}','published',this)">✅ Опублікувати</button>
+         <button class="btn-action btn-reject"  onclick="updateEvent('${ev.id}','cancelled',this)">❌ Відхилити</button>`
+      : status === 'published'
+        ? `<button class="btn-action btn-reject" onclick="updateEvent('${ev.id}','cancelled',this)">❌ Скасувати</button>`
+        : '';
+
+    return `
+      <div class="event-admin-card card-${status}" id="ev-card-${ev.id}">
+        <div class="event-admin-header">
+          <div>
+            <div class="event-admin-title">${esc(ev.title)}</div>
+            <span class="badge badge-${status}">${status}</span>
+          </div>
+          <span style="font-size:13px;font-weight:700;color:var(--accent)">${ev.price ? ev.price + ' грн' : 'Безкоштовно'}</span>
+        </div>
+        <div class="event-admin-meta">
+          <span>📅 ${dateStr}</span>
+          <span>📍 ${esc(ev.venue_name || '—')}</span>
+          <span>${TYPE_LABELS[ev.event_type] || ev.event_type || '—'}</span>
+          <span>👥 ${regCount} / ${ev.max_participants || '∞'} учасників</span>
+        </div>
+        ${ev.description ? `<div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">${esc(ev.description).slice(0,160)}${ev.description.length>160?'…':''}</div>` : ''}
+        <div class="event-admin-footer">
+          <div class="btn-actions">${actions}</div>
+        </div>
+        ${regListHtml}
+      </div>`;
+  }).join('');
+}
+
+function setEventTab(status, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadEvents(status);
+}
+
+async function updateEvent(id, status, btn) {
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await sbPatch('events', id, { status });
+    document.getElementById('ev-card-' + id)?.remove();
+    toast(status === 'published' ? '✅ Опубліковано' : '❌ Відхилено/скасовано', 'success');
+    loadDashboard();
+    // If no cards left, show empty
+    if (!document.querySelector('.event-admin-card')) {
+      document.getElementById('events-container').innerHTML = '<div class="empty"><div class="empty-icon">🎪</div>Немає заходів у цьому статусі</div>';
+    }
+  } catch (err) {
+    toast('Помилка: ' + err.message, 'error');
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════
+// ORGANIZERS
+// ════════════════════════════════════════
+async function loadOrganizers() {
+  document.getElementById('orgs-tbody').innerHTML = '<tr><td colspan="8" class="loading">Завантаження…</td></tr>';
+  try {
+    const orgs = await sbGet('organizers', 'order=created_at.desc&select=id,name,type,contact_person,phone,email,status,created_at');
+    if (!orgs.length) {
+      document.getElementById('orgs-tbody').innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🏢</div>Немає організаторів</div></td></tr>';
+      return;
+    }
+    const TYPE_UK = { venue: 'Заклад', event_organizer: 'Організатор' };
+    document.getElementById('orgs-tbody').innerHTML = orgs.map(o => `
+      <tr id="org-row-${o.id}">
+        <td><strong>${esc(o.name)}</strong></td>
+        <td>${TYPE_UK[o.type] || o.type || '—'}</td>
+        <td>${esc(o.contact_person || '—')}</td>
+        <td>${esc(o.phone || '—')}</td>
+        <td>${esc(o.email || '—')}</td>
+        <td><span class="badge ${STATUS_BADGE[o.status] || ''}">${o.status}</span></td>
+        <td class="td-muted">${fmtDate(o.created_at)}</td>
+        <td>
+          <div class="btn-actions">
+            ${o.status === 'pending'
+              ? `<button class="btn-action btn-approve" onclick="updateOrg('${o.id}','approved',this)">✅ Схвалити</button>
+                 <button class="btn-action btn-reject"  onclick="updateOrg('${o.id}','rejected',this)">❌ Відхилити</button>`
+              : o.status === 'approved'
+                ? `<button class="btn-action btn-reject" onclick="updateOrg('${o.id}','rejected',this)">❌ Відхилити</button>`
+                : `<button class="btn-action btn-approve" onclick="updateOrg('${o.id}','approved',this)">✅ Схвалити</button>`
+            }
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    document.getElementById('orgs-tbody').innerHTML = `<tr><td colspan="8" style="color:var(--red);padding:16px">Помилка: ${err.message}</td></tr>`;
+  }
+}
+
+async function updateOrg(id, status, btn) {
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await sbPatch('organizers', id, { status });
+    toast(status === 'approved' ? '✅ Схвалено' : '❌ Відхилено', 'success');
+    loadOrganizers();
+    loadDashboard();
+  } catch (err) {
+    toast('Помилка: ' + err.message, 'error');
+    btn.disabled = false;
+  }
+}
+
+// ── Helpers ──
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ── Init ──
+loadDashboard();
+</script>
+</body>
+</html>
