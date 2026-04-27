@@ -164,11 +164,29 @@ section { padding: 96px 24px; }
 .step-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
 .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
-/* ── FORMATS ── */
+/* ── ACTIVITY FORMATS ── */
 #formats { background: var(--bg); }
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.activity-card {
+  border-radius: 20px;
+  padding: 32px 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.activity-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.activity-emoji { font-size: 44px; margin-bottom: 14px; display: block; }
+.activity-name { font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+.activity-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+/* ── GROUP FORMATS ── */
+#group-formats { background: var(--white); }
 .format-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .format-card {
-  background: var(--white);
+  background: var(--bg);
   border: 2px solid var(--border);
   border-radius: 20px; overflow: hidden;
   cursor: pointer; transition: all 0.2s;
@@ -203,10 +221,10 @@ section { padding: 96px 24px; }
 .format-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
 /* ── WHY ── */
-#why { background: var(--white); }
+#why { background: var(--bg); }
 .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .why-card {
-  background: var(--bg);
+  background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: 16px; padding: 28px;
   display: flex; gap: 20px; align-items: flex-start;
@@ -221,6 +239,29 @@ section { padding: 96px 24px; }
 }
 .why-title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
 .why-desc { font-size: 14px; color: var(--muted); line-height: 1.55; }
+
+/* ── REVIEWS ── */
+#reviews { background: var(--white); }
+.reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.review-card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 28px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.review-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+.review-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.review-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 800; color: var(--accent);
+  flex-shrink: 0;
+}
+.review-name { font-size: 15px; font-weight: 700; }
+.review-city { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.review-stars { color: #f59e0b; font-size: 15px; letter-spacing: 2px; margin-bottom: 10px; }
+.review-text { font-size: 14px; color: var(--muted); line-height: 1.65; }
 
 /* ── FAQ ── */
 #faq { background: var(--bg); }
@@ -298,9 +339,11 @@ footer {
   .hero { grid-template-columns: 1fr; gap: 32px; padding: 60px 20px 60px; }
   .hero-photo { height: 280px; }
   .steps { grid-template-columns: 1fr; gap: 24px; }
+  .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .format-cards { grid-template-columns: 1fr; gap: 16px; }
   .format-card-img { height: 200px; }
   .why-grid { grid-template-columns: 1fr; }
+  .reviews-grid { grid-template-columns: 1fr; gap: 16px; }
   .cta-banner { padding: 40px 24px; border-radius: 16px; margin: 0 20px; }
   nav { display: none; }
   nav.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); padding: 12px; gap: 4px; }
@@ -313,6 +356,7 @@ footer {
   .hero-photo { height: 220px; }
   .why-card { flex-direction: column; gap: 12px; }
   .step-card-img { height: 160px; }
+  .activity-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -325,6 +369,7 @@ footer {
     <nav id="nav">
       <a href="#how">Як це працює</a>
       <a href="#formats">Формати</a>
+      <a href="#reviews">Відгуки</a>
       <a href="#faq">FAQ</a>
       <a href="onboarding.html" class="btn-try">Спробувати</a>
     </nav>
@@ -350,7 +395,7 @@ footer {
       <img
         class="hero-photo"
         src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=800&q=80"
-        alt="Люди за столом в кафе"
+        alt="Люди разом за столом"
         loading="eager"
       >
     </div>
@@ -370,11 +415,11 @@ footer {
         <div class="step-card-body">
           <div class="step-icon">🧠</div>
           <div class="step-title">Проходиш тест</div>
-          <div class="step-desc">AI вивчає твою особистість, інтереси та цілі. 14 запитань — 3 хвилини.</div>
+          <div class="step-desc">AI вивчає твою особистість, інтереси та цілі. 15 запитань — 3 хвилини.</div>
         </div>
       </div>
       <div class="step-card">
-        <img class="step-card-img" src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=400&q=80" alt="Отримуєш групу" loading="lazy">
+        <img class="step-card-img" src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80" alt="Отримуєш групу" loading="lazy">
         <div class="step-num">Крок 2</div>
         <div class="step-card-body">
           <div class="step-icon">🎯</div>
@@ -395,10 +440,61 @@ footer {
   </div>
 </section>
 
-<!-- ── FORMATS ── -->
+<!-- ── ACTIVITY FORMATS ── -->
 <section id="formats">
   <div class="section-inner">
-    <div class="section-label">Формати</div>
+    <div class="section-label">Формати зустрічей</div>
+    <h2 class="section-title">Обери свій формат</h2>
+    <p class="section-sub">Від тихої кави до активних пробіжок</p>
+    <div class="activity-grid">
+      <div class="activity-card" style="background:#FFF4F0;">
+        <span class="activity-emoji">☕</span>
+        <div class="activity-name">Кава та розмова</div>
+        <div class="activity-desc">Затишна бесіда в кав'ярні</div>
+      </div>
+      <div class="activity-card" style="background:#F4F0FF;">
+        <span class="activity-emoji">🍷</span>
+        <div class="activity-name">Бар та коктейлі</div>
+        <div class="activity-desc">Вечір з новими знайомими</div>
+      </div>
+      <div class="activity-card" style="background:#F0FFF4;">
+        <span class="activity-emoji">🍽️</span>
+        <div class="activity-name">Вечеря</div>
+        <div class="activity-desc">Спільна трапеза в ресторані</div>
+      </div>
+      <div class="activity-card" style="background:#FFF0F4;">
+        <span class="activity-emoji">🎬</span>
+        <div class="activity-name">Кіно</div>
+        <div class="activity-desc">Разом дивитись фільм</div>
+      </div>
+      <div class="activity-card" style="background:#F0F4FF;">
+        <span class="activity-emoji">🏃</span>
+        <div class="activity-name">Пробіжка</div>
+        <div class="activity-desc">Ранкова пробіжка з компанією</div>
+      </div>
+      <div class="activity-card" style="background:#FFFFF0;">
+        <span class="activity-emoji">🎳</span>
+        <div class="activity-name">Активний відпочинок</div>
+        <div class="activity-desc">Боулінг або більярд</div>
+      </div>
+      <div class="activity-card" style="background:#F4FFF0;">
+        <span class="activity-emoji">🚶</span>
+        <div class="activity-name">Прогулянка</div>
+        <div class="activity-desc">Вечірня прогулянка містом</div>
+      </div>
+      <div class="activity-card" style="background:#FFF4FF;">
+        <span class="activity-emoji">🎨</span>
+        <div class="activity-name">Майстер-клас</div>
+        <div class="activity-desc">Творчий вечір разом</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GROUP FORMATS ── -->
+<section id="group-formats">
+  <div class="section-inner">
+    <div class="section-label">Розмір компанії</div>
     <h2 class="section-title">Обери свій формат зустрічі</h2>
     <p class="section-sub">Від інтимного тет-а-тет до жвавої компанії — ти обираєш</p>
     <div class="format-cards">
@@ -434,7 +530,7 @@ footer {
 </section>
 
 <!-- ── WHY ── -->
-<section id="why" style="background: var(--white);">
+<section id="why">
   <div class="section-inner">
     <div class="section-label">Переваги</div>
     <h2 class="section-title">Чому MeetNow</h2>
@@ -444,7 +540,7 @@ footer {
         <div class="why-icon">🤖</div>
         <div>
           <div class="why-title">AI матчинг за особистістю</div>
-          <div class="why-desc">Алгоритм аналізує 14 параметрів: цілі, стиль мислення, інтереси та цінності. Не випадкові люди.</div>
+          <div class="why-desc">Алгоритм аналізує 15 параметрів: цілі, стиль мислення, інтереси та цінності. Не випадкові люди.</div>
         </div>
       </div>
       <div class="why-card">
@@ -472,6 +568,50 @@ footer {
   </div>
 </section>
 
+<!-- ── REVIEWS ── -->
+<section id="reviews">
+  <div class="section-inner">
+    <div class="section-label">Відгуки</div>
+    <h2 class="section-title">Що кажуть учасники</h2>
+    <p class="section-sub">Живі враження від реальних зустрічей</p>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar">ОК</div>
+          <div>
+            <div class="review-name">Олена К.</div>
+            <div class="review-city">Чернігів</div>
+          </div>
+        </div>
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">Прийшла сама не знаючи нікого. Через 2 години вже обмінювались контактами. Неймовірна атмосфера!</div>
+      </div>
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar">МД</div>
+          <div>
+            <div class="review-name">Максим Д.</div>
+            <div class="review-city">Чернігів</div>
+          </div>
+        </div>
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">AI підібрав людей з якими є про що поговорити. Вже була третя зустріч!</div>
+      </div>
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar">АС</div>
+          <div>
+            <div class="review-name">Аня С.</div>
+            <div class="review-city">Чернігів</div>
+          </div>
+        </div>
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">Нарешті знайшла компанію для ранкових пробіжок. Дякую MeetNow!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── FAQ ── -->
 <section id="faq">
   <div class="section-inner">
@@ -484,7 +624,7 @@ footer {
           Як підбирається група?
           <span class="faq-arrow">+</span>
         </button>
-        <div class="faq-a">AI аналізує твій профіль з 14 параметрів і знаходить людей з максимальним score сумісності. Враховуються цілі, стиль мислення, улюблені активності, типаж групи та бажане відчуття після вечора.</div>
+        <div class="faq-a">AI аналізує твій профіль з 15 параметрів і знаходить людей з максимальним score сумісності. Враховуються цілі, стиль мислення, улюблені активності, типаж групи та бажане відчуття після вечора.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
@@ -549,7 +689,6 @@ function toggleFaq(btn) {
 }
 
 // ── Smooth active nav links ──
-const sections = document.querySelectorAll('section[id], #how, #formats, #faq');
 const navLinks = document.querySelectorAll('nav a[href^="#"]');
 window.addEventListener('scroll', () => {
   let current = '';
