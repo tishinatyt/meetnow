@@ -109,9 +109,14 @@ nav a:hover { color: var(--text); background: var(--bg); }
 /* Hero visual */
 .hero-visual {
   position: relative; display: flex; align-items: center; justify-content: center;
-  min-height: 380px;
 }
-.hero-visual svg { width: 100%; max-width: 460px; }
+.hero-photo {
+  width: 100%; height: 440px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  display: block;
+}
 
 /* ── SECTION COMMON ── */
 section { padding: 96px 24px; }
@@ -137,19 +142,25 @@ section { padding: 96px 24px; }
 .step-card {
   background: var(--bg);
   border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 32px 28px;
+  border-radius: 20px; overflow: hidden;
   position: relative;
   transition: box-shadow 0.2s, transform 0.2s;
 }
 .step-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.step-card-img {
+  width: 100%; height: 180px;
+  object-fit: cover; display: block;
+}
+.step-card-body { padding: 32px 28px 28px; }
 .step-num {
-  position: absolute; top: -16px; left: 28px;
+  position: absolute; top: 164px; left: 20px;
   background: var(--accent); color: #fff;
   font-size: 12px; font-weight: 800;
   border-radius: 100px; padding: 4px 12px;
   letter-spacing: 0.5px;
+  transform: translateY(-50%);
 }
-.step-icon { font-size: 36px; margin-bottom: 16px; }
+.step-icon { font-size: 32px; margin-bottom: 12px; }
 .step-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
 .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
@@ -159,7 +170,7 @@ section { padding: 96px 24px; }
 .format-card {
   background: var(--white);
   border: 2px solid var(--border);
-  border-radius: 20px; padding: 32px 28px;
+  border-radius: 20px; overflow: hidden;
   cursor: pointer; transition: all 0.2s;
   text-align: center;
 }
@@ -168,13 +179,18 @@ section { padding: 96px 24px; }
   box-shadow: 0 8px 32px rgba(255,107,53,0.12);
   transform: translateY(-4px);
 }
+.format-card-img {
+  width: 100%; height: 200px;
+  object-fit: cover; display: block;
+}
+.format-card-body { padding: 24px 24px 28px; }
 .format-card:hover .format-icon-wrap { background: var(--accent-dim); }
 .format-icon-wrap {
-  width: 72px; height: 72px;
+  width: 56px; height: 56px;
   background: var(--bg);
-  border-radius: 20px;
+  border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin: 0 auto 20px;
+  font-size: 26px; margin: 0 auto 14px;
   transition: background 0.2s;
 }
 .format-name { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
@@ -279,10 +295,11 @@ footer {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px 60px; }
-  .hero-visual { min-height: 240px; }
+  .hero { grid-template-columns: 1fr; gap: 32px; padding: 60px 20px 60px; }
+  .hero-photo { height: 280px; }
   .steps { grid-template-columns: 1fr; gap: 24px; }
   .format-cards { grid-template-columns: 1fr; gap: 16px; }
+  .format-card-img { height: 200px; }
   .why-grid { grid-template-columns: 1fr; }
   .cta-banner { padding: 40px 24px; border-radius: 16px; margin: 0 20px; }
   nav { display: none; }
@@ -293,7 +310,9 @@ footer {
 @media (max-width: 480px) {
   section { padding: 64px 16px; }
   .hero { padding: 48px 16px 40px; }
+  .hero-photo { height: 220px; }
   .why-card { flex-direction: column; gap: 12px; }
+  .step-card-img { height: 160px; }
 }
 </style>
 </head>
@@ -328,43 +347,12 @@ footer {
       </div>
     </div>
     <div class="hero-visual">
-      <svg viewBox="0 0 460 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background circles -->
-        <circle cx="230" cy="190" r="175" fill="#FFF3EE"/>
-        <circle cx="230" cy="190" r="130" fill="#FFE8DF"/>
-        <circle cx="230" cy="190" r="85" fill="#FFD5C4"/>
-
-        <!-- Center icon -->
-        <circle cx="230" cy="190" r="52" fill="#FF6B35"/>
-        <text x="230" y="205" text-anchor="middle" font-size="36">☕</text>
-
-        <!-- Orbiting avatars -->
-        <circle cx="230" cy="60" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
-        <text x="230" y="70" text-anchor="middle" font-size="22">👤</text>
-
-        <circle cx="370" cy="155" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
-        <text x="370" y="165" text-anchor="middle" font-size="22">👤</text>
-
-        <circle cx="340" cy="310" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
-        <text x="340" y="320" text-anchor="middle" font-size="22">👤</text>
-
-        <circle cx="120" cy="310" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
-        <text x="120" y="320" text-anchor="middle" font-size="22">👤</text>
-
-        <circle cx="90" cy="155" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
-        <text x="90" y="165" text-anchor="middle" font-size="22">👤</text>
-
-        <!-- Connection lines (dashed) -->
-        <line x1="230" y1="138" x2="230" y2="90" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-        <line x1="276" y1="162" x2="342" y2="155" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-        <line x1="262" y1="232" x2="318" y2="285" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-        <line x1="184" y1="232" x2="142" y2="285" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-        <line x1="184" y1="162" x2="118" y2="155" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-
-        <!-- AI label -->
-        <rect x="165" y="340" width="130" height="30" rx="15" fill="#FF6B35"/>
-        <text x="230" y="360" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Inter, sans-serif">AI МАТЧИНГ</text>
-      </svg>
+      <img
+        class="hero-photo"
+        src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=800&q=80"
+        alt="Люди за столом в кафе"
+        loading="eager"
+      >
     </div>
   </div>
 </section>
@@ -377,22 +365,31 @@ footer {
     <p class="section-sub">Від реєстрації до живої зустрічі — за кілька хвилин</p>
     <div class="steps">
       <div class="step-card">
+        <img class="step-card-img" src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=400&q=80" alt="Проходиш тест" loading="lazy">
         <div class="step-num">Крок 1</div>
-        <div class="step-icon">🧠</div>
-        <div class="step-title">Проходиш тест</div>
-        <div class="step-desc">AI вивчає твою особистість, інтереси та цілі. 14 запитань — 3 хвилини.</div>
+        <div class="step-card-body">
+          <div class="step-icon">🧠</div>
+          <div class="step-title">Проходиш тест</div>
+          <div class="step-desc">AI вивчає твою особистість, інтереси та цілі. 14 запитань — 3 хвилини.</div>
+        </div>
       </div>
       <div class="step-card">
+        <img class="step-card-img" src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=400&q=80" alt="Отримуєш групу" loading="lazy">
         <div class="step-num">Крок 2</div>
-        <div class="step-icon">🎯</div>
-        <div class="step-title">Отримуєш групу</div>
-        <div class="step-desc">Ми підбираємо 2, 4 або 6 осіб спеціально для тебе. Ніяких випадкових людей.</div>
+        <div class="step-card-body">
+          <div class="step-icon">🎯</div>
+          <div class="step-title">Отримуєш групу</div>
+          <div class="step-desc">Ми підбираємо 2, 4 або 6 осіб спеціально для тебе. Ніяких випадкових людей.</div>
+        </div>
       </div>
       <div class="step-card">
+        <img class="step-card-img" src="https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&q=80" alt="Зустрічаєшся" loading="lazy">
         <div class="step-num">Крок 3</div>
-        <div class="step-icon">☕</div>
-        <div class="step-title">Зустрічаєшся</div>
-        <div class="step-desc">Приходиш в заклад з рейтингом 4.0+ і знайомишся наживо. Без скриптів.</div>
+        <div class="step-card-body">
+          <div class="step-icon">☕</div>
+          <div class="step-title">Зустрічаєшся</div>
+          <div class="step-desc">Приходиш в заклад з рейтингом 4.0+ і знайомишся наживо. Без скриптів.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -406,22 +403,31 @@ footer {
     <p class="section-sub">Від інтимного тет-а-тет до жвавої компанії — ти обираєш</p>
     <div class="format-cards">
       <div class="format-card">
-        <div class="format-icon-wrap">👥</div>
-        <div class="format-badge-sm">2 особи</div>
-        <div class="format-name">Тет-а-тет</div>
-        <div class="format-desc">Особиста розмова один на один. Ідеально для глибокого знайомства.</div>
+        <img class="format-card-img" src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&q=80" alt="Тет-а-тет зустріч" loading="lazy">
+        <div class="format-card-body">
+          <div class="format-icon-wrap">👥</div>
+          <div class="format-badge-sm">2 особи</div>
+          <div class="format-name">Тет-а-тет</div>
+          <div class="format-desc">Особиста розмова один на один. Ідеально для глибокого знайомства.</div>
+        </div>
       </div>
       <div class="format-card">
-        <div class="format-icon-wrap">🍽️</div>
-        <div class="format-badge-sm">4 особи</div>
-        <div class="format-name">Четверо</div>
-        <div class="format-desc">Невелика жвава компанія. Достатньо людей для різноманітної бесіди.</div>
+        <img class="format-card-img" src="https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=400&q=80" alt="Четверо" loading="lazy">
+        <div class="format-card-body">
+          <div class="format-icon-wrap">🍽️</div>
+          <div class="format-badge-sm">4 особи</div>
+          <div class="format-name">Четверо</div>
+          <div class="format-desc">Невелика жвава компанія. Достатньо людей для різноманітної бесіди.</div>
+        </div>
       </div>
       <div class="format-card">
-        <div class="format-icon-wrap">🎉</div>
-        <div class="format-badge-sm">6 осіб</div>
-        <div class="format-name">Шестеро</div>
-        <div class="format-desc">Велика різноманітна група. Більше енергії, більше точок зору.</div>
+        <img class="format-card-img" src="https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=400&q=80" alt="Шестеро" loading="lazy">
+        <div class="format-card-body">
+          <div class="format-icon-wrap">🎉</div>
+          <div class="format-badge-sm">6 осіб</div>
+          <div class="format-name">Шестеро</div>
+          <div class="format-desc">Велика різноманітна група. Більше енергії, більше точок зору.</div>
+        </div>
       </div>
     </div>
   </div>
