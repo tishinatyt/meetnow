@@ -78,14 +78,6 @@
   .activity-emoji { font-size: 24px; flex-shrink: 0; width: 44px; height: 44px; background: rgba(0,0,0,0.04); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
   .activity-info { flex: 1; }
   .activity-title { font-size: 15px; font-weight: 700; color: var(--text); }
-  .activity-deposit {
-    font-size: 13px; font-weight: 700;
-    color: var(--accent);
-    flex-shrink: 0;
-    background: rgba(255,107,53,0.10);
-    border-radius: 100px;
-    padding: 4px 12px;
-  }
 
   /* Format cards */
   .format-cards { display: flex; flex-direction: column; gap: 12px; }
@@ -210,50 +202,41 @@
     <div class="step-q">Який формат зустрічі?</div>
     <div class="step-hint">Обери тип активності — від нього залежить розмір депозиту</div>
     <div class="activity-cards">
-      <button class="activity-card" data-val="coffee" data-deposit="100" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="coffee"   data-deposit="100" onclick="selectActivity(this)">
         <div class="activity-emoji">☕</div>
         <div class="activity-info"><div class="activity-title">Кава та розмова</div></div>
-        <div class="activity-deposit">100 грн</div>
       </button>
-      <button class="activity-card" data-val="walk" data-deposit="100" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="walk"     data-deposit="0"   onclick="selectActivity(this)">
         <div class="activity-emoji">🚶</div>
         <div class="activity-info"><div class="activity-title">Прогулянка містом</div></div>
-        <div class="activity-deposit">100 грн</div>
       </button>
-      <button class="activity-card" data-val="running" data-deposit="100" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="running"  data-deposit="0"   onclick="selectActivity(this)">
         <div class="activity-emoji">🏃</div>
         <div class="activity-info"><div class="activity-title">Пробіжка або тренування</div></div>
-        <div class="activity-deposit">100 грн</div>
       </button>
-      <button class="activity-card" data-val="bar" data-deposit="200" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="bar"      data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🍷</div>
         <div class="activity-info"><div class="activity-title">Бар та коктейлі</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
-      <button class="activity-card" data-val="dinner" data-deposit="200" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="dinner"   data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🍽️</div>
         <div class="activity-info"><div class="activity-title">Вечеря в ресторані</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
-      <button class="activity-card" data-val="cinema" data-deposit="200" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="cinema"   data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🎬</div>
         <div class="activity-info"><div class="activity-title">Кіно разом</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
-      <button class="activity-card" data-val="active" data-deposit="200" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="active"   data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🎳</div>
         <div class="activity-info"><div class="activity-title">Боулінг / Активний відпочинок</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
       <button class="activity-card" data-val="workshop" data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🎨</div>
         <div class="activity-info"><div class="activity-title">Майстер-клас або воркшоп</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
-      <button class="activity-card" data-val="culture" data-deposit="200" onclick="selectActivity(this)">
+      <button class="activity-card" data-val="culture"  data-deposit="200" onclick="selectActivity(this)">
         <div class="activity-emoji">🎭</div>
         <div class="activity-info"><div class="activity-title">Концерт або театр</div></div>
-        <div class="activity-deposit">200 грн</div>
       </button>
     </div>
     <div class="nav">
@@ -339,14 +322,15 @@
         <span class="summary-label">Учасники</span>
         <span class="summary-val" id="sum-gender">—</span>
       </div>
-      <div class="summary-row">
-        <span class="summary-label">Депозит</span>
-        <span class="summary-val accent" id="sum-deposit">—</span>
-      </div>
     </div>
 
     <div class="deposit-note">
       <strong>Депозит витрачається в закладі</strong> — на каву, напої або розваги. Якщо партнер не прийде — його депозит переходить тобі.
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:16px 20px;background:var(--accent-dim);border:1.5px solid rgba(255,107,53,0.25);border-radius:14px;">
+      <span style="font-size:14px;font-weight:600;color:var(--muted)">Депозит</span>
+      <span style="font-size:22px;font-weight:900;color:var(--accent)" id="sum-deposit">—</span>
     </div>
 
     <button class="btn-pay" id="btn-pay" onclick="goToVenue()">Обрати заклад →</button>
@@ -392,7 +376,7 @@ function selectActivity(el) {
   document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   state.activity = el.dataset.val;
-  state.deposit  = parseInt(el.dataset.deposit);
+  state.deposit  = parseInt(el.dataset.deposit, 10);
   document.getElementById('next-1').disabled = false;
 }
 
@@ -421,7 +405,7 @@ function advance(step) {
     document.getElementById('sum-activity').textContent = ACTIVITY_LABELS[state.activity] || '—';
     document.getElementById('sum-format').textContent  = FORMAT_LABELS[state.format] || '—';
     document.getElementById('sum-gender').textContent  = GENDER_LABELS[state.gender] || '—';
-    document.getElementById('sum-deposit').textContent = (state.deposit || 0) + ' грн';
+    document.getElementById('sum-deposit').textContent = state.deposit > 0 ? state.deposit + ' грн' : 'Безкоштовно';
   }
 
   cur.classList.add('leaving');
