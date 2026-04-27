@@ -9,15 +9,15 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0f0f0f;
-    --card: #1a1a1a;
-    --card-hover: #202020;
-    --border: #2a2a2a;
+    --bg: #F8F7F4;
+    --card: #FFFFFF;
+    --card-hover: #F5F3F0;
+    --border: #E5E5E5;
     --accent: #FF6B35;
-    --accent-dim: rgba(255,107,53,0.12);
+    --accent-dim: #FFF4F0;
     --accent-border: rgba(255,107,53,0.6);
-    --text: #ffffff;
-    --muted: #888888;
+    --text: #1A1A1A;
+    --muted: #666666;
     --green: #22c55e;
   }
 
@@ -72,10 +72,10 @@
     text-align: left;
     width: 100%;
   }
-  .format-card:hover { background: var(--card-hover); border-color: #3a3a3a; }
+  .format-card:hover { background: var(--card-hover); border-color: #BFBFBF; }
   .format-card.selected { border-color: var(--accent); background: var(--accent-dim); }
   .format-card:active { transform: scale(0.98); }
-  .format-icon { font-size: 28px; flex-shrink: 0; width: 48px; height: 48px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .format-icon { font-size: 28px; flex-shrink: 0; width: 48px; height: 48px; background: rgba(0,0,0,0.04); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
   .format-info { flex: 1; }
   .format-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; }
   .format-desc { font-size: 13px; color: var(--muted); }
@@ -109,7 +109,7 @@
     width: 100%;
     text-align: left;
   }
-  .gender-opt:hover { border-color: #3a3a3a; }
+  .gender-opt:hover { border-color: #BFBFBF; }
   .gender-opt.selected { border-color: var(--accent); background: var(--accent-dim); }
   .gender-radio {
     width: 20px; height: 20px;
