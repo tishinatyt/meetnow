@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MeetNow — Створити зустріч</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,7 +18,7 @@
     --accent-border: rgba(255,107,53,0.6);
     --text: #ffffff;
     --muted: #888888;
-    --success: #22c55e;
+    --green: #22c55e;
   }
 
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -30,8 +29,19 @@
   .logo { font-size: 18px; font-weight: 800; color: var(--text); padding: 20px 0 4px; text-align: center; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
 
+  /* Flow indicator */
+  .flow-indicator {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; padding: 12px 0 4px; max-width: 480px; width: 100%;
+    font-size: 12px; font-weight: 600;
+  }
+  .flow-step { color: var(--muted); white-space: nowrap; padding: 0 4px; }
+  .flow-step.done { color: var(--green); }
+  .flow-step.active { color: var(--accent); }
+  .flow-arrow { color: var(--border); padding: 0 2px; }
+
   /* Progress */
-  #progress-wrap { width: 100%; max-width: 480px; padding: 20px 0 0; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  #progress-wrap { width: 100%; max-width: 480px; padding: 12px 0 0; position: sticky; top: 0; background: var(--bg); z-index: 10; }
   #progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
   #progress-track { height: 3px; background: var(--border); border-radius: 100px; overflow: hidden; }
   #progress-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
@@ -135,14 +145,6 @@
   .btn-pay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .liqpay-note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; }
 
-  /* Success */
-  #success { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 80px; animation: stepIn 0.4s ease; }
-  #success.active { display: flex; }
-  .success-icon { width: 88px; height: 88px; background: rgba(255,107,53,0.12); border: 2px solid var(--accent); border-radius: 50%; font-size: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
-  #success h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
-  #success .sub { color: var(--muted); font-size: 16px; line-height: 1.65; max-width: 340px; margin-bottom: 28px; }
-  #success .format-pill { display: inline-block; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); font-size: 14px; font-weight: 700; border-radius: 100px; padding: 8px 20px; }
-
   /* Toast */
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600; transition: transform 0.3s ease; z-index: 100; white-space: nowrap; max-width: 90vw; text-align: center; }
   #toast.show { transform: translateX(-50%) translateY(0); }
@@ -152,6 +154,17 @@
 <div id="app">
 
   <div class="logo">Meet<span>Now</span></div>
+
+  <!-- Flow indicator -->
+  <div class="flow-indicator">
+    <span class="flow-step done">Профіль ✓</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step active">Зустріч ●</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Заклад</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Оплата</span>
+  </div>
 
   <div id="progress-wrap">
     <div id="progress-meta">
@@ -219,11 +232,11 @@
     </div>
   </div>
 
-  <!-- STEP 3: Summary + pay -->
+  <!-- STEP 3: Summary -->
   <div class="step" id="step-3">
     <div class="step-num">Крок 3</div>
     <div class="step-q">Підтвердження</div>
-    <div class="step-hint">Перевір деталі та сплати депозит</div>
+    <div class="step-hint">Перевір деталі перед вибором закладу</div>
 
     <div class="summary-card">
       <div class="summary-row">
@@ -244,20 +257,12 @@
       <strong>Як працює депозит:</strong> повертається після зустрічі. Якщо не прийшов без попередження — депозит не повертається.
     </div>
 
-    <button class="btn-pay" id="btn-pay" onclick="pay()">Сплатити депозит 150 грн</button>
-    <div class="liqpay-note">Оплата через LiqPay</div>
+    <button class="btn-pay" id="btn-pay" onclick="goToVenue()">Обрати заклад →</button>
+    <div class="liqpay-note">Оплата через LiqPay — на наступному кроці</div>
 
     <div class="nav" style="margin-top:16px">
       <button class="btn-back" style="width:100%" onclick="back(3)">← Назад</button>
     </div>
-  </div>
-
-  <!-- SUCCESS -->
-  <div id="success">
-    <div class="success-icon">🎯</div>
-    <h2>Ти в черзі!</h2>
-    <p class="sub">Ми підберемо тобі групу і повідомимо найближчим часом.</p>
-    <div class="format-pill" id="success-format"></div>
   </div>
 
 </div>
@@ -265,29 +270,10 @@
 <div id="toast"></div>
 
 <script>
-const { createClient } = supabase;
-const sb = createClient(
-  'https://pqasdmiqnlyyjwmmqeyc.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s'
-);
-
-// ── State ──
 const state = { format: null, gender: 'any' };
 
 const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'На четверох (4 особи)', '6': 'Шестеро (6 осіб)' };
 const GENDER_LABELS = { male: 'Тільки чоловіки', female: 'Тільки жінки', any: 'Не має значення' };
-
-// ── UUID helper ──
-function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-}
-
-function getUserId() {
-  let id = localStorage.getItem('meetnow_user_id');
-  if (!id) { id = uuidv4(); localStorage.setItem('meetnow_user_id', id); }
-  return id;
-}
 
 // ── Progress ──
 function updateProgress(step) {
@@ -319,7 +305,6 @@ function advance(step) {
   if (!nxt) return;
 
   if (step === 2) {
-    // Populate summary
     document.getElementById('sum-format').textContent = FORMAT_LABELS[state.format] || '—';
     document.getElementById('sum-gender').textContent = GENDER_LABELS[state.gender] || '—';
   }
@@ -342,40 +327,24 @@ function back(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── Pay & queue ──
-async function pay() {
+// ── Save & redirect to venue picker ──
+function goToVenue() {
   const btn = document.getElementById('btn-pay');
   btn.disabled = true;
-  btn.textContent = 'Додаємо в чергу…';
+  btn.textContent = 'Зберігаємо…';
 
-  const userId = getUserId();
-
-  const entry = {
-    user_id: userId,
+  const meeting = {
     format_size: parseInt(state.format),
     gender_preference: state.gender,
-    status: 'waiting',
+    format_label: FORMAT_LABELS[state.format] || '',
+    gender_label: GENDER_LABELS[state.gender] || '',
   };
 
-  try {
-    const { error } = await sb.from('match_queue').insert(entry);
-    if (error) throw error;
-    showSuccess();
-  } catch (err) {
-    console.error(err);
-    toast('Помилка: ' + (err.message || JSON.stringify(err)));
-    btn.disabled = false;
-    btn.textContent = 'Сплатити депозит 150 грн';
-  }
-}
+  localStorage.setItem('meetnow_meeting', JSON.stringify(meeting));
 
-function showSuccess() {
-  document.getElementById('step-3').classList.remove('active');
-  document.getElementById('progress-wrap').style.display = 'none';
-  const fmt = FORMAT_LABELS[state.format] || '';
-  document.getElementById('success-format').textContent = 'Формат: ' + fmt;
-  document.getElementById('success').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    window.location.href = 'venue-picker.html';
+  }, 500);
 }
 
 // ── Toast ──

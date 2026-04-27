@@ -556,7 +556,7 @@
   <div id="success">
     <div class="success-icon">🎉</div>
     <h2>Профіль створено!</h2>
-    <p>Очікуй матчингу — ми підберемо ідеальну компанію і повідомимо тебе.</p>
+    <p>Переходимо до створення зустрічі…</p>
   </div>
 
 </div>
@@ -572,11 +572,15 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s'
 );
 
+// ── UUID helper ──
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+}
+
 // ── State ──
 const TOTAL = 14;
 let current = 1;
-
-// answers[step] = value (string) or [array]
 const answers = {};
 
 // ── Progress ──
@@ -610,7 +614,6 @@ function selectMulti(step, el, max) {
   const selected = [...container.querySelectorAll('.tag.selected')];
   answers[step] = selected.map(t => t.dataset.val);
 
-  // Disable unselected if max reached
   const allTags = [...container.querySelectorAll('.tag')];
   allTags.forEach(t => {
     if (!t.classList.contains('selected') && selected.length >= max) {
@@ -662,31 +665,36 @@ async function finish() {
   btn.disabled = true;
   btn.textContent = 'Зберігаємо…';
 
+  const userId = uuidv4();
+
   const profile = {
-    gender:             answers[1]  || null,
-    age_group:          answers[2]  || null,
-    goals:              answers[3]  || [],
-    personality_type:   answers[4]  || null,
-    decision_style:     answers[5]  || null,
-    values_in_others:   answers[6]  || [],
-    own_qualities:      answers[7]  || [],
-    industry:           answers[8]  || null,
-    life_genre:         answers[9]  || null,
-    activities:         answers[10] || [],
-    group_vibe:         answers[11] || null,
-    after_feeling:      answers[12] || [],
-    has_children:       answers[13] || null,
+    id:                  userId,
+    gender:              answers[1]  || null,
+    age_group:           answers[2]  || null,
+    goals:               answers[3]  || [],
+    personality_type:    answers[4]  || null,
+    decision_style:      answers[5]  || null,
+    values_in_others:    answers[6]  || [],
+    own_qualities:       answers[7]  || [],
+    industry:            answers[8]  || null,
+    life_genre:          answers[9]  || null,
+    activities:          answers[10] || [],
+    group_vibe:          answers[11] || null,
+    after_feeling:       answers[12] || [],
+    has_children:        answers[13] || null,
     relationship_status: answers[14] || null,
-    is_onboarded:       true,
+    is_onboarded:        true,
   };
 
   try {
     const { error } = await sb.from('users').insert(profile);
     if (error) throw error;
+    localStorage.setItem('meetnow_user_id', userId);
     localStorage.setItem('meetnow_profile', JSON.stringify(profile));
     showSuccess();
   } catch (err) {
     console.error(err);
+    localStorage.setItem('meetnow_user_id', userId);
     localStorage.setItem('meetnow_profile', JSON.stringify(profile));
     toast('Помилка збереження: ' + (err.message || err));
     setTimeout(showSuccess, 1000);
@@ -698,6 +706,9 @@ function showSuccess() {
   document.getElementById('progress-wrap').style.display = 'none';
   document.getElementById('success').classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    window.location.href = 'create-meeting.html';
+  }, 1500);
 }
 
 // ── Toast ──
