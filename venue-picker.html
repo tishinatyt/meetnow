@@ -23,15 +23,26 @@
   }
   html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 
+  /* ── Flow indicator ── */
+  .flow-indicator {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; padding: 14px 16px 4px; max-width: 480px; width: 100%;
+    font-size: 12px; font-weight: 600;
+  }
+  .flow-step { color: var(--muted); white-space: nowrap; padding: 0 4px; }
+  .flow-step.done { color: var(--green); }
+  .flow-step.active { color: var(--accent); }
+  .flow-arrow { color: var(--border); padding: 0 2px; }
+
   /* ── Header ── */
   .header {
     position: sticky; top: 0; z-index: 20;
     background: var(--bg);
     border-bottom: 1px solid var(--border);
-    padding: 16px 16px 0;
+    padding: 0 16px 0;
     max-width: 480px; margin: 0 auto; width: 100%;
   }
-  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .header-top { display: flex; align-items: center; gap: 12px; padding: 14px 0 10px; }
   .logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
   .header-title { font-size: 16px; font-weight: 700; color: var(--text); }
@@ -147,6 +158,45 @@
   #btn-confirm:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
   #btn-confirm:not(:disabled):hover { transform: translateY(-1px); }
 
+  /* ── Confirmation overlay ── */
+  #confirm-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.7);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #confirm-overlay.show { display: flex; }
+  .confirm-sheet {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 20px 40px;
+    width: 100%; max-width: 480px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .confirm-handle { width: 36px; height: 4px; background: var(--border); border-radius: 100px; margin: 0 auto 24px; }
+  .confirm-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+  .confirm-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .confirm-row:last-of-type { border-bottom: none; margin-bottom: 24px; }
+  .confirm-label { font-size: 13px; color: var(--muted); font-weight: 500; flex-shrink: 0; }
+  .confirm-val { font-size: 14px; font-weight: 700; text-align: right; }
+  .confirm-val.accent { color: var(--accent); font-size: 20px; }
+  .btn-liqpay {
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; border-radius: 14px;
+    padding: 18px; font-size: 17px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 4px 28px rgba(255,107,53,0.4);
+    margin-bottom: 10px;
+  }
+  .btn-liqpay:hover { transform: translateY(-1px); }
+  .btn-liqpay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .liqpay-note { text-align: center; color: var(--muted); font-size: 12px; }
+  .btn-cancel { width: 100%; background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 12px; }
+
   /* ── Toast ── */
   #toast {
     position: fixed; bottom: 88px; left: 50%;
@@ -173,6 +223,19 @@
 </head>
 <body>
 
+<!-- Flow indicator (outside sticky header) -->
+<div style="background:var(--bg);display:flex;justify-content:center;">
+  <div class="flow-indicator">
+    <span class="flow-step done">Профіль ✓</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step done">Зустріч ✓</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step active">Заклад ●</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Оплата</span>
+  </div>
+</div>
+
 <div class="header">
   <div class="header-top">
     <div class="logo">Meet<span>Now</span></div>
@@ -198,12 +261,48 @@
 </div>
 
 <div id="bottom-bar">
-  <button id="btn-confirm" disabled onclick="confirmVenue()">Підтвердити вибір</button>
+  <button id="btn-confirm" disabled onclick="showConfirmSheet()">Підтвердити вибір</button>
 </div>
 
 <div id="toast"></div>
 
+<!-- Confirmation overlay -->
+<div id="confirm-overlay" onclick="handleOverlayClick(event)">
+  <div class="confirm-sheet">
+    <div class="confirm-handle"></div>
+    <div class="confirm-title">Підсумок замовлення</div>
+
+    <div class="confirm-row">
+      <span class="confirm-label">Формат</span>
+      <span class="confirm-val" id="cf-format">—</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">Учасники</span>
+      <span class="confirm-val" id="cf-gender">—</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">Заклад</span>
+      <span class="confirm-val" id="cf-venue">—</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">Адреса</span>
+      <span class="confirm-val" id="cf-address">—</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-label">Депозит</span>
+      <span class="confirm-val accent">150 грн</span>
+    </div>
+
+    <button class="btn-liqpay" id="btn-liqpay" onclick="payLiqPay()">Сплатити 150 грн через LiqPay</button>
+    <div class="liqpay-note">Оплата захищена LiqPay</div>
+    <button class="btn-cancel" onclick="hideConfirmSheet()">← Змінити заклад</button>
+  </div>
+</div>
+
 <script>
+const SUPABASE_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
+
 let currentFilter = 'all';
 let chosenVenue = null;
 
@@ -328,17 +427,80 @@ function choose(btn, venue) {
   toast('Заклад обрано! ✓');
 }
 
-// ── Confirm ──
-function confirmVenue() {
+// ── Show confirmation sheet ──
+function showConfirmSheet() {
   if (!chosenVenue) return;
-  toast('Збережено: ' + chosenVenue.name);
-  setTimeout(() => {
-    const btn = document.getElementById('btn-confirm');
-    btn.textContent = '✓ Підтверджено';
-    btn.style.background = 'var(--green)';
-    btn.style.boxShadow = '0 4px 20px rgba(34,197,94,0.3)';
-    btn.disabled = true;
-  }, 400);
+
+  const meeting = JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
+
+  document.getElementById('cf-format').textContent = meeting.format_label || '—';
+  document.getElementById('cf-gender').textContent = meeting.gender_label || '—';
+  document.getElementById('cf-venue').textContent = chosenVenue.name || '—';
+  document.getElementById('cf-address').textContent = chosenVenue.address || '—';
+
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+
+function hideConfirmSheet() {
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('confirm-overlay')) hideConfirmSheet();
+}
+
+// ── LiqPay payment ──
+async function payLiqPay() {
+  const btn = document.getElementById('btn-liqpay');
+  btn.disabled = true;
+  btn.textContent = 'Зберігаємо…';
+
+  const meeting = JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
+  const userId = localStorage.getItem('meetnow_user_id');
+
+  // INSERT into match_queue
+  try {
+    const entry = {
+      user_id: userId,
+      format_size: meeting.format_size,
+      gender_preference: meeting.gender_preference,
+      venue_name: chosenVenue.name,
+      venue_address: chosenVenue.address,
+      status: 'waiting',
+    };
+
+    await fetch(`${SUPABASE_URL}/rest/v1/match_queue`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(entry),
+    });
+  } catch (err) {
+    console.warn('match_queue insert failed:', err);
+  }
+
+  // Submit LiqPay form
+  const data = btoa(JSON.stringify({
+    version: 3,
+    public_key: 'sandbox_i72802086203',
+    action: 'pay',
+    amount: 150,
+    currency: 'UAH',
+    description: 'MeetNow депозит',
+    order_id: 'meetnow_' + Date.now(),
+    result_url: 'https://tishinatyt.github.io/meetnow/success.html',
+  }));
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://www.liqpay.ua/api/3/checkout';
+  form.innerHTML = '<input type=hidden name=data value=' + data + '><input type=hidden name=signature value=test>';
+  document.body.appendChild(form);
+  form.submit();
 }
 
 // ── Helpers ──
