@@ -294,10 +294,16 @@
     </div>
     <div class="confirm-row">
       <span class="confirm-label">Депозит</span>
-      <span class="confirm-val accent">150 грн</span>
+      <div style="text-align:right">
+        <span class="confirm-val accent" id="cf-deposit">—</span>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">витрачається в закладі</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.15);border-radius:10px;padding:10px 14px;margin-bottom:4px;line-height:1.5;">
+      Якщо партнер не прийде — його депозит переходить тобі
     </div>
 
-    <button class="btn-liqpay" id="btn-liqpay" onclick="payLiqPay()">Сплатити 150 грн через LiqPay</button>
+    <button class="btn-liqpay" id="btn-liqpay" onclick="payLiqPay()">Сплатити депозит <span id="cf-deposit-btn">—</span> в заклад</button>
     <div class="liqpay-note">Оплата захищена LiqPay</div>
     <button class="btn-cancel" onclick="hideConfirmSheet()">← Змінити заклад</button>
   </div>
@@ -437,10 +443,13 @@ function showConfirmSheet() {
 
   const meeting = JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
 
+  const depositLabel = (meeting.deposit || 150) + ' грн';
   document.getElementById('cf-format').textContent = meeting.format_label || '—';
   document.getElementById('cf-gender').textContent = meeting.gender_label || '—';
   document.getElementById('cf-venue').textContent = chosenVenue.name || '—';
   document.getElementById('cf-address').textContent = chosenVenue.address || '—';
+  document.getElementById('cf-deposit').textContent = depositLabel;
+  document.getElementById('cf-deposit-btn').textContent = depositLabel;
 
   document.getElementById('confirm-overlay').classList.add('show');
 }
@@ -492,7 +501,7 @@ async function payLiqPay() {
     version: 3,
     public_key: 'sandbox_i72802086203',
     action: 'pay',
-    amount: 150,
+    amount: meeting.deposit || 150,
     currency: 'UAH',
     description: 'MeetNow депозит',
     order_id: 'meetnow_' + Date.now(),
