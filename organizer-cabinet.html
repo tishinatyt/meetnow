@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MeetNow — Кабінет організатора</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F8F7F4;
+  --card: #FFFFFF;
+  --border: #E5E5E5;
+  --accent: #FF6B35;
+  --accent-dim: #FFF4F0;
+  --text: #1A1A1A;
+  --muted: #666666;
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.10);
+  --red: #ef4444;
+}
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* ── Header ── */
+.top-bar {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+  position: sticky; top: 0; z-index: 20;
+}
+.logo { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; text-decoration: none; }
+.logo span { color: var(--accent); }
+.back-link { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; }
+.back-link:hover { color: var(--text); }
+
+/* ── Container ── */
+.container { max-width: 560px; margin: 0 auto; padding: 24px 16px 80px; }
+
+.page-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 8px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 6px;
+  margin-bottom: 28px;
+}
+.tab {
+  flex: 1; background: none; border: none;
+  border-radius: 10px; padding: 11px 8px;
+  font-size: 13px; font-weight: 700;
+  color: var(--muted); cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+  text-align: center;
+}
+.tab.active { background: var(--accent); color: #fff; }
+
+/* ── Panel ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Form ── */
+.form-group { margin-bottom: 18px; }
+label {
+  display: block; font-size: 13px; font-weight: 700;
+  color: var(--text); margin-bottom: 7px;
+}
+label span { color: var(--muted); font-weight: 500; }
+input[type=text], input[type=email], input[type=tel],
+input[type=number], input[type=url], input[type=datetime-local],
+select, textarea {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 15px; font-weight: 500;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 88px; line-height: 1.5; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+/* Radio group */
+.radio-group { display: flex; flex-direction: column; gap: 10px; }
+.radio-opt {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+  cursor: pointer; transition: all 0.15s;
+  font-size: 14px; font-weight: 500;
+}
+.radio-opt:hover { border-color: #BFBFBF; }
+.radio-opt input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+.radio-opt.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+/* ── Submit button ── */
+.btn-submit {
+  width: 100%; background: var(--accent); color: #fff;
+  border: none; border-radius: 14px;
+  padding: 16px; font-size: 16px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 24px rgba(255,107,53,0.35);
+  margin-top: 8px;
+}
+.btn-submit:hover:not(:disabled) { transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* ── Success / Info banners ── */
+.banner {
+  border-radius: 14px; padding: 18px 20px;
+  font-size: 14px; line-height: 1.6; margin-bottom: 20px;
+}
+.banner-success { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); color: #166534; }
+.banner-warn { background: var(--accent-dim); border: 1px solid rgba(255,107,53,0.3); color: #9a3412; }
+.banner-info { background: #F0F4FF; border: 1px solid #C7D2FE; color: #3730a3; }
+
+/* ── My events ── */
+.section-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  margin: 36px 0 16px;
+}
+.event-item {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 16px;
+  margin-bottom: 10px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.event-item-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.event-item-meta { font-size: 12px; color: var(--muted); }
+.status-badge {
+  font-size: 11px; font-weight: 700; border-radius: 100px;
+  padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+}
+.status-pending { background: #FFF7ED; color: #c2410c; }
+.status-published { background: var(--green-dim); color: #15803d; }
+.status-cancelled { background: rgba(239,68,68,0.1); color: #b91c1c; }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--red); color: #fff;
+  padding: 12px 24px; border-radius: 100px;
+  font-size: 14px; font-weight: 600;
+  transition: transform 0.3s; z-index: 99;
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="logo">Meet<span>Now</span></a>
+  <a href="index.html" class="back-link">← На головну</a>
+</div>
+
+<div class="container">
+  <div class="page-title">Кабінет організатора</div>
+  <div class="page-sub">Реєструйте свій заклад або подію і знаходьте учасників</div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('register')">📋 Реєстрація</button>
+    <button class="tab" onclick="switchTab('create-event')">➕ Новий захід</button>
+  </div>
+
+  <!-- ── Tab 1: Registration ── -->
+  <div class="panel active" id="panel-register">
+    <div id="reg-success" class="banner banner-success" style="display:none">
+      ✅ <strong>Заявку прийнято!</strong> Ми перевіримо і зв'яжемось з вами протягом 24 годин.
+    </div>
+
+    <form id="form-register" onsubmit="submitRegistration(event)">
+      <div class="form-group">
+        <label>Назва організації</label>
+        <input type="text" id="r-name" placeholder="Кав'ярня «Ранок»" required>
+      </div>
+
+      <div class="form-group">
+        <label>Тип організації</label>
+        <div class="radio-group">
+          <label class="radio-opt" onclick="selectRadio(this)">
+            <input type="radio" name="org-type" value="venue" required> Заклад (кафе / бар / ресторан)
+          </label>
+          <label class="radio-opt" onclick="selectRadio(this)">
+            <input type="radio" name="org-type" value="event_organizer"> Івент-організатор
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Контактна особа</label>
+        <input type="text" id="r-contact" placeholder="Ім'я та прізвище" required>
+      </div>
+
+      <div class="form-group">
+        <label>Телефон</label>
+        <input type="tel" id="r-phone" placeholder="+380 XX XXX XX XX" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="r-email" placeholder="hello@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Опис <span>(розкажіть про себе)</span></label>
+        <textarea id="r-desc" placeholder="Що ви пропонуєте, яка атмосфера, які заходи плануєте…"></textarea>
+      </div>
+
+      <button class="btn-submit" type="submit" id="btn-reg">Подати заявку →</button>
+    </form>
+  </div>
+
+  <!-- ── Tab 2: Create Event ── -->
+  <div class="panel" id="panel-create-event">
+    <div id="no-org-banner" class="banner banner-warn" style="display:none">
+      ⚠️ <strong>Спочатку зареєструйтесь</strong> як організатор у першому табі.
+    </div>
+    <div id="event-success" class="banner banner-success" style="display:none">
+      🎉 <strong>Захід надіслано на модерацію!</strong> Після перевірки він з'явиться на сайті.
+    </div>
+
+    <form id="form-event" onsubmit="submitEvent(event)">
+      <div class="form-group">
+        <label>Назва заходу</label>
+        <input type="text" id="e-title" placeholder="Вечірня дегустація вин" required>
+      </div>
+
+      <div class="form-group">
+        <label>Тип заходу</label>
+        <select id="e-type" required>
+          <option value="">Оберіть тип…</option>
+          <option value="coffee">☕ Кава та розмова</option>
+          <option value="bar">🍷 Бар та коктейлі</option>
+          <option value="dinner">🍽️ Вечеря</option>
+          <option value="cinema">🎬 Кіно</option>
+          <option value="running">🏃 Пробіжка або тренування</option>
+          <option value="active">🎳 Боулінг / Активний відпочинок</option>
+          <option value="walk">🚶 Прогулянка містом</option>
+          <option value="workshop">🎨 Майстер-клас або воркшоп</option>
+          <option value="culture">🎭 Концерт або театр</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Опис заходу</label>
+        <textarea id="e-desc" placeholder="Що чекає на учасників, яка програма, що включено…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Дата і час</label>
+        <input type="datetime-local" id="e-date" required>
+      </div>
+
+      <div class="form-group">
+        <label>Назва місця проведення</label>
+        <input type="text" id="e-venue" placeholder="Кав'ярня «Ранок»" required>
+      </div>
+
+      <div class="form-group">
+        <label>Адреса</label>
+        <input type="text" id="e-address" placeholder="вул. Шевченка, 12, Чернігів" required>
+      </div>
+
+      <div class="form-group">
+        <label>Максимум учасників</label>
+        <input type="number" id="e-max" value="20" min="2" max="500">
+      </div>
+
+      <div class="form-group">
+        <label>Ціна участі (грн) <span>— 0 = безкоштовно</span></label>
+        <input type="number" id="e-price" value="0" min="0">
+      </div>
+
+      <div class="form-group">
+        <label>URL фото <span>(необов'язково)</span></label>
+        <input type="url" id="e-image" placeholder="https://images.unsplash.com/…">
+      </div>
+
+      <button class="btn-submit" type="submit" id="btn-event">Опублікувати захід →</button>
+    </form>
+
+    <div class="section-label">Мої заходи</div>
+    <div id="my-events-list">
+      <div style="color:var(--muted);font-size:14px;text-align:center;padding:24px 0;">Завантаження…</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
+
+async function sbInsert(table, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      apikey: SB_KEY,
+      Authorization: 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || res.statusText);
+  }
+  return res.json();
+}
+
+async function sbSelect(table, params = '') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+  });
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+
+// ── Tabs ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['register','create-event'][i] === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'create-event') initEventTab();
+}
+
+// ── Radio styling ──
+function selectRadio(label) {
+  document.querySelectorAll('.radio-opt').forEach(l => l.classList.remove('selected'));
+  label.classList.add('selected');
+}
+
+// ── Registration ──
+async function submitRegistration(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-reg');
+  btn.disabled = true; btn.textContent = 'Надсилаємо…';
+
+  const orgType = document.querySelector('input[name="org-type"]:checked')?.value;
+  if (!orgType) { toast('Оберіть тип організації'); btn.disabled = false; btn.textContent = 'Подати заявку →'; return; }
+
+  try {
+    const rows = await sbInsert('organizers', {
+      name: document.getElementById('r-name').value.trim(),
+      type: orgType,
+      contact_person: document.getElementById('r-contact').value.trim(),
+      phone: document.getElementById('r-phone').value.trim(),
+      email: document.getElementById('r-email').value.trim(),
+      description: document.getElementById('r-desc').value.trim(),
+    });
+    const id = rows[0]?.id;
+    if (id) localStorage.setItem('meetnow_organizer_id', id);
+    document.getElementById('reg-success').style.display = 'block';
+    document.getElementById('form-register').style.display = 'none';
+  } catch (err) {
+    toast('Помилка: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Подати заявку →';
+  }
+}
+
+// ── Event creation ──
+function initEventTab() {
+  const orgId = localStorage.getItem('meetnow_organizer_id');
+  document.getElementById('no-org-banner').style.display = orgId ? 'none' : 'block';
+  document.getElementById('form-event').style.display = orgId ? 'block' : 'none';
+  if (orgId) loadMyEvents(orgId);
+}
+
+async function submitEvent(e) {
+  e.preventDefault();
+  const orgId = localStorage.getItem('meetnow_organizer_id');
+  if (!orgId) return;
+
+  const btn = document.getElementById('btn-event');
+  btn.disabled = true; btn.textContent = 'Надсилаємо…';
+
+  const dateVal = document.getElementById('e-date').value;
+
+  try {
+    await sbInsert('events', {
+      organizer_id: orgId,
+      title: document.getElementById('e-title').value.trim(),
+      event_type: document.getElementById('e-type').value,
+      description: document.getElementById('e-desc').value.trim(),
+      date: dateVal ? new Date(dateVal).toISOString() : null,
+      venue_name: document.getElementById('e-venue').value.trim(),
+      venue_address: document.getElementById('e-address').value.trim(),
+      max_participants: parseInt(document.getElementById('e-max').value) || 20,
+      price: parseInt(document.getElementById('e-price').value) || 0,
+      image_url: document.getElementById('e-image').value.trim() || null,
+      status: 'pending',
+    });
+
+    document.getElementById('event-success').style.display = 'block';
+    document.getElementById('form-event').reset();
+    document.getElementById('e-max').value = 20;
+    document.getElementById('e-price').value = 0;
+    loadMyEvents(orgId);
+  } catch (err) {
+    toast('Помилка: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Опублікувати захід →';
+  }
+}
+
+async function loadMyEvents(orgId) {
+  const container = document.getElementById('my-events-list');
+  try {
+    const events = await sbSelect('events', `organizer_id=eq.${orgId}&order=created_at.desc&select=id,title,date,status`);
+
+    if (!events.length) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:14px;text-align:center;padding:24px 0;">Ще немає заходів</div>';
+      return;
+    }
+
+    // Fetch registration counts
+    const ids = events.map(ev => ev.id);
+    let regCounts = {};
+    try {
+      const regs = await sbSelect('event_registrations', `event_id=in.(${ids.join(',')})&select=event_id,status&status=neq.cancelled`);
+      regs.forEach(r => { regCounts[r.event_id] = (regCounts[r.event_id] || 0) + 1; });
+    } catch {}
+
+    const statusMap = { pending: 'На модерації', published: 'Опублікований', cancelled: 'Скасовано' };
+    const statusClass = { pending: 'status-pending', published: 'status-published', cancelled: 'status-cancelled' };
+
+    container.innerHTML = events.map(ev => {
+      const dateStr = ev.date ? formatDateShort(ev.date) : 'Дата не вказана';
+      const count = regCounts[ev.id] || 0;
+      return `
+        <div class="event-item">
+          <div>
+            <div class="event-item-title">${escHtml(ev.title)}</div>
+            <div class="event-item-meta">${dateStr} · ${count} зареєстрованих</div>
+          </div>
+          <span class="status-badge ${statusClass[ev.status] || ''}">${statusMap[ev.status] || ev.status}</span>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--red);font-size:14px;">Помилка завантаження: ${err.message}</div>`;
+  }
+}
+
+function formatDateShort(iso) {
+  return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Auto-switch to event tab if already registered ──
+if (localStorage.getItem('meetnow_organizer_id')) {
+  document.getElementById('reg-success').style.display = 'block';
+  document.getElementById('form-register').style.display = 'none';
+}
+</script>
+</body>
+</html>
