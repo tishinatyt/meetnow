@@ -2,725 +2,559 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>MeetNow — Онбординг</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetNow — Живі зустрічі з людьми, які тобі підходять</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0f0f0f;
-    --card: #1a1a1a;
-    --border: #2a2a2a;
-    --accent: #FF6B35;
-    --accent-dim: rgba(255,107,53,0.15);
-    --text: #ffffff;
-    --muted: #888888;
-    --success: #22c55e;
-  }
+:root {
+  --bg: #F8F7F4;
+  --white: #FFFFFF;
+  --accent: #FF6B35;
+  --accent-dark: #e85a22;
+  --accent-dim: rgba(255, 107, 53, 0.10);
+  --accent-dim2: rgba(255, 107, 53, 0.06);
+  --text: #1A1A1A;
+  --muted: #6B6B6B;
+  --border: #E8E4DC;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+}
 
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 
-  /* ── Layout ── */
-  #app {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 16px 48px;
-  }
+/* ── HEADER ── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-size: 20px; font-weight: 900;
+  color: var(--accent); letter-spacing: -0.5px;
+  text-decoration: none;
+}
+nav { display: flex; align-items: center; gap: 8px; }
+nav a {
+  font-size: 14px; font-weight: 600; color: var(--muted);
+  text-decoration: none; padding: 8px 12px; border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+nav a:hover { color: var(--text); background: var(--bg); }
+.btn-try {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 10px 20px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s, transform 0.15s;
+  text-decoration: none; display: inline-block;
+  margin-left: 8px;
+}
+.btn-try:hover { background: var(--accent-dark); transform: translateY(-1px); }
 
-  /* ── Progress bar ── */
-  #progress-wrap {
-    width: 100%;
-    max-width: 480px;
-    padding: 20px 0 0;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 10;
-  }
-  #progress-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 10px;
-    font-weight: 500;
-  }
-  #progress-track {
-    height: 3px;
-    background: var(--border);
-    border-radius: 100px;
-    overflow: hidden;
-  }
-  #progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 100px;
-    transition: width 0.4s cubic-bezier(.4,0,.2,1);
-  }
+/* Hamburger (mobile) */
+.nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+.nav-toggle span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; margin: 5px 0; transition: all 0.2s; }
 
-  /* ── Step container ── */
-  .step {
-    width: 100%;
-    max-width: 480px;
-    display: none;
-    flex-direction: column;
-    padding-top: 36px;
-    animation: stepIn 0.3s ease;
-  }
-  .step.active { display: flex; }
+/* ── HERO ── */
+.hero {
+  max-width: 1100px; margin: 0 auto;
+  padding: 100px 24px 80px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.hero-text {}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-dim); color: var(--accent);
+  border-radius: 100px; padding: 6px 14px;
+  font-size: 13px; font-weight: 700;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 900; line-height: 1.15;
+  letter-spacing: -1.5px; margin-bottom: 20px;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+.hero-sub {
+  font-size: 18px; color: var(--muted); line-height: 1.6;
+  margin-bottom: 36px; font-weight: 400;
+}
+.hero-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.btn-cta {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 14px;
+  padding: 18px 36px; font-size: 17px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  text-decoration: none; display: inline-block;
+  box-shadow: 0 6px 28px rgba(255,107,53,0.35);
+}
+.btn-cta:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,107,53,0.4); }
+.hero-trust {
+  font-size: 13px; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
 
-  @keyframes stepIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes stepOut {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-12px); }
-  }
-  .step.leaving {
-    display: flex;
-    animation: stepOut 0.2s ease forwards;
-  }
+/* Hero visual */
+.hero-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 380px;
+}
+.hero-visual svg { width: 100%; max-width: 460px; }
 
-  .step-num {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-  }
-  .step-q {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.35;
-    margin-bottom: 8px;
-    color: var(--text);
-  }
-  .step-hint {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 28px;
-    line-height: 1.5;
-  }
+/* ── SECTION COMMON ── */
+section { padding: 96px 24px; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 12px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(26px, 3vw, 40px); font-weight: 900;
+  letter-spacing: -1px; line-height: 1.2;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 16px; color: var(--muted); line-height: 1.6;
+  max-width: 520px; margin-bottom: 56px;
+}
 
-  /* ── Options: list (single) ── */
-  .opts-list { display: flex; flex-direction: column; gap: 10px; }
-  .opt {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 15px 18px;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    text-align: left;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-  }
-  .opt:hover { border-color: #444; }
-  .opt.selected {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-  .opt .check {
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    flex-shrink: 0;
-    transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .opt.selected .check {
-    border-color: var(--accent);
-    background: var(--accent);
-  }
-  .opt.selected .check::after {
-    content: '';
-    width: 5px; height: 4px;
-    border-left: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    transform: rotate(-45deg) translate(1px, -1px);
-    display: block;
-  }
+/* ── HOW IT WORKS ── */
+#how { background: var(--white); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.step-card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 32px 28px;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.step-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.step-num {
+  position: absolute; top: -16px; left: 28px;
+  background: var(--accent); color: #fff;
+  font-size: 12px; font-weight: 800;
+  border-radius: 100px; padding: 4px 12px;
+  letter-spacing: 0.5px;
+}
+.step-icon { font-size: 36px; margin-bottom: 16px; }
+.step-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
-  /* ── Options: grid 2×2 ── */
-  .opts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .opts-grid .opt {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 18px 16px;
-    gap: 6px;
-  }
-  .opts-grid .opt .check {
-    position: absolute;
-    top: 12px; right: 12px;
-    width: 18px; height: 18px;
-  }
+/* ── FORMATS ── */
+#formats { background: var(--bg); }
+.format-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.format-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 20px; padding: 32px 28px;
+  cursor: pointer; transition: all 0.2s;
+  text-align: center;
+}
+.format-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(255,107,53,0.12);
+  transform: translateY(-4px);
+}
+.format-card:hover .format-icon-wrap { background: var(--accent-dim); }
+.format-icon-wrap {
+  width: 72px; height: 72px;
+  background: var(--bg);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 20px;
+  transition: background 0.2s;
+}
+.format-name { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.format-badge-sm {
+  display: inline-block;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 12px; font-weight: 700;
+  border-radius: 100px; padding: 3px 10px; margin-bottom: 12px;
+}
+.format-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
-  /* ── Options: tags ── */
-  .opts-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .tag {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 100px;
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tag:hover { border-color: #444; }
-  .tag.selected {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .tag.disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
+/* ── WHY ── */
+#why { background: var(--white); }
+.why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.why-card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 28px;
+  display: flex; gap: 20px; align-items: flex-start;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.why-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.why-icon {
+  font-size: 28px; flex-shrink: 0;
+  width: 52px; height: 52px;
+  background: var(--accent-dim); border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.why-title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.why-desc { font-size: 14px; color: var(--muted); line-height: 1.55; }
 
-  /* ── Navigation ── */
-  .nav {
-    display: flex;
-    gap: 10px;
-    margin-top: 32px;
-  }
-  .btn-back {
-    background: none;
-    border: 2px solid var(--border);
-    color: var(--muted);
-    border-radius: 100px;
-    padding: 13px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    flex-shrink: 0;
-  }
-  .btn-back:hover { border-color: var(--text); color: var(--text); }
+/* ── FAQ ── */
+#faq { background: var(--bg); }
+.faq-list { max-width: 720px; }
+.faq-item {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 14px; margin-bottom: 10px;
+  overflow: hidden;
+}
+.faq-q {
+  width: 100%; background: none; border: none;
+  padding: 20px 24px; font-size: 15px; font-weight: 700;
+  color: var(--text); cursor: pointer; font-family: inherit;
+  display: flex; justify-content: space-between; align-items: center;
+  text-align: left; transition: background 0.15s;
+  gap: 16px;
+}
+.faq-q:hover { background: var(--bg); }
+.faq-arrow {
+  flex-shrink: 0; width: 24px; height: 24px;
+  background: var(--bg); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: transform 0.25s, background 0.15s;
+}
+.faq-item.open .faq-arrow { transform: rotate(45deg); background: var(--accent-dim); color: var(--accent); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  font-size: 14px; color: var(--muted); line-height: 1.65;
+  padding: 0 24px;
+}
+.faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
 
-  .btn-next {
-    flex: 1;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 100px;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity 0.15s, transform 0.15s;
-    box-shadow: 0 4px 24px rgba(255,107,53,0.35);
-  }
-  .btn-next:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none !important;
-  }
-  .btn-next:not(:disabled):hover { transform: translateY(-1px); }
+/* ── CTA BANNER ── */
+.cta-banner {
+  background: var(--accent);
+  border-radius: 24px;
+  padding: 56px 48px;
+  text-align: center;
+  margin: 0 auto; max-width: 1100px;
+}
+.cta-banner h2 { font-size: clamp(24px, 3vw, 36px); font-weight: 900; color: #fff; margin-bottom: 12px; letter-spacing: -0.5px; }
+.cta-banner p { font-size: 16px; color: rgba(255,255,255,0.82); margin-bottom: 32px; }
+.btn-cta-white {
+  background: #fff; color: var(--accent);
+  border: none; border-radius: 12px;
+  padding: 16px 36px; font-size: 16px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  text-decoration: none; display: inline-block;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.16); }
 
-  /* ── Success screen ── */
-  #success {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-height: 60vh;
-    padding-top: 60px;
-    animation: stepIn 0.4s ease;
-  }
-  #success.active { display: flex; }
-  .success-icon {
-    width: 80px; height: 80px;
-    background: rgba(34,197,94,0.15);
-    border: 2px solid var(--success);
-    border-radius: 50%;
-    font-size: 36px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 24px;
-  }
-  #success h2 { font-size: 26px; font-weight: 800; margin-bottom: 12px; }
-  #success p  { color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 320px; }
+/* ── FOOTER ── */
+footer {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 40px 24px;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-logo { font-size: 18px; font-weight: 900; color: var(--accent); }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-links a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 13px; color: var(--muted); }
 
-  /* ── Error toast ── */
-  #toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #ef4444;
-    color: #fff;
-    padding: 12px 24px;
-    border-radius: 100px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: transform 0.3s ease;
-    z-index: 100;
-    white-space: nowrap;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* ── Logo ── */
-  .logo {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text);
-    padding: 20px 0 4px;
-    text-align: center;
-    letter-spacing: -0.5px;
-  }
-  .logo span { color: var(--accent); }
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px 60px; }
+  .hero-visual { min-height: 240px; }
+  .steps { grid-template-columns: 1fr; gap: 24px; }
+  .format-cards { grid-template-columns: 1fr; gap: 16px; }
+  .why-grid { grid-template-columns: 1fr; }
+  .cta-banner { padding: 40px 24px; border-radius: 16px; margin: 0 20px; }
+  nav { display: none; }
+  nav.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--border); padding: 12px; gap: 4px; }
+  .nav-toggle { display: block; }
+  .header-inner { position: relative; }
+}
+@media (max-width: 480px) {
+  section { padding: 64px 16px; }
+  .hero { padding: 48px 16px 40px; }
+  .why-card { flex-direction: column; gap: 12px; }
+}
 </style>
 </head>
 <body>
-<div id="app">
 
-  <div class="logo">Meet<span>Now</span></div>
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MeetNow</a>
+    <nav id="nav">
+      <a href="#how">Як це працює</a>
+      <a href="#formats">Формати</a>
+      <a href="#faq">FAQ</a>
+      <a href="onboarding.html" class="btn-try">Спробувати</a>
+    </nav>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
 
-  <!-- Progress -->
-  <div id="progress-wrap">
-    <div id="progress-meta">
-      <span id="prog-label">Крок 1 з 14</span>
-      <span id="prog-pct">7%</span>
+<!-- ── HERO ── -->
+<section style="padding: 0;">
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-badge">✨ Живі зустрічі в Чернігові</div>
+      <h1>Живі зустрічі з людьми, які тобі <em>підходять</em></h1>
+      <p class="hero-sub">AI підбирає компанію. Ти просто приходиш.</p>
+      <div class="hero-cta">
+        <a href="onboarding.html" class="btn-cta">Знайти компанію →</a>
+        <div class="hero-trust">🔒 Депозит 150 грн — повертається після зустрічі</div>
+      </div>
     </div>
-    <div id="progress-track">
-      <div id="progress-fill" style="width:7%"></div>
+    <div class="hero-visual">
+      <svg viewBox="0 0 460 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background circles -->
+        <circle cx="230" cy="190" r="175" fill="#FFF3EE"/>
+        <circle cx="230" cy="190" r="130" fill="#FFE8DF"/>
+        <circle cx="230" cy="190" r="85" fill="#FFD5C4"/>
+
+        <!-- Center icon -->
+        <circle cx="230" cy="190" r="52" fill="#FF6B35"/>
+        <text x="230" y="205" text-anchor="middle" font-size="36">☕</text>
+
+        <!-- Orbiting avatars -->
+        <circle cx="230" cy="60" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
+        <text x="230" y="70" text-anchor="middle" font-size="22">👤</text>
+
+        <circle cx="370" cy="155" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
+        <text x="370" y="165" text-anchor="middle" font-size="22">👤</text>
+
+        <circle cx="340" cy="310" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
+        <text x="340" y="320" text-anchor="middle" font-size="22">👤</text>
+
+        <circle cx="120" cy="310" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
+        <text x="120" y="320" text-anchor="middle" font-size="22">👤</text>
+
+        <circle cx="90" cy="155" r="30" fill="white" stroke="#FF6B35" stroke-width="2.5"/>
+        <text x="90" y="165" text-anchor="middle" font-size="22">👤</text>
+
+        <!-- Connection lines (dashed) -->
+        <line x1="230" y1="138" x2="230" y2="90" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <line x1="276" y1="162" x2="342" y2="155" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <line x1="262" y1="232" x2="318" y2="285" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <line x1="184" y1="232" x2="142" y2="285" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <line x1="184" y1="162" x2="118" y2="155" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+
+        <!-- AI label -->
+        <rect x="165" y="340" width="130" height="30" rx="15" fill="#FF6B35"/>
+        <text x="230" y="360" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Inter, sans-serif">AI МАТЧИНГ</text>
+      </svg>
     </div>
   </div>
+</section>
 
-  <!-- ── Step 1: Стать ── -->
-  <div class="step active" id="step-1">
-    <div class="step-num">Крок 1</div>
-    <div class="step-q">Яка твоя стать?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="male" onclick="selectSingle(1,this)"><div class="check"></div>Чоловік</button>
-      <button class="opt" data-val="female" onclick="selectSingle(1,this)"><div class="check"></div>Жінка</button>
-      <button class="opt" data-val="other" onclick="selectSingle(1,this)"><div class="check"></div>Інше</button>
-    </div>
-    <div class="nav">
-      <button class="btn-next" id="next-1" disabled onclick="advance(1)">Далі →</button>
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">Як це працює</div>
+    <h2 class="section-title">Три кроки до нових знайомств</h2>
+    <p class="section-sub">Від реєстрації до живої зустрічі — за кілька хвилин</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">Крок 1</div>
+        <div class="step-icon">🧠</div>
+        <div class="step-title">Проходиш тест</div>
+        <div class="step-desc">AI вивчає твою особистість, інтереси та цілі. 14 запитань — 3 хвилини.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">Крок 2</div>
+        <div class="step-icon">🎯</div>
+        <div class="step-title">Отримуєш групу</div>
+        <div class="step-desc">Ми підбираємо 2, 4 або 6 осіб спеціально для тебе. Ніяких випадкових людей.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">Крок 3</div>
+        <div class="step-icon">☕</div>
+        <div class="step-title">Зустрічаєшся</div>
+        <div class="step-desc">Приходиш в заклад з рейтингом 4.0+ і знайомишся наживо. Без скриптів.</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- ── Step 2: Вік ── -->
-  <div class="step" id="step-2">
-    <div class="step-num">Крок 2</div>
-    <div class="step-q">Скільки тобі років?</div>
-    <div class="opts-grid">
-      <button class="opt" data-val="18-29" onclick="selectSingle(2,this)"><div class="check"></div>18–29</button>
-      <button class="opt" data-val="30-39" onclick="selectSingle(2,this)"><div class="check"></div>30–39</button>
-      <button class="opt" data-val="40-49" onclick="selectSingle(2,this)"><div class="check"></div>40–49</button>
-      <button class="opt" data-val="50+" onclick="selectSingle(2,this)"><div class="check"></div>50+</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(2)">← Назад</button>
-      <button class="btn-next" id="next-2" disabled onclick="advance(2)">Далі →</button>
+<!-- ── FORMATS ── -->
+<section id="formats">
+  <div class="section-inner">
+    <div class="section-label">Формати</div>
+    <h2 class="section-title">Обери свій формат зустрічі</h2>
+    <p class="section-sub">Від інтимного тет-а-тет до жвавої компанії — ти обираєш</p>
+    <div class="format-cards">
+      <div class="format-card">
+        <div class="format-icon-wrap">👥</div>
+        <div class="format-badge-sm">2 особи</div>
+        <div class="format-name">Тет-а-тет</div>
+        <div class="format-desc">Особиста розмова один на один. Ідеально для глибокого знайомства.</div>
+      </div>
+      <div class="format-card">
+        <div class="format-icon-wrap">🍽️</div>
+        <div class="format-badge-sm">4 особи</div>
+        <div class="format-name">Четверо</div>
+        <div class="format-desc">Невелика жвава компанія. Достатньо людей для різноманітної бесіди.</div>
+      </div>
+      <div class="format-card">
+        <div class="format-icon-wrap">🎉</div>
+        <div class="format-badge-sm">6 осіб</div>
+        <div class="format-name">Шестеро</div>
+        <div class="format-desc">Велика різноманітна група. Більше енергії, більше точок зору.</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- ── Step 3: Цілі (до 2) ── -->
-  <div class="step" id="step-3">
-    <div class="step-num">Крок 3</div>
-    <div class="step-q">Що шукаєш на зустрічах?</div>
-    <div class="step-hint">Обери до 2 варіантів</div>
-    <div class="opts-tags" id="tags-3">
-      <button class="tag" data-val="friends" onclick="selectMulti(3,this,2)">Нові друзі</button>
-      <button class="tag" data-val="worldview" onclick="selectMulti(3,this,2)">Розширити кругозір</button>
-      <button class="tag" data-val="new_things" onclick="selectMulti(3,this,2)">Спробувати нове</button>
-      <button class="tag" data-val="conversations" onclick="selectMulti(3,this,2)">Змістовні бесіди</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(3)">← Назад</button>
-      <button class="btn-next" id="next-3" disabled onclick="advance(3)">Далі →</button>
+<!-- ── WHY ── -->
+<section id="why" style="background: var(--white);">
+  <div class="section-inner">
+    <div class="section-label">Переваги</div>
+    <h2 class="section-title">Чому MeetNow</h2>
+    <p class="section-sub">Ми зробили живі знайомства простими та безпечними</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">🤖</div>
+        <div>
+          <div class="why-title">AI матчинг за особистістю</div>
+          <div class="why-desc">Алгоритм аналізує 14 параметрів: цілі, стиль мислення, інтереси та цінності. Не випадкові люди.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">📍</div>
+        <div>
+          <div class="why-title">Заклади з рейтингом 4.0+</div>
+          <div class="why-desc">Тільки перевірені кав'ярні, ресторани та бари. Атмосфера вже налаштована на знайомство.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">💰</div>
+        <div>
+          <div class="why-title">Депозит захищає від no-show</div>
+          <div class="why-desc">150 грн повертаються після зустрічі. Це гарантія, що всі прийдуть.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">🔄</div>
+        <div>
+          <div class="why-title">Без повторних зустрічей</div>
+          <div class="why-desc">Кожна зустріч — нові люди. Алгоритм слідкує, щоб компанія завжди була свіжою.</div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- ── Step 4: Тип особистості ── -->
-  <div class="step" id="step-4">
-    <div class="step-num">Крок 4</div>
-    <div class="step-q">Ти більше…</div>
-    <div class="opts-list">
-      <button class="opt" data-val="introvert" onclick="selectSingle(4,this)"><div class="check"></div>Інтроверт</button>
-      <button class="opt" data-val="ambivert" onclick="selectSingle(4,this)"><div class="check"></div>Амбіверт</button>
-      <button class="opt" data-val="extrovert" onclick="selectSingle(4,this)"><div class="check"></div>Екстраверт</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(4)">← Назад</button>
-      <button class="btn-next" id="next-4" disabled onclick="advance(4)">Далі →</button>
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-label">Питання</div>
+    <h2 class="section-title">Часті запитання</h2>
+    <p class="section-sub">Якщо є ще питання — пиши в Telegram</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Як підбирається група?
+          <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">AI аналізує твій профіль з 14 параметрів і знаходить людей з максимальним score сумісності. Враховуються цілі, стиль мислення, улюблені активності, типаж групи та бажане відчуття після вечора.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Що якщо хтось не прийде?
+          <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Депозит того, хто не прийшов без попередження, не повертається. Якщо попередив заздалегідь — депозит повернемо. Ця система мотивує всіх приходити.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Чи повертається депозит?
+          <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Так, 150 грн повертаються протягом 3 робочих днів після зустрічі. Депозит — не плата за послугу, а гарантія відповідальності учасників.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Де проходять зустрічі?
+          <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Зустрічі проходять у Чернігові в закладах з рейтингом Google 4.0+. Ти обираєш заклад зі списку при оформленні — кав'ярня, ресторан або бар.</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- ── Step 5: Стиль мислення ── -->
-  <div class="step" id="step-5">
-    <div class="step-num">Крок 5</div>
-    <div class="step-q">Твої думки формуються через…</div>
-    <div class="opts-list">
-      <button class="opt" data-val="logic" onclick="selectSingle(5,this)"><div class="check"></div>Логіку і факти</button>
-      <button class="opt" data-val="emotions" onclick="selectSingle(5,this)"><div class="check"></div>Емоції і відчуття</button>
-      <button class="opt" data-val="mood" onclick="selectSingle(5,this)"><div class="check"></div>Залежно від настрою</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(5)">← Назад</button>
-      <button class="btn-next" id="next-5" disabled onclick="advance(5)">Далі →</button>
-    </div>
+<!-- ── CTA BANNER ── -->
+<section style="padding: 0 0 96px;">
+  <div class="cta-banner">
+    <h2>Готовий до нових знайомств?</h2>
+    <p>Пройди тест за 3 хвилини — AI зробить решту</p>
+    <a href="onboarding.html" class="btn-cta-white">Почати зараз →</a>
   </div>
+</section>
 
-  <!-- ── Step 6: Якості в інших (до 3) ── -->
-  <div class="step" id="step-6">
-    <div class="step-num">Крок 6</div>
-    <div class="step-q">Які якості цінуєш в інших?</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-6">
-      <button class="tag" data-val="honesty" onclick="selectMulti(6,this,3)">Чесність</button>
-      <button class="tag" data-val="humor" onclick="selectMulti(6,this,3)">Гумор</button>
-      <button class="tag" data-val="empathy" onclick="selectMulti(6,this,3)">Емпатія</button>
-      <button class="tag" data-val="openness" onclick="selectMulti(6,this,3)">Відкритість</button>
-      <button class="tag" data-val="intellect" onclick="selectMulti(6,this,3)">Інтелект</button>
-      <button class="tag" data-val="creativity" onclick="selectMulti(6,this,3)">Креативність</button>
-      <button class="tag" data-val="adventure" onclick="selectMulti(6,this,3)">Пригоди</button>
-      <button class="tag" data-val="kindness" onclick="selectMulti(6,this,3)">Доброта</button>
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MeetNow</div>
+    <div class="footer-links">
+      <a href="onboarding.html">Онбординг</a>
+      <a href="https://t.me/" target="_blank">Telegram</a>
+      <a href="#how">Як це працює</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(6)">← Назад</button>
-      <button class="btn-next" id="next-6" disabled onclick="advance(6)">Далі →</button>
-    </div>
+    <div class="footer-copy">MeetNow © 2026</div>
   </div>
-
-  <!-- ── Step 7: Власні якості (до 3) ── -->
-  <div class="step" id="step-7">
-    <div class="step-num">Крок 7</div>
-    <div class="step-q">Які якості бачать у тобі друзі?</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-7">
-      <button class="tag" data-val="kind" onclick="selectMulti(7,this,3)">Добрий</button>
-      <button class="tag" data-val="honest" onclick="selectMulti(7,this,3)">Чесний</button>
-      <button class="tag" data-val="calm" onclick="selectMulti(7,this,3)">Спокійний</button>
-      <button class="tag" data-val="smart" onclick="selectMulti(7,this,3)">Розумний</button>
-      <button class="tag" data-val="caring" onclick="selectMulti(7,this,3)">Дбайливий</button>
-      <button class="tag" data-val="funny" onclick="selectMulti(7,this,3)">Смішний</button>
-      <button class="tag" data-val="creative" onclick="selectMulti(7,this,3)">Творчий</button>
-      <button class="tag" data-val="adventurous" onclick="selectMulti(7,this,3)">Любитель пригод</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(7)">← Назад</button>
-      <button class="btn-next" id="next-7" disabled onclick="advance(7)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 8: Сфера роботи ── -->
-  <div class="step" id="step-8">
-    <div class="step-num">Крок 8</div>
-    <div class="step-q">Твоя сфера діяльності?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="none" onclick="selectSingle(8,this)"><div class="check"></div>Не працюю</button>
-      <button class="opt" data-val="healthcare" onclick="selectSingle(8,this)"><div class="check"></div>Охорона здоров'я</button>
-      <button class="opt" data-val="tech" onclick="selectSingle(8,this)"><div class="check"></div>Технології</button>
-      <button class="opt" data-val="finance" onclick="selectSingle(8,this)"><div class="check"></div>Фінанси</button>
-      <button class="opt" data-val="physical" onclick="selectSingle(8,this)"><div class="check"></div>Фізична праця</button>
-      <button class="opt" data-val="other" onclick="selectSingle(8,this)"><div class="check"></div>Інше</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(8)">← Назад</button>
-      <button class="btn-next" id="next-8" disabled onclick="advance(8)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 9: Жанр фільму ── -->
-  <div class="step" id="step-9">
-    <div class="step-num">Крок 9</div>
-    <div class="step-q">Якби твоє життя було жанром фільму…</div>
-    <div class="opts-grid">
-      <button class="opt" data-val="comedy" onclick="selectSingle(9,this)"><div class="check"></div>Комедія</button>
-      <button class="opt" data-val="drama" onclick="selectSingle(9,this)"><div class="check"></div>Драма</button>
-      <button class="opt" data-val="adventure" onclick="selectSingle(9,this)"><div class="check"></div>Пригода</button>
-      <button class="opt" data-val="romance" onclick="selectSingle(9,this)"><div class="check"></div>Романтика</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(9)">← Назад</button>
-      <button class="btn-next" id="next-9" disabled onclick="advance(9)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 10: Активності (до 3) ── -->
-  <div class="step" id="step-10">
-    <div class="step-num">Крок 10</div>
-    <div class="step-q">Улюблені активності?</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-10">
-      <button class="tag" data-val="music" onclick="selectMulti(10,this,3)">Музика / концерти</button>
-      <button class="tag" data-val="museums" onclick="selectMulti(10,this,3)">Музеї та мистецтво</button>
-      <button class="tag" data-val="nature" onclick="selectMulti(10,this,3)">Пригоди на природі</button>
-      <button class="tag" data-val="food" onclick="selectMulti(10,this,3)">Пробую нові страви</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(10)">← Назад</button>
-      <button class="btn-next" id="next-10" disabled onclick="advance(10)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 11: Тип групи ── -->
-  <div class="step" id="step-11">
-    <div class="step-num">Крок 11</div>
-    <div class="step-q">Ідеальна компанія для тебе — це…</div>
-    <div class="opts-list">
-      <button class="opt" data-val="small_safe" onclick="selectSingle(11,this)"><div class="check"></div>Маленька й безпечна</button>
-      <button class="opt" data-val="smart_inspiring" onclick="selectSingle(11,this)"><div class="check"></div>Розумна й надихаюча</button>
-      <button class="opt" data-val="playful" onclick="selectSingle(11,this)"><div class="check"></div>Грайлива й несподівана</button>
-      <button class="opt" data-val="flexible" onclick="selectSingle(11,this)"><div class="check"></div>Люди створюють момент</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(11)">← Назад</button>
-      <button class="btn-next" id="next-11" disabled onclick="advance(11)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 12: Відчуття після вечора (до 3) ── -->
-  <div class="step" id="step-12">
-    <div class="step-num">Крок 12</div>
-    <div class="step-q">Після вечора хочу відчути…</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-12">
-      <button class="tag" data-val="energized" onclick="selectMulti(12,this,3)">Заряджений енергією</button>
-      <button class="tag" data-val="noticed" onclick="selectMulti(12,this,3)">Поміченим</button>
-      <button class="tag" data-val="calm" onclick="selectMulti(12,this,3)">Спокійним</button>
-      <button class="tag" data-val="surprised" onclick="selectMulti(12,this,3)">Здивованим</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(12)">← Назад</button>
-      <button class="btn-next" id="next-12" disabled onclick="advance(12)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 13: Діти ── -->
-  <div class="step" id="step-13">
-    <div class="step-num">Крок 13</div>
-    <div class="step-q">У тебе є діти?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="yes" onclick="selectSingle(13,this)"><div class="check"></div>Так</button>
-      <button class="opt" data-val="no" onclick="selectSingle(13,this)"><div class="check"></div>Ні</button>
-      <button class="opt" data-val="prefer_not" onclick="selectSingle(13,this)"><div class="check"></div>Не хочу говорити</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(13)">← Назад</button>
-      <button class="btn-next" id="next-13" disabled onclick="advance(13)">Далі →</button>
-    </div>
-  </div>
-
-  <!-- ── Step 14: Сімейний статус ── -->
-  <div class="step" id="step-14">
-    <div class="step-num">Крок 14</div>
-    <div class="step-q">Твій сімейний статус?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="single" onclick="selectSingle(14,this)"><div class="check"></div>Одинокий / одинока</button>
-      <button class="opt" data-val="married" onclick="selectSingle(14,this)"><div class="check"></div>Одружений / одружена</button>
-      <button class="opt" data-val="complicated" onclick="selectSingle(14,this)"><div class="check"></div>Все складно</button>
-      <button class="opt" data-val="in_relationship" onclick="selectSingle(14,this)"><div class="check"></div>У стосунках</button>
-      <button class="opt" data-val="prefer_not" onclick="selectSingle(14,this)"><div class="check"></div>Не хочу говорити</button>
-    </div>
-    <div class="nav">
-      <button class="btn-back" onclick="back(14)">← Назад</button>
-      <button class="btn-next" id="next-14" disabled onclick="finish()">Завершити ✓</button>
-    </div>
-  </div>
-
-  <!-- ── Success ── -->
-  <div id="success">
-    <div class="success-icon">🎉</div>
-    <h2>Профіль створено!</h2>
-    <p>Переходимо до створення зустрічі…</p>
-  </div>
-
-</div>
-
-<!-- Toast -->
-<div id="toast"></div>
+</footer>
 
 <script>
-// ── Supabase init ──
-const { createClient } = supabase;
-const sb = createClient(
-  'https://pqasdmiqnlyyjwmmqeyc.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s'
-);
-
-// ── UUID helper ──
-function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+// ── Mobile nav ──
+function toggleNav() {
+  document.getElementById('nav').classList.toggle('open');
 }
 
-// ── State ──
-const TOTAL = 14;
-let current = 1;
-const answers = {};
-
-// ── Progress ──
-function updateProgress(step) {
-  const pct = Math.round((step / TOTAL) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = `Крок ${step} з ${TOTAL}`;
-  document.getElementById('prog-pct').textContent = pct + '%';
+// ── FAQ accordion ──
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
 }
 
-// ── Single select ──
-function selectSingle(step, el) {
-  const container = el.closest('.opts-list, .opts-grid');
-  container.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  answers[step] = el.dataset.val;
-  document.getElementById(`next-${step}`).disabled = false;
-}
-
-// ── Multi select ──
-function selectMulti(step, el, max) {
-  if (el.classList.contains('disabled') && !el.classList.contains('selected')) return;
-
-  if (el.classList.contains('selected')) {
-    el.classList.remove('selected');
-  } else {
-    el.classList.add('selected');
-  }
-
-  const container = document.getElementById(`tags-${step}`);
-  const selected = [...container.querySelectorAll('.tag.selected')];
-  answers[step] = selected.map(t => t.dataset.val);
-
-  const allTags = [...container.querySelectorAll('.tag')];
-  allTags.forEach(t => {
-    if (!t.classList.contains('selected') && selected.length >= max) {
-      t.classList.add('disabled');
-    } else {
-      t.classList.remove('disabled');
-    }
+// ── Smooth active nav links ──
+const sections = document.querySelectorAll('section[id], #how, #formats, #faq');
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  document.querySelectorAll('[id]').forEach(el => {
+    if (window.scrollY >= el.offsetTop - 80) current = el.id;
   });
-
-  document.getElementById(`next-${step}`).disabled = answers[step].length === 0;
-}
-
-// ── Navigate forward ──
-function advance(step) {
-  if (!answers[step] || (Array.isArray(answers[step]) && answers[step].length === 0)) return;
-
-  const cur = document.getElementById(`step-${step}`);
-  const nxt = document.getElementById(`step-${step + 1}`);
-  if (!nxt) return;
-
-  cur.classList.add('leaving');
-  setTimeout(() => {
-    cur.classList.remove('active', 'leaving');
-    nxt.classList.add('active');
-    current = step + 1;
-    updateProgress(current);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 200);
-}
-
-// ── Navigate back ──
-function back(step) {
-  const cur = document.getElementById(`step-${step}`);
-  const prev = document.getElementById(`step-${step - 1}`);
-  if (!prev) return;
-
-  cur.classList.remove('active');
-  prev.classList.add('active');
-  current = step - 1;
-  updateProgress(current);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ── Finish & save ──
-async function finish() {
-  if (!answers[14]) return;
-
-  const btn = document.getElementById('next-14');
-  btn.disabled = true;
-  btn.textContent = 'Зберігаємо…';
-
-  const userId = uuidv4();
-
-  const profile = {
-    id:                  userId,
-    gender:              answers[1]  || null,
-    age_group:           answers[2]  || null,
-    goals:               answers[3]  || [],
-    personality_type:    answers[4]  || null,
-    decision_style:      answers[5]  || null,
-    values_in_others:    answers[6]  || [],
-    own_qualities:       answers[7]  || [],
-    industry:            answers[8]  || null,
-    life_genre:          answers[9]  || null,
-    activities:          answers[10] || [],
-    group_vibe:          answers[11] || null,
-    after_feeling:       answers[12] || [],
-    has_children:        answers[13] || null,
-    relationship_status: answers[14] || null,
-    is_onboarded:        true,
-  };
-
-  try {
-    const { error } = await sb.from('users').insert(profile);
-    if (error) throw error;
-    localStorage.setItem('meetnow_user_id', userId);
-    localStorage.setItem('meetnow_profile', JSON.stringify(profile));
-    showSuccess();
-  } catch (err) {
-    console.error(err);
-    localStorage.setItem('meetnow_user_id', userId);
-    localStorage.setItem('meetnow_profile', JSON.stringify(profile));
-    toast('Помилка збереження: ' + (err.message || err));
-    setTimeout(showSuccess, 1000);
-  }
-}
-
-function showSuccess() {
-  document.getElementById(`step-${TOTAL}`).classList.remove('active');
-  document.getElementById('progress-wrap').style.display = 'none';
-  document.getElementById('success').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => {
-    window.location.href = 'create-meeting.html';
-  }, 1500);
-}
-
-// ── Toast ──
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ── Init ──
-updateProgress(1);
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
+  });
+}, { passive: true });
 </script>
+
 </body>
 </html>
