@@ -247,6 +247,10 @@
     <button class="filter-btn" data-type="bar" onclick="setFilter(this)">Бар</button>
     <button class="filter-btn" data-type="restaurant" onclick="setFilter(this)">Ресторан</button>
     <button class="filter-btn" data-type="night_club" onclick="setFilter(this)">Коктейльний бар</button>
+    <button class="filter-btn" data-type="movie_theater" onclick="setFilter(this)">🎬 Кіно</button>
+    <button class="filter-btn" data-type="bowling_alley" onclick="setFilter(this)">🎳 Боулінг</button>
+    <button class="filter-btn" data-type="park" onclick="setFilter(this)">🚶 Прогулянка</button>
+    <button class="filter-btn" data-type="art_gallery" onclick="setFilter(this)">🎨 Майстер-клас</button>
   </div>
 </div>
 
@@ -310,7 +314,7 @@ let chosenVenue = null;
 async function loadVenues(type) {
   const { Place, SearchNearbyRankPreference } = await google.maps.importLibrary('places');
 
-  const types = type === 'all' ? ['cafe', 'bar', 'restaurant'] : [type];
+  const types = type === 'all' ? ['cafe', 'bar', 'restaurant', 'movie_theater', 'bowling_alley', 'park', 'art_gallery'] : [type];
 
   const request = {
     fields: ['displayName', 'location', 'rating', 'userRatingCount', 'photos', 'formattedAddress', 'regularOpeningHours', 'businessStatus'],
@@ -546,11 +550,40 @@ function toast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── Meeting-type → filter mapping ──
+const MEETING_TYPE_TO_FILTER = {
+  coffee:   'cafe',
+  bar:      'bar',
+  dinner:   'restaurant',
+  cinema:   'movie_theater',
+  active:   'bowling_alley',
+  walk:     'park',
+  workshop: 'art_gallery',
+  culture:  'all',
+};
+
 // ── Init ──
 const saved = localStorage.getItem('meetnow_venue');
 if (saved) {
   try { chosenVenue = JSON.parse(saved); } catch {}
 }
+
+// Auto-set filter from onboarding meeting_types
+(function autoSetFilter() {
+  try {
+    const profile = JSON.parse(localStorage.getItem('meetnow_profile') || '{}');
+    const types = profile.meeting_types || [];
+    if (!types.length) return;
+    const filterType = MEETING_TYPE_TO_FILTER[types[0]] || 'all';
+    if (filterType === 'all') return;
+    const btn = document.querySelector(`.filter-btn[data-type="${filterType}"]`);
+    if (btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = filterType;
+    }
+  } catch {}
+})();
 
 window.addEventListener('load', () => fetchAndRender(currentFilter));
 </script>
