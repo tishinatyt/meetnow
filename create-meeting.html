@@ -57,6 +57,36 @@
   .step-q { font-size: 24px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
   .step-hint { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
 
+  /* Activity type cards */
+  .activity-cards { display: flex; flex-direction: column; gap: 10px; }
+  .activity-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+  }
+  .activity-card:hover { background: var(--card-hover); border-color: #BFBFBF; }
+  .activity-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .activity-card:active { transform: scale(0.98); }
+  .activity-emoji { font-size: 24px; flex-shrink: 0; width: 44px; height: 44px; background: rgba(0,0,0,0.04); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .activity-info { flex: 1; }
+  .activity-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .activity-deposit {
+    font-size: 13px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    background: rgba(255,107,53,0.10);
+    border-radius: 100px;
+    padding: 4px 12px;
+  }
+
   /* Format cards */
   .format-cards { display: flex; flex-direction: column; gap: 12px; }
   .format-card {
@@ -77,7 +107,7 @@
   .format-card:active { transform: scale(0.98); }
   .format-icon { font-size: 28px; flex-shrink: 0; width: 48px; height: 48px; background: rgba(0,0,0,0.04); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
   .format-info { flex: 1; }
-  .format-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; }
+  .format-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
   .format-desc { font-size: 13px; color: var(--muted); }
   .format-badge {
     font-size: 12px; font-weight: 700;
@@ -168,15 +198,72 @@
 
   <div id="progress-wrap">
     <div id="progress-meta">
-      <span id="prog-label">Крок 1 з 3</span>
-      <span id="prog-pct">33%</span>
+      <span id="prog-label">Крок 1 з 4</span>
+      <span id="prog-pct">25%</span>
     </div>
-    <div id="progress-track"><div id="progress-fill" style="width:33%"></div></div>
+    <div id="progress-track"><div id="progress-fill" style="width:25%"></div></div>
   </div>
 
-  <!-- STEP 1: Format -->
+  <!-- STEP 1: Activity type -->
   <div class="step active" id="step-1">
     <div class="step-num">Крок 1</div>
+    <div class="step-q">Який формат зустрічі?</div>
+    <div class="step-hint">Обери тип активності — від нього залежить розмір депозиту</div>
+    <div class="activity-cards">
+      <button class="activity-card" data-val="coffee" data-deposit="100" onclick="selectActivity(this)">
+        <div class="activity-emoji">☕</div>
+        <div class="activity-info"><div class="activity-title">Кава та розмова</div></div>
+        <div class="activity-deposit">100 грн</div>
+      </button>
+      <button class="activity-card" data-val="walk" data-deposit="100" onclick="selectActivity(this)">
+        <div class="activity-emoji">🚶</div>
+        <div class="activity-info"><div class="activity-title">Прогулянка містом</div></div>
+        <div class="activity-deposit">100 грн</div>
+      </button>
+      <button class="activity-card" data-val="running" data-deposit="100" onclick="selectActivity(this)">
+        <div class="activity-emoji">🏃</div>
+        <div class="activity-info"><div class="activity-title">Пробіжка або тренування</div></div>
+        <div class="activity-deposit">100 грн</div>
+      </button>
+      <button class="activity-card" data-val="bar" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🍷</div>
+        <div class="activity-info"><div class="activity-title">Бар та коктейлі</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+      <button class="activity-card" data-val="dinner" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🍽️</div>
+        <div class="activity-info"><div class="activity-title">Вечеря в ресторані</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+      <button class="activity-card" data-val="cinema" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🎬</div>
+        <div class="activity-info"><div class="activity-title">Кіно разом</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+      <button class="activity-card" data-val="active" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🎳</div>
+        <div class="activity-info"><div class="activity-title">Боулінг / Активний відпочинок</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+      <button class="activity-card" data-val="workshop" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🎨</div>
+        <div class="activity-info"><div class="activity-title">Майстер-клас або воркшоп</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+      <button class="activity-card" data-val="culture" data-deposit="200" onclick="selectActivity(this)">
+        <div class="activity-emoji">🎭</div>
+        <div class="activity-info"><div class="activity-title">Концерт або театр</div></div>
+        <div class="activity-deposit">200 грн</div>
+      </button>
+    </div>
+    <div class="nav">
+      <button class="btn-next" id="next-1" disabled onclick="advance(1)">Далі →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Group size -->
+  <div class="step" id="step-2">
+    <div class="step-num">Крок 2</div>
     <div class="step-q">Обери формат</div>
     <div class="step-hint">Скільки людей має бути на зустрічі?</div>
     <div class="format-cards">
@@ -200,19 +287,20 @@
         <div class="format-icon">🎉</div>
         <div class="format-info">
           <div class="format-title">Шестеро</div>
-          <div class="format-desc">Жвава група — як Timeleft</div>
+          <div class="format-desc">Жвава група — більше знайомств</div>
         </div>
         <div class="format-badge">6 осіб</div>
       </button>
     </div>
     <div class="nav">
-      <button class="btn-next" id="next-1" disabled onclick="advance(1)">Далі →</button>
+      <button class="btn-back" onclick="back(2)">← Назад</button>
+      <button class="btn-next" id="next-2" disabled onclick="advance(2)">Далі →</button>
     </div>
   </div>
 
-  <!-- STEP 2: Gender preference -->
-  <div class="step" id="step-2">
-    <div class="step-num">Крок 2</div>
+  <!-- STEP 3: Gender preference -->
+  <div class="step" id="step-3">
+    <div class="step-num">Крок 3</div>
     <div class="step-q">Хто має бути на зустрічі?</div>
     <div class="step-hint">Стать учасників групи</div>
     <div class="gender-opts">
@@ -227,18 +315,22 @@
       </button>
     </div>
     <div class="nav">
-      <button class="btn-back" onclick="back(2)">← Назад</button>
-      <button class="btn-next" id="next-2" onclick="advance(2)">Далі →</button>
+      <button class="btn-back" onclick="back(3)">← Назад</button>
+      <button class="btn-next" id="next-3" onclick="advance(3)">Далі →</button>
     </div>
   </div>
 
-  <!-- STEP 3: Summary -->
-  <div class="step" id="step-3">
-    <div class="step-num">Крок 3</div>
+  <!-- STEP 4: Summary -->
+  <div class="step" id="step-4">
+    <div class="step-num">Крок 4</div>
     <div class="step-q">Підтвердження</div>
     <div class="step-hint">Перевір деталі перед вибором закладу</div>
 
     <div class="summary-card">
+      <div class="summary-row">
+        <span class="summary-label">Тип зустрічі</span>
+        <span class="summary-val" id="sum-activity">—</span>
+      </div>
       <div class="summary-row">
         <span class="summary-label">Формат</span>
         <span class="summary-val" id="sum-format">—</span>
@@ -249,19 +341,19 @@
       </div>
       <div class="summary-row">
         <span class="summary-label">Депозит</span>
-        <span class="summary-val accent">150 грн</span>
+        <span class="summary-val accent" id="sum-deposit">—</span>
       </div>
     </div>
 
     <div class="deposit-note">
-      <strong>Як працює депозит:</strong> повертається після зустрічі. Якщо не прийшов без попередження — депозит не повертається.
+      <strong>Депозит витрачається в закладі</strong> — на каву, напої або розваги. Якщо партнер не прийде — його депозит переходить тобі.
     </div>
 
     <button class="btn-pay" id="btn-pay" onclick="goToVenue()">Обрати заклад →</button>
     <div class="liqpay-note">Оплата через LiqPay — на наступному кроці</div>
 
     <div class="nav" style="margin-top:16px">
-      <button class="btn-back" style="width:100%" onclick="back(3)">← Назад</button>
+      <button class="btn-back" style="width:100%" onclick="back(4)">← Назад</button>
     </div>
   </div>
 
@@ -270,17 +362,38 @@
 <div id="toast"></div>
 
 <script>
-const state = { format: null, gender: 'any' };
+const TOTAL = 4;
+const state = { activity: null, deposit: null, format: null, gender: 'any' };
 
+const ACTIVITY_LABELS = {
+  coffee: '☕ Кава та розмова',
+  walk:   '🚶 Прогулянка містом',
+  running:'🏃 Пробіжка / тренування',
+  bar:    '🍷 Бар та коктейлі',
+  dinner: '🍽️ Вечеря в ресторані',
+  cinema: '🎬 Кіно разом',
+  active: '🎳 Боулінг / Активний',
+  workshop:'🎨 Майстер-клас',
+  culture:'🎭 Концерт / Театр',
+};
 const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'На четверох (4 особи)', '6': 'Шестеро (6 осіб)' };
 const GENDER_LABELS = { male: 'Тільки чоловіки', female: 'Тільки жінки', any: 'Не має значення' };
 
 // ── Progress ──
 function updateProgress(step) {
-  const pct = Math.round((step / 3) * 100);
+  const pct = Math.round((step / TOTAL) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = `Крок ${step} з 3`;
+  document.getElementById('prog-label').textContent = `Крок ${step} з ${TOTAL}`;
   document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+// ── Activity select ──
+function selectActivity(el) {
+  document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.activity = el.dataset.val;
+  state.deposit  = parseInt(el.dataset.deposit);
+  document.getElementById('next-1').disabled = false;
 }
 
 // ── Format select ──
@@ -288,7 +401,7 @@ function selectFormat(el) {
   document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   state.format = el.dataset.val;
-  document.getElementById('next-1').disabled = false;
+  document.getElementById('next-2').disabled = false;
 }
 
 // ── Gender select ──
@@ -304,9 +417,11 @@ function advance(step) {
   const nxt = document.getElementById(`step-${step + 1}`);
   if (!nxt) return;
 
-  if (step === 2) {
-    document.getElementById('sum-format').textContent = FORMAT_LABELS[state.format] || '—';
-    document.getElementById('sum-gender').textContent = GENDER_LABELS[state.gender] || '—';
+  if (step === 3) {
+    document.getElementById('sum-activity').textContent = ACTIVITY_LABELS[state.activity] || '—';
+    document.getElementById('sum-format').textContent  = FORMAT_LABELS[state.format] || '—';
+    document.getElementById('sum-gender').textContent  = GENDER_LABELS[state.gender] || '—';
+    document.getElementById('sum-deposit').textContent = (state.deposit || 0) + ' грн';
   }
 
   cur.classList.add('leaving');
@@ -334,10 +449,13 @@ function goToVenue() {
   btn.textContent = 'Зберігаємо…';
 
   const meeting = {
-    format_size: parseInt(state.format),
+    activity_type:     state.activity,
+    activity_label:    ACTIVITY_LABELS[state.activity] || '',
+    deposit:           state.deposit,
+    format_size:       parseInt(state.format),
     gender_preference: state.gender,
-    format_label: FORMAT_LABELS[state.format] || '',
-    gender_label: GENDER_LABELS[state.gender] || '',
+    format_label:      FORMAT_LABELS[state.format] || '',
+    gender_label:      GENDER_LABELS[state.gender] || '',
   };
 
   localStorage.setItem('meetnow_meeting', JSON.stringify(meeting));
