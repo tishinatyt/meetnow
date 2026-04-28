@@ -167,6 +167,28 @@
   .btn-pay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .liqpay-note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; }
 
+  /* Day tags */
+  .day-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .day-tag {
+    padding: 10px 16px; border-radius: 100px;
+    border: 2px solid var(--border); background: var(--card);
+    font-size: 14px; font-weight: 600; color: var(--text);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .day-tag.selected { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+  /* Time options */
+  .time-opts { display: flex; flex-direction: column; gap: 10px; }
+  .time-opt {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 14px; padding: 14px 18px;
+    cursor: pointer; font-size: 15px; font-weight: 500;
+    color: var(--text); text-align: left; width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .time-opt:hover { border-color: #BFBFBF; }
+  .time-opt.selected { border-color: var(--accent); background: var(--accent-dim); }
+
   /* Toast */
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600; transition: transform 0.3s ease; z-index: 100; white-space: nowrap; max-width: 90vw; text-align: center; }
   #toast.show { transform: translateX(-50%) translateY(0); }
@@ -190,10 +212,10 @@
 
   <div id="progress-wrap">
     <div id="progress-meta">
-      <span id="prog-label">Крок 1 з 4</span>
-      <span id="prog-pct">25%</span>
+      <span id="prog-label">Крок 1 з 5</span>
+      <span id="prog-pct">20%</span>
     </div>
-    <div id="progress-track"><div id="progress-fill" style="width:25%"></div></div>
+    <div id="progress-track"><div id="progress-fill" style="width:20%"></div></div>
   </div>
 
   <!-- STEP 1: Activity type -->
@@ -303,11 +325,42 @@
     </div>
   </div>
 
-  <!-- STEP 4: Summary -->
+  <!-- STEP 4: Time preference -->
   <div class="step" id="step-4">
     <div class="step-num">Крок 4</div>
+    <div class="step-q">Коли тобі зручно зустрічатись?</div>
+    <div class="step-hint">Оберіть зручні дні та час</div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Дні тижня</div>
+    <div class="day-tags">
+      <button class="day-tag" data-val="mon" onclick="selectDay(this)">Пн</button>
+      <button class="day-tag" data-val="tue" onclick="selectDay(this)">Вт</button>
+      <button class="day-tag" data-val="wed" onclick="selectDay(this)">Ср</button>
+      <button class="day-tag" data-val="thu" onclick="selectDay(this)">Чт</button>
+      <button class="day-tag" data-val="fri" onclick="selectDay(this)">Пт</button>
+      <button class="day-tag" data-val="sat" onclick="selectDay(this)">Сб</button>
+      <button class="day-tag" data-val="sun" onclick="selectDay(this)">Нд</button>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Час доби</div>
+    <div class="time-opts">
+      <button class="time-opt" data-val="morning" onclick="selectTime(this)">🌅 Вранці (9:00–12:00)</button>
+      <button class="time-opt" data-val="afternoon" onclick="selectTime(this)">☀️ Вдень (12:00–17:00)</button>
+      <button class="time-opt" data-val="evening" onclick="selectTime(this)">🌆 Ввечері (17:00–21:00)</button>
+      <button class="time-opt" data-val="late_evening" onclick="selectTime(this)">🌙 Пізно ввечері (21:00–23:00)</button>
+    </div>
+
+    <div class="nav" style="margin-top:24px">
+      <button class="btn-back" onclick="back(4)">← Назад</button>
+      <button class="btn-next" id="next-4" disabled onclick="advance(4)">Далі →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Summary -->
+  <div class="step" id="step-5">
+    <div class="step-num">Крок 5</div>
     <div class="step-q">Підтвердження</div>
-    <div class="step-hint">Перевір деталі перед вибором закладу</div>
+    <div class="step-hint">Перевір деталі перед тим як приєднатись</div>
 
     <div class="summary-card">
       <div class="summary-row">
@@ -322,12 +375,20 @@
         <span class="summary-label">Учасники</span>
         <span class="summary-val" id="sum-gender">—</span>
       </div>
+      <div class="summary-row">
+        <span class="summary-label">Дні</span>
+        <span class="summary-val" id="sum-days">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Час</span>
+        <span class="summary-val" id="sum-time">—</span>
+      </div>
     </div>
 
     <button class="btn-pay" id="btn-pay" onclick="joinQueue()">Приєднатись до черги</button>
 
     <div class="nav" style="margin-top:16px">
-      <button class="btn-back" style="width:100%" onclick="back(4)">← Назад</button>
+      <button class="btn-back" style="width:100%" onclick="back(5)">← Назад</button>
     </div>
   </div>
 
@@ -352,8 +413,8 @@
 const SUPABASE_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
 
-const TOTAL = 4;
-const state = { activity: null, deposit: null, format: null, gender: 'any' };
+const TOTAL = 5;
+const state = { activity: null, deposit: null, format: null, gender: 'any', preferred_days: [], preferred_time: null };
 
 const ACTIVITY_LABELS = {
   coffee: '☕ Кава та розмова',
@@ -368,6 +429,8 @@ const ACTIVITY_LABELS = {
 };
 const FORMAT_LABELS = { '2': 'На двох (2 особи)', '4': 'На четверох (4 особи)', '6': 'Шестеро (6 осіб)' };
 const GENDER_LABELS = { male: 'Тільки чоловіки', female: 'Тільки жінки', any: 'Не має значення' };
+const DAY_LABELS = { mon:'Пн', tue:'Вт', wed:'Ср', thu:'Чт', fri:'Пт', sat:'Сб', sun:'Нд' };
+const TIME_LABELS = { morning:'🌅 Вранці', afternoon:'☀️ Вдень', evening:'🌆 Ввечері', late_evening:'🌙 Пізно ввечері' };
 
 // ── Progress ──
 function updateProgress(step) {
@@ -401,16 +464,42 @@ function selectGender(el) {
   state.gender = el.dataset.val;
 }
 
+// ── Day select (multiselect) ──
+function selectDay(el) {
+  el.classList.toggle('selected');
+  const val = el.dataset.val;
+  if (el.classList.contains('selected')) {
+    state.preferred_days.push(val);
+  } else {
+    state.preferred_days = state.preferred_days.filter(d => d !== val);
+  }
+  checkTimeStep();
+}
+
+// ── Time select (single) ──
+function selectTime(el) {
+  document.querySelectorAll('.time-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.preferred_time = el.dataset.val;
+  checkTimeStep();
+}
+
+function checkTimeStep() {
+  document.getElementById('next-4').disabled = state.preferred_days.length === 0 || !state.preferred_time;
+}
+
 // ── Navigate forward ──
 function advance(step) {
   const cur = document.getElementById(`step-${step}`);
   const nxt = document.getElementById(`step-${step + 1}`);
   if (!nxt) return;
 
-  if (step === 3) {
+  if (step === 4) {
     document.getElementById('sum-activity').textContent = ACTIVITY_LABELS[state.activity] || '—';
     document.getElementById('sum-format').textContent  = FORMAT_LABELS[state.format] || '—';
     document.getElementById('sum-gender').textContent  = GENDER_LABELS[state.gender] || '—';
+    document.getElementById('sum-days').textContent    = state.preferred_days.map(d => DAY_LABELS[d]).join(', ') || '—';
+    document.getElementById('sum-time').textContent    = TIME_LABELS[state.preferred_time] || '—';
   }
 
   cur.classList.add('leaving');
@@ -444,6 +533,8 @@ async function joinQueue() {
     gender_preference: state.gender,
     activity_type:     state.activity || null,
     deposit:           state.deposit || 0,
+    preferred_days:    state.preferred_days.length ? state.preferred_days : null,
+    preferred_time:    state.preferred_time || null,
     status:            'waiting',
   };
 
@@ -463,12 +554,14 @@ async function joinQueue() {
   }
 
   // Show success screen
-  document.getElementById('step-4').classList.remove('active');
+  document.getElementById('step-5').classList.remove('active');
   document.getElementById('step-success').classList.add('active');
   document.getElementById('queue-summary').innerHTML =
     `<div style="margin-bottom:8px"><strong>Тип:</strong> ${ACTIVITY_LABELS[state.activity] || '—'}</div>` +
     `<div style="margin-bottom:8px"><strong>Формат:</strong> ${FORMAT_LABELS[state.format] || '—'}</div>` +
-    `<div><strong>Учасники:</strong> ${GENDER_LABELS[state.gender] || '—'}</div>`;
+    `<div style="margin-bottom:8px"><strong>Учасники:</strong> ${GENDER_LABELS[state.gender] || '—'}</div>` +
+    `<div style="margin-bottom:8px"><strong>Дні:</strong> ${state.preferred_days.map(d => DAY_LABELS[d]).join(', ') || '—'}</div>` +
+    `<div><strong>Час:</strong> ${TIME_LABELS[state.preferred_time] || '—'}</div>`;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
