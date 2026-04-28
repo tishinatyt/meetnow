@@ -709,9 +709,15 @@ async function finish() {
     is_onboarded:        true,
   };
 
+  console.log('Inserting profile:', JSON.stringify(profile));
+
   try {
-    const { error } = await sb.from('users').insert(profile);
-    if (error) throw error;
+    const { data, error } = await sb.from('users').insert(profile).select();
+    console.log('Insert result:', JSON.stringify(data), JSON.stringify(error));
+    if (error) {
+      alert('Помилка збереження: ' + error.message);
+      throw error;
+    }
     localStorage.setItem('meetnow_user_id', userId);
     localStorage.setItem('meetnow_profile', JSON.stringify(profile));
     showSuccess();
