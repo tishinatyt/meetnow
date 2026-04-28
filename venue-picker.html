@@ -494,6 +494,19 @@ async function payLiqPay() {
       },
       body: JSON.stringify(entry),
     });
+
+    // Telegram notification to admin
+    const tgText = '🔔 Нове бронювання!\n'
+      + '👥 Формат: ' + meeting.format_size + ' осіб\n'
+      + '🎯 ' + (meeting.activity_label || meeting.activity_type || '—') + '\n'
+      + '📍 ' + chosenVenue.name + '\n'
+      + '🏠 ' + chosenVenue.address + '\n'
+      + '💰 Депозит: ' + (meeting.deposit || 0) + ' грн';
+    fetch('https://api.telegram.org/bot8505241162:AAFBF9gwIeiVkVZhCWa6ltGfPi_3RNhEqoI/sendMessage', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({chat_id: 503549265, text: tgText}),
+    }).catch(() => {});
   } catch (err) {
     console.warn('match_queue insert failed:', err);
   }
