@@ -292,19 +292,7 @@
       <span class="confirm-label">Адреса</span>
       <span class="confirm-val" id="cf-address">—</span>
     </div>
-    <div class="confirm-row">
-      <span class="confirm-label">Депозит</span>
-      <div style="text-align:right">
-        <span class="confirm-val accent" id="cf-deposit">—</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">витрачається в закладі</div>
-      </div>
-    </div>
-    <div style="font-size:12px;color:var(--muted);background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.15);border-radius:10px;padding:10px 14px;margin-bottom:4px;line-height:1.5;">
-      Якщо партнер не прийде — його депозит переходить тобі
-    </div>
-
-    <button class="btn-liqpay" id="btn-liqpay" onclick="payLiqPay()">Сплатити депозит <span id="cf-deposit-btn">—</span> в заклад</button>
-    <div class="liqpay-note">Оплата захищена LiqPay</div>
+    <button class="btn-liqpay" id="btn-liqpay" onclick="confirmVenue()">Підтвердити заклад і приєднатись</button>
     <button class="btn-cancel" onclick="hideConfirmSheet()">← Змінити заклад</button>
   </div>
 </div>
@@ -443,13 +431,10 @@ function showConfirmSheet() {
 
   const meeting = JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
 
-  const depositLabel = (meeting.deposit || 150) + ' грн';
   document.getElementById('cf-format').textContent = meeting.format_label || '—';
   document.getElementById('cf-gender').textContent = meeting.gender_label || '—';
   document.getElementById('cf-venue').textContent = chosenVenue.name || '—';
   document.getElementById('cf-address').textContent = chosenVenue.address || '—';
-  document.getElementById('cf-deposit').textContent = depositLabel;
-  document.getElementById('cf-deposit-btn').textContent = depositLabel;
 
   document.getElementById('confirm-overlay').classList.add('show');
 }
@@ -462,8 +447,8 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('confirm-overlay')) hideConfirmSheet();
 }
 
-// ── LiqPay payment ──
-async function payLiqPay() {
+// ── Confirm venue & join queue ──
+async function confirmVenue() {
   const btn = document.getElementById('btn-liqpay');
   btn.disabled = true;
   btn.textContent = 'Зберігаємо…';
@@ -471,17 +456,16 @@ async function payLiqPay() {
   const meeting = JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
   const userId = localStorage.getItem('meetnow_user_id');
 
-  // INSERT into match_queue
   try {
     const entry = {
-      user_id: userId,
-      format_size: meeting.format_size,
+      user_id:           userId,
+      format_size:       meeting.format_size,
       gender_preference: meeting.gender_preference,
-      venue_name: chosenVenue.name,
-      venue_address: chosenVenue.address,
-      activity_type: meeting.activity_type || null,
-      deposit: meeting.deposit || 0,
-      status: 'waiting',
+      venue_name:        chosenVenue.name,
+      venue_address:     chosenVenue.address,
+      activity_type:     meeting.activity_type || null,
+      deposit:           meeting.deposit || 0,
+      status:            'waiting',
     };
 
     await fetch(`${SUPABASE_URL}/rest/v1/match_queue`, {
@@ -500,8 +484,7 @@ async function payLiqPay() {
       + '👥 Формат: ' + meeting.format_size + ' осіб\n'
       + '🎯 ' + (meeting.activity_label || meeting.activity_type || '—') + '\n'
       + '📍 ' + chosenVenue.name + '\n'
-      + '🏠 ' + chosenVenue.address + '\n'
-      + '💰 Депозит: ' + (meeting.deposit || 0) + ' грн';
+      + '🏠 ' + chosenVenue.address;
     fetch('https://api.telegram.org/bot8505241162:AAFBF9gwIeiVkVZhCWa6ltGfPi_3RNhEqoI/sendMessage', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -511,24 +494,7 @@ async function payLiqPay() {
     console.warn('match_queue insert failed:', err);
   }
 
-  // Submit LiqPay form
-  const data = btoa(JSON.stringify({
-    version: 3,
-    public_key: 'sandbox_i72802086203',
-    action: 'pay',
-    amount: meeting.deposit || 150,
-    currency: 'UAH',
-    description: 'MeetNow депозит',
-    order_id: 'meetnow_' + Date.now(),
-    result_url: 'https://tishinatyt.github.io/meetnow/success.html',
-  }));
-
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://www.liqpay.ua/api/3/checkout';
-  form.innerHTML = '<input type=hidden name=data value=' + data + '><input type=hidden name=signature value=test>';
-  document.body.appendChild(form);
-  form.submit();
+  window.location.href = 'success.html';
 }
 
 // ── Helpers ──
