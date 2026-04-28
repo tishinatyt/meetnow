@@ -663,7 +663,10 @@ function selectMulti(step, el, max) {
 
 // ── Navigate forward ──
 function advance(step) {
-  if (!answers[step] || (Array.isArray(answers[step]) && answers[step].length === 0)) return;
+  if (step === 1) {
+    const name = document.getElementById('name-input').value.trim();
+    if (name.length < 2) return;
+  } else if (!answers[step] || (Array.isArray(answers[step]) && answers[step].length === 0)) return;
 
   const cur = document.getElementById(`step-${step}`);
   const nxt = document.getElementById(`step-${step + 1}`);
