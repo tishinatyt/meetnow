@@ -125,6 +125,8 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 }
 .btn-reg:hover { opacity: 0.9; }
 .btn-reg.full { background: var(--card2); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+.btn-reg.joined { background: var(--green); color: #fff; cursor: default; box-shadow: 0 3px 14px rgba(34,197,94,0.3); }
+.btn-reg.joined:hover { opacity: 1; }
 
 /* ── Progress bar ── */
 .event-progress { margin: 10px 0 2px; }
@@ -286,12 +288,12 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
       <div class="modal-subtitle" id="modal-event-meta"></div>
 
       <div class="modal-group">
-        <label>Ваше ім'я</label>
+        <label id="modal-name-label">Ваше ім'я</label>
         <input type="text" id="reg-name" placeholder="Ім'я та прізвище">
       </div>
       <div class="modal-group">
-        <label>Телефон</label>
-        <input type="tel" id="reg-phone" placeholder="+380 XX XXX XX XX">
+        <label id="modal-contact-label">Телефон</label>
+        <input type="text" id="reg-phone" placeholder="+380 XX XXX XX XX">
       </div>
 
       <button class="btn-modal-submit" id="btn-modal-submit" onclick="submitRegistration()">Підтвердити →</button>
@@ -299,9 +301,9 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
     </div>
 
     <div class="modal-success" id="modal-success">
-      <div class="ms-icon">🎉</div>
-      <h3>Ти зареєстрований!</h3>
-      <p>Ми надішлемо нагадування<br>перед початком заходу.</p>
+      <div class="ms-icon" id="modal-success-icon">🎉</div>
+      <h3 id="modal-success-title">Ти зареєстрований!</h3>
+      <p id="modal-success-text">Ми надішлемо нагадування<br>перед початком заходу.</p>
       <button class="btn-cancel-modal" style="margin-top:20px" onclick="closeModal()">Закрити</button>
     </div>
   </div>
@@ -418,6 +420,9 @@ let regCounts = {};
 let currentFilter = 'all';
 let activeEventId = null;
 
+// ── Joined mock events (persisted in localStorage) ──
+const joinedEvents = new Set(JSON.parse(localStorage.getItem('meetnow_joined') || '[]'));
+
 async function sbGet(table, params) {
   const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
     headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
@@ -531,11 +536,17 @@ function renderEvents() {
             ${priceNote}
           </div>
         </div>
-        <button class="btn-reg${isFull ? ' full' : ''}"
-          onclick="${isFull ? '' : `openModal('${escHtml(ev.id)}', this)`}"
-          ${isFull ? 'disabled' : ''}>
-          ${isFull ? 'Місць немає' : 'Зареєструватись →'}
-        </button>
+        ${(() => {
+          const isJoined = ev.mock && joinedEvents.has(ev.id);
+          if (isJoined) {
+            return `<button class="btn-reg joined" disabled>Ти йдеш ✓</button>`;
+          } else if (isFull) {
+            return `<button class="btn-reg full" disabled>Місць немає</button>`;
+          } else {
+            const label = ev.mock ? 'Приєднатись →' : 'Зареєструватись →';
+            return `<button class="btn-reg" onclick="openModal('${escHtml(ev.id)}', this)">${label}</button>`;
+          }
+        })()}
       </div>`;
     grid.appendChild(card);
   });
@@ -566,19 +577,39 @@ function openModal(eventId, btn) {
   const ev = allEvents.find(e => e.id === eventId);
   if (!ev) return;
 
-  document.getElementById('modal-event-title').textContent = ev.title;
+  const isMockEv = !!ev.mock;
+
+  // Title & subtitle
+  document.getElementById('modal-event-title').textContent =
+    isMockEv ? 'Приєднатись до заходу' : ev.title;
   const metaParts = [];
   if (ev.date) metaParts.push(formatDate(ev.date));
   if (ev.venue_name) metaParts.push(ev.venue_name);
   if (ev.venue_address) metaParts.push(ev.venue_address);
-  document.getElementById('modal-event-meta').textContent = metaParts.join(' · ');
+  document.getElementById('modal-event-meta').textContent =
+    isMockEv ? ev.title + '\n' + metaParts.join(' · ') : metaParts.join(' · ');
+
+  // Field labels & placeholders
+  document.getElementById('modal-name-label').textContent = "Твоє ім'я";
+  if (isMockEv) {
+    document.getElementById('modal-contact-label').textContent = 'Telegram або телефон';
+    document.getElementById('reg-phone').placeholder = '@username або +380...';
+    document.getElementById('reg-phone').type = 'text';
+  } else {
+    document.getElementById('modal-contact-label').textContent = 'Телефон';
+    document.getElementById('reg-phone').placeholder = '+380 XX XXX XX XX';
+    document.getElementById('reg-phone').type = 'tel';
+  }
+
+  // Submit button
+  document.getElementById('btn-modal-submit').textContent =
+    isMockEv ? 'Підтвердити участь' : 'Підтвердити →';
 
   document.getElementById('modal-form-wrap').style.display = 'block';
   document.getElementById('modal-success').style.display = 'none';
   document.getElementById('reg-name').value = '';
   document.getElementById('reg-phone').value = '';
   document.getElementById('btn-modal-submit').disabled = false;
-  document.getElementById('btn-modal-submit').textContent = 'Підтвердити →';
   document.getElementById('modal-overlay').classList.add('show');
 }
 
@@ -614,11 +645,29 @@ async function submitRegistration() {
         phone,
       });
     } else {
-      // Simulate a short delay for mock events
-      await new Promise(r => setTimeout(r, 600));
+      // Save to localStorage
+      joinedEvents.add(activeEventId);
+      localStorage.setItem('meetnow_joined', JSON.stringify([...joinedEvents]));
+      // Save contact info
+      localStorage.setItem('meetnow_user_name', name);
+      localStorage.setItem('meetnow_user_contact', phone);
+      await new Promise(r => setTimeout(r, 500));
     }
 
     regCounts[activeEventId] = (regCounts[activeEventId] || 0) + 1;
+
+    // Customize success message
+    if (isMock) {
+      document.getElementById('modal-success-icon').textContent = '✅';
+      document.getElementById('modal-success-title').textContent = 'Ти зареєстрований!';
+      document.getElementById('modal-success-text').innerHTML =
+        'Ми надішлемо деталі в Telegram або SMS.<br>Чекаємо тебе на заході!';
+    } else {
+      document.getElementById('modal-success-icon').textContent = '🎉';
+      document.getElementById('modal-success-title').textContent = 'Ти зареєстрований!';
+      document.getElementById('modal-success-text').innerHTML =
+        'Ми надішлемо нагадування<br>перед початком заходу.';
+    }
 
     document.getElementById('modal-form-wrap').style.display = 'none';
     document.getElementById('modal-success').style.display = 'block';
@@ -626,7 +675,8 @@ async function submitRegistration() {
     renderEvents();
   } catch (err) {
     toast('Помилка реєстрації: ' + err.message);
-    btn.disabled = false; btn.textContent = 'Підтвердити →';
+    btn.disabled = false;
+    btn.textContent = isMock ? 'Підтвердити участь' : 'Підтвердити →';
   }
 }
 
