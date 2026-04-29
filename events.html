@@ -126,6 +126,13 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 .btn-reg:hover { opacity: 0.9; }
 .btn-reg.full { background: var(--card2); color: var(--muted); cursor: not-allowed; box-shadow: none; }
 
+/* ── Progress bar ── */
+.event-progress { margin: 10px 0 2px; }
+.event-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.3s; }
+.progress-fill.full { background: #ef4444; }
+
 /* ── Empty ── */
 #empty {
   display: none; text-align: center; padding: 80px 24px;
@@ -306,6 +313,86 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 const SB_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
 
+// ── Mock events (always shown alongside real ones) ──
+function nextWeekday(dayOfWeek, hour, minute) {
+  const now = new Date();
+  const today = now.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+  let diff = dayOfWeek - today;
+  if (diff <= 0) diff += 7;
+  const d = new Date(now);
+  d.setDate(now.getDate() + diff);
+  d.setHours(hour, minute, 0, 0);
+  return d.toISOString();
+}
+
+const MOCK_EVENTS = [
+  {
+    id: 'mock-1', mock: true,
+    title: '☕ Ранкова кава та знайомства',
+    event_type: 'coffee',
+    date: nextWeekday(6, 10, 0),   // next Saturday
+    venue_name: "Кав'ярня 'Горіх'",
+    venue_address: 'вул. Шевченка 12',
+    max_participants: 6,
+    _reg_count: 3,
+    price: null,
+    price_note: 'депозит 100 грн в закладі',
+    image_url: null,
+  },
+  {
+    id: 'mock-2', mock: true,
+    title: '🍷 Вечір крафтового пива',
+    event_type: 'bar',
+    date: nextWeekday(5, 19, 0),   // next Friday
+    venue_name: "Craft Bar 'Хміль'",
+    venue_address: 'вул. Миру 5',
+    max_participants: 6,
+    _reg_count: 4,
+    price: null,
+    price_note: 'депозит 200 грн в закладі',
+    image_url: null,
+  },
+  {
+    id: 'mock-3', mock: true,
+    title: '🏃 Ранкова пробіжка в парку',
+    event_type: 'running',
+    date: nextWeekday(0, 8, 0),    // next Sunday
+    venue_name: 'Парк ім. Коцюбинського',
+    venue_address: '',
+    max_participants: 6,
+    _reg_count: 2,
+    price: null,
+    price_note: null,
+    image_url: null,
+  },
+  {
+    id: 'mock-4', mock: true,
+    title: "🎨 Майстер-клас з акварелі",
+    event_type: 'workshop',
+    date: nextWeekday(3, 18, 0),   // next Wednesday
+    venue_name: "Арт-студія 'Палітра'",
+    venue_address: 'вул. Гоголя 8',
+    max_participants: 8,
+    _reg_count: 5,
+    price: 350,
+    price_note: null,
+    image_url: null,
+  },
+  {
+    id: 'mock-5', mock: true,
+    title: "🍽️ Вечеря з незнайомцями",
+    event_type: 'dinner',
+    date: nextWeekday(6, 19, 30),  // next Saturday
+    venue_name: "Ресторан 'Чернігів'",
+    venue_address: 'пр. Миру 32',
+    max_participants: 4,
+    _reg_count: 2,
+    price: null,
+    price_note: 'депозит 200 грн в закладі',
+    image_url: null,
+  },
+];
+
 const TYPE_LABELS = {
   coffee: '☕ Кава та розмова',
   bar: '🍷 Бар та коктейлі',
@@ -362,13 +449,14 @@ async function loadEvents() {
   document.getElementById('events-grid').innerHTML = '';
   document.getElementById('empty').style.display = 'none';
 
+  let dbEvents = [];
   try {
-    allEvents = await sbGet('events',
+    dbEvents = await sbGet('events',
       'status=eq.published&order=date.asc&select=id,title,event_type,description,date,venue_name,venue_address,max_participants,price,image_url'
     );
 
-    if (allEvents.length) {
-      const ids = allEvents.map(e => e.id);
+    if (dbEvents.length) {
+      const ids = dbEvents.map(e => e.id);
       try {
         const regs = await sbGet('event_registrations',
           `event_id=in.(${ids.join(',')})&status=neq.cancelled&select=event_id`
@@ -377,8 +465,13 @@ async function loadEvents() {
       } catch {}
     }
   } catch (err) {
-    allEvents = [];
+    dbEvents = [];
   }
+
+  // Always merge mock events (real ones first, then mock)
+  allEvents = [...dbEvents, ...MOCK_EVENTS];
+  // Pre-fill regCounts for mock events
+  MOCK_EVENTS.forEach(e => { regCounts[e.id] = e._reg_count || 0; });
 
   document.getElementById('loading').style.display = 'none';
   renderEvents();
@@ -400,11 +493,17 @@ function renderEvents() {
     const count = regCounts[ev.id] || 0;
     const max = ev.max_participants || 0;
     const isFull = max > 0 && count >= max;
+    const isFree = !ev.price;
     const priceLabel = ev.price ? `${ev.price} грн` : 'Безкоштовно';
+    const priceNote = ev.price_note ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">(${escHtml(ev.price_note)})</div>` : '';
     const emoji = TYPE_EMOJI[ev.event_type] || '📅';
     const label = TYPE_LABELS[ev.event_type] || ev.event_type;
     const bg = PLACEHOLDER_BG[ev.event_type] || '#F8F7F4';
     const dateStr = ev.date ? formatDate(ev.date) : 'Дата уточнюється';
+    const pct = max > 0 ? Math.min(100, Math.round(count / max * 100)) : 0;
+    const venueLine = ev.venue_address
+      ? `${escHtml(ev.venue_name || '')}${ev.venue_address ? ', ' + escHtml(ev.venue_address) : ''}`
+      : escHtml(ev.venue_name || '');
 
     const card = document.createElement('div');
     card.className = 'event-card';
@@ -417,13 +516,23 @@ function renderEvents() {
         <span class="event-badge">${label}</span>
         <div class="event-title">${escHtml(ev.title)}</div>
         <div class="event-meta"><span class="event-meta-icon">📅</span>${dateStr}</div>
-        <div class="event-meta"><span class="event-meta-icon">📍</span>${escHtml(ev.venue_name || '')}</div>
+        <div class="event-meta"><span class="event-meta-icon">📍</span>${venueLine}</div>
+        ${max > 0 ? `
+        <div class="event-progress">
+          <div class="event-progress-label">
+            <span>Учасників: ${count} / ${max}</span>
+            <span>${isFull ? '🔴 Місць немає' : `${max - count} вільних місць`}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill${isFull ? ' full' : ''}" style="width:${pct}%"></div></div>
+        </div>` : ''}
         <div class="event-price-row">
-          <span class="event-price${ev.price ? '' : ' free'}">${priceLabel}</span>
-          <span class="event-spots">${max > 0 ? `${count} / ${max} учасників` : `${count} учасників`}</span>
+          <div>
+            <span class="event-price${isFree ? ' free'  : ''}">${priceLabel}</span>
+            ${priceNote}
+          </div>
         </div>
         <button class="btn-reg${isFull ? ' full' : ''}"
-          onclick="${isFull ? '' : `openModal('${ev.id}', this)`}"
+          onclick="${isFull ? '' : `openModal('${escHtml(ev.id)}', this)`}"
           ${isFull ? 'disabled' : ''}>
           ${isFull ? 'Місць немає' : 'Зареєструватись →'}
         </button>
@@ -458,8 +567,11 @@ function openModal(eventId, btn) {
   if (!ev) return;
 
   document.getElementById('modal-event-title').textContent = ev.title;
-  document.getElementById('modal-event-meta').textContent =
-    `${formatDate(ev.date)} · ${ev.venue_name}`;
+  const metaParts = [];
+  if (ev.date) metaParts.push(formatDate(ev.date));
+  if (ev.venue_name) metaParts.push(ev.venue_name);
+  if (ev.venue_address) metaParts.push(ev.venue_address);
+  document.getElementById('modal-event-meta').textContent = metaParts.join(' · ');
 
   document.getElementById('modal-form-wrap').style.display = 'block';
   document.getElementById('modal-success').style.display = 'none';
@@ -491,13 +603,20 @@ async function submitRegistration() {
 
   const userId = localStorage.getItem('meetnow_user_id') || null;
 
+  const isMock = activeEventId && activeEventId.startsWith('mock-');
+
   try {
-    await sbPost('event_registrations', {
-      event_id: activeEventId,
-      user_id: userId,
-      name,
-      phone,
-    });
+    if (!isMock) {
+      await sbPost('event_registrations', {
+        event_id: activeEventId,
+        user_id: userId,
+        name,
+        phone,
+      });
+    } else {
+      // Simulate a short delay for mock events
+      await new Promise(r => setTimeout(r, 600));
+    }
 
     regCounts[activeEventId] = (regCounts[activeEventId] || 0) + 1;
 
