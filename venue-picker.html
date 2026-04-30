@@ -219,6 +219,77 @@
     font-size: 13px; color: #dc2626; line-height: 1.5;
     margin-bottom: 16px;
   }
+
+  /* ── Queue status screen ── */
+  #queue-screen {
+    display: none;
+    max-width: 480px; margin: 0 auto;
+    padding: 40px 20px 60px;
+    flex-direction: column; align-items: center;
+    text-align: center;
+    animation: fadeUp 0.4s ease;
+  }
+  #queue-screen.show { display: flex; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .qs-emoji { font-size: 72px; margin-bottom: 20px; line-height: 1; }
+  .qs-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+  .qs-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 320px; }
+
+  .qs-details {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .qs-detail-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 13px 18px; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .qs-detail-row:last-child { border-bottom: none; }
+  .qs-detail-label { font-size: 13px; color: var(--muted); font-weight: 500; flex-shrink: 0; }
+  .qs-detail-val { font-size: 14px; font-weight: 700; text-align: right; }
+
+  .qs-notify {
+    width: 100%;
+    background: var(--accent-dim);
+    border: 1.5px solid rgba(255,107,53,0.2);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 14px; font-weight: 600;
+    color: var(--accent);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+
+  .qs-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .btn-qs-primary {
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; border-radius: 12px;
+    padding: 16px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none; display: block; text-align: center;
+    transition: opacity 0.15s;
+    box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+  }
+  .btn-qs-primary:hover { opacity: 0.9; }
+  .btn-qs-secondary {
+    width: 100%; background: none;
+    border: 1.5px solid var(--border);
+    color: var(--text); border-radius: 12px;
+    padding: 15px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none; display: block; text-align: center;
+    transition: border-color 0.15s;
+  }
+  .btn-qs-secondary:hover { border-color: var(--text); }
 </style>
 </head>
 <body>
@@ -269,6 +340,45 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Queue status screen -->
+<div id="queue-screen">
+  <div class="qs-emoji">🎯</div>
+  <div class="qs-title">Ти в черзі!</div>
+  <div class="qs-subtitle">Шукаємо тобі групу.<br>Зазвичай це займає 2–3 дні.</div>
+
+  <div class="qs-details">
+    <div class="qs-detail-row">
+      <span class="qs-detail-label">Формат</span>
+      <span class="qs-detail-val" id="qs-format">—</span>
+    </div>
+    <div class="qs-detail-row">
+      <span class="qs-detail-label">Тип заходу</span>
+      <span class="qs-detail-val" id="qs-activity">—</span>
+    </div>
+    <div class="qs-detail-row">
+      <span class="qs-detail-label">Зручний час</span>
+      <span class="qs-detail-val" id="qs-time">—</span>
+    </div>
+    <div class="qs-detail-row">
+      <span class="qs-detail-label">Заклад</span>
+      <span class="qs-detail-val" id="qs-venue">—</span>
+    </div>
+    <div class="qs-detail-row">
+      <span class="qs-detail-label">Контакт</span>
+      <span class="qs-detail-val" id="qs-contact">—</span>
+    </div>
+  </div>
+
+  <div class="qs-notify" id="qs-notify">
+    📱 Напишемо тобі як тільки знайдемо групу
+  </div>
+
+  <div class="qs-actions">
+    <a href="index.html" class="btn-qs-primary">На головну</a>
+    <a href="events.html" class="btn-qs-secondary">Переглянути заходи →</a>
+  </div>
+</div>
 
 <!-- Confirmation overlay -->
 <div id="confirm-overlay" onclick="handleOverlayClick(event)">
@@ -494,7 +604,38 @@ async function confirmVenue() {
     console.warn('match_queue insert failed:', err);
   }
 
-  window.location.href = 'success.html';
+  showQueueScreen(meeting);
+}
+
+function showQueueScreen(meeting) {
+  // Hide main UI
+  document.querySelector('.flow-indicator')?.closest('div')?.style && (document.querySelector('.flow-indicator').closest('div').style.display = 'none');
+  document.querySelector('.header').style.display = 'none';
+  document.getElementById('main').style.display = 'none';
+  document.getElementById('bottom-bar').style.display = 'none';
+  document.getElementById('confirm-overlay').classList.remove('show');
+
+  // Fill details from localStorage
+  const m = meeting || JSON.parse(localStorage.getItem('meetnow_meeting') || '{}');
+  const profile = JSON.parse(localStorage.getItem('meetnow_profile') || '{}');
+  const venue = chosenVenue || JSON.parse(localStorage.getItem('meetnow_venue') || '{}');
+
+  document.getElementById('qs-format').textContent   = m.format_label   || m.format_size && (m.format_size + ' осіб') || '—';
+  document.getElementById('qs-activity').textContent = m.activity_label  || m.activity_type || '—';
+  document.getElementById('qs-time').textContent     = m.time_label      || '—';
+  document.getElementById('qs-venue').textContent    = venue.name        || '—';
+
+  const contactVal = profile.contact_value
+    || (JSON.parse(localStorage.getItem('meetnow_user') || '{}').contact_value)
+    || '—';
+  document.getElementById('qs-contact').textContent = contactVal;
+
+  if (contactVal !== '—') {
+    document.getElementById('qs-notify').textContent = `📱 Напишемо тобі на ${contactVal} як тільки знайдемо групу`;
+  }
+
+  document.getElementById('queue-screen').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── Helpers ──
