@@ -205,6 +205,30 @@
     cursor: not-allowed;
   }
 
+  /* ── Contact step ── */
+  .contact-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 17px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+    margin-top: 16px;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .contact-input:focus { border-color: var(--accent); }
+  .contact-input.valid { border-color: var(--success); }
+  .contact-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 6px;
+    min-height: 18px;
+  }
+
   /* ── Navigation ── */
   .nav {
     display: flex;
@@ -309,11 +333,11 @@
   <!-- Progress -->
   <div id="progress-wrap">
     <div id="progress-meta">
-      <span id="prog-label">Крок 1 з 15</span>
-      <span id="prog-pct">7%</span>
+      <span id="prog-label">Крок 1 з 17</span>
+      <span id="prog-pct">6%</span>
     </div>
     <div id="progress-track">
-      <div id="progress-fill" style="width:7%"></div>
+      <div id="progress-fill" style="width:6%"></div>
     </div>
   </div>
 
@@ -330,29 +354,37 @@
     </div>
   </div>
 
-  <!-- ── Step 2: Стать ── -->
+  <!-- ── Step 2: Контакт ── -->
   <div class="step" id="step-2">
     <div class="step-num">Крок 2</div>
-    <div class="step-q">Яка твоя стать?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="male" onclick="selectSingle(2,this)"><div class="check"></div>Чоловік</button>
-      <button class="opt" data-val="female" onclick="selectSingle(2,this)"><div class="check"></div>Жінка</button>
-      <button class="opt" data-val="other" onclick="selectSingle(2,this)"><div class="check"></div>Інше</button>
+    <div class="step-q">Як з тобою зв'язатись після матчингу?</div>
+    <p class="step-hint">Напишемо коли знайдемо групу</p>
+    <div class="opts-list" id="contact-type-list">
+      <button class="opt" data-val="telegram" onclick="selectContactType(this)">
+        <div class="check"></div>💬 Telegram — <span style="color:var(--muted);font-size:13px">@username</span>
+      </button>
+      <button class="opt" data-val="phone" onclick="selectContactType(this)">
+        <div class="check"></div>📞 Телефон — <span style="color:var(--muted);font-size:13px">+380...</span>
+      </button>
+    </div>
+    <div id="contact-input-wrap" style="display:none">
+      <input type="text" id="contact-input" class="contact-input" placeholder="" oninput="checkContact()">
+      <div class="contact-error" id="contact-error"></div>
     </div>
     <div class="nav">
+      <button class="btn-back" onclick="back(1)">← Назад</button>
       <button class="btn-next" id="next-2" disabled onclick="advance(2)">Далі →</button>
     </div>
   </div>
 
-  <!-- ── Step 2: Вік ── -->
+  <!-- ── Step 3: Стать ── -->
   <div class="step" id="step-3">
     <div class="step-num">Крок 3</div>
-    <div class="step-q">Скільки тобі років?</div>
-    <div class="opts-grid">
-      <button class="opt" data-val="18-29" onclick="selectSingle(3,this)"><div class="check"></div>18–29</button>
-      <button class="opt" data-val="30-39" onclick="selectSingle(3,this)"><div class="check"></div>30–39</button>
-      <button class="opt" data-val="40-49" onclick="selectSingle(3,this)"><div class="check"></div>40–49</button>
-      <button class="opt" data-val="50+" onclick="selectSingle(3,this)"><div class="check"></div>50+</button>
+    <div class="step-q">Яка твоя стать?</div>
+    <div class="opts-list">
+      <button class="opt" data-val="male" onclick="selectSingle(3,this)"><div class="check"></div>Чоловік</button>
+      <button class="opt" data-val="female" onclick="selectSingle(3,this)"><div class="check"></div>Жінка</button>
+      <button class="opt" data-val="other" onclick="selectSingle(3,this)"><div class="check"></div>Інше</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(2)">← Назад</button>
@@ -360,21 +392,15 @@
     </div>
   </div>
 
-  <!-- ── Step 3: Формат зустрічі (до 2) ── -->
+  <!-- ── Step 4: Вік ── -->
   <div class="step" id="step-4">
     <div class="step-num">Крок 4</div>
-    <div class="step-q">Який формат зустрічі тебе приваблює?</div>
-    <div class="step-hint">Виберіть до 2</div>
-    <div class="opts-tags" id="tags-4">
-      <button class="tag" data-val="coffee" onclick="selectMulti(4,this,2)">☕ Кава та розмова</button>
-      <button class="tag" data-val="bar" onclick="selectMulti(4,this,2)">🍷 Бар та коктейлі</button>
-      <button class="tag" data-val="dinner" onclick="selectMulti(4,this,2)">🍽️ Вечеря в ресторані</button>
-      <button class="tag" data-val="cinema" onclick="selectMulti(4,this,2)">🎬 Кіно разом</button>
-      <button class="tag" data-val="active" onclick="selectMulti(4,this,2)">🎳 Активний відпочинок</button>
-      <button class="tag" data-val="walk" onclick="selectMulti(4,this,2)">🚶 Прогулянка містом</button>
-      <button class="tag" data-val="workshop" onclick="selectMulti(4,this,2)">🎨 Майстер-клас або воркшоп</button>
-      <button class="tag" data-val="culture" onclick="selectMulti(4,this,2)">🎭 Театр або концерт</button>
-      <button class="tag" data-val="running" onclick="selectMulti(4,this,2)">🏃 Пробіжка або тренування</button>
+    <div class="step-q">Скільки тобі років?</div>
+    <div class="opts-grid">
+      <button class="opt" data-val="18-29" onclick="selectSingle(4,this)"><div class="check"></div>18–29</button>
+      <button class="opt" data-val="30-39" onclick="selectSingle(4,this)"><div class="check"></div>30–39</button>
+      <button class="opt" data-val="40-49" onclick="selectSingle(4,this)"><div class="check"></div>40–49</button>
+      <button class="opt" data-val="50+" onclick="selectSingle(4,this)"><div class="check"></div>50+</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(3)">← Назад</button>
@@ -382,16 +408,21 @@
     </div>
   </div>
 
-  <!-- ── Step 4: Цілі (до 2) ── -->
+  <!-- ── Step 5: Формат зустрічі (до 2) ── -->
   <div class="step" id="step-5">
     <div class="step-num">Крок 5</div>
-    <div class="step-q">Що шукаєш на зустрічах?</div>
-    <div class="step-hint">Обери до 2 варіантів</div>
+    <div class="step-q">Який формат зустрічі тебе приваблює?</div>
+    <div class="step-hint">Виберіть до 2</div>
     <div class="opts-tags" id="tags-5">
-      <button class="tag" data-val="friends" onclick="selectMulti(5,this,2)">Нові друзі</button>
-      <button class="tag" data-val="worldview" onclick="selectMulti(5,this,2)">Розширити кругозір</button>
-      <button class="tag" data-val="new_things" onclick="selectMulti(5,this,2)">Спробувати нове</button>
-      <button class="tag" data-val="conversations" onclick="selectMulti(5,this,2)">Змістовні бесіди</button>
+      <button class="tag" data-val="coffee" onclick="selectMulti(5,this,2)">☕ Кава та розмова</button>
+      <button class="tag" data-val="bar" onclick="selectMulti(5,this,2)">🍷 Бар та коктейлі</button>
+      <button class="tag" data-val="dinner" onclick="selectMulti(5,this,2)">🍽️ Вечеря в ресторані</button>
+      <button class="tag" data-val="cinema" onclick="selectMulti(5,this,2)">🎬 Кіно разом</button>
+      <button class="tag" data-val="active" onclick="selectMulti(5,this,2)">🎳 Активний відпочинок</button>
+      <button class="tag" data-val="walk" onclick="selectMulti(5,this,2)">🚶 Прогулянка містом</button>
+      <button class="tag" data-val="workshop" onclick="selectMulti(5,this,2)">🎨 Майстер-клас або воркшоп</button>
+      <button class="tag" data-val="culture" onclick="selectMulti(5,this,2)">🎭 Театр або концерт</button>
+      <button class="tag" data-val="running" onclick="selectMulti(5,this,2)">🏃 Пробіжка або тренування</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(4)">← Назад</button>
@@ -399,14 +430,16 @@
     </div>
   </div>
 
-  <!-- ── Step 5: Тип особистості ── -->
+  <!-- ── Step 6: Цілі (до 2) ── -->
   <div class="step" id="step-6">
     <div class="step-num">Крок 6</div>
-    <div class="step-q">Ти більше…</div>
-    <div class="opts-list">
-      <button class="opt" data-val="introvert" onclick="selectSingle(6,this)"><div class="check"></div>Інтроверт</button>
-      <button class="opt" data-val="ambivert" onclick="selectSingle(6,this)"><div class="check"></div>Амбіверт</button>
-      <button class="opt" data-val="extrovert" onclick="selectSingle(6,this)"><div class="check"></div>Екстраверт</button>
+    <div class="step-q">Що шукаєш на зустрічах?</div>
+    <div class="step-hint">Обери до 2 варіантів</div>
+    <div class="opts-tags" id="tags-6">
+      <button class="tag" data-val="friends" onclick="selectMulti(6,this,2)">Нові друзі</button>
+      <button class="tag" data-val="worldview" onclick="selectMulti(6,this,2)">Розширити кругозір</button>
+      <button class="tag" data-val="new_things" onclick="selectMulti(6,this,2)">Спробувати нове</button>
+      <button class="tag" data-val="conversations" onclick="selectMulti(6,this,2)">Змістовні бесіди</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(5)">← Назад</button>
@@ -414,14 +447,14 @@
     </div>
   </div>
 
-  <!-- ── Step 6: Стиль мислення ── -->
+  <!-- ── Step 7: Тип особистості ── -->
   <div class="step" id="step-7">
     <div class="step-num">Крок 7</div>
-    <div class="step-q">Твої думки формуються через…</div>
+    <div class="step-q">Ти більше…</div>
     <div class="opts-list">
-      <button class="opt" data-val="logic" onclick="selectSingle(7,this)"><div class="check"></div>Логіку і факти</button>
-      <button class="opt" data-val="emotions" onclick="selectSingle(7,this)"><div class="check"></div>Емоції і відчуття</button>
-      <button class="opt" data-val="mood" onclick="selectSingle(7,this)"><div class="check"></div>Залежно від настрою</button>
+      <button class="opt" data-val="introvert" onclick="selectSingle(7,this)"><div class="check"></div>Інтроверт</button>
+      <button class="opt" data-val="ambivert" onclick="selectSingle(7,this)"><div class="check"></div>Амбіверт</button>
+      <button class="opt" data-val="extrovert" onclick="selectSingle(7,this)"><div class="check"></div>Екстраверт</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(6)">← Назад</button>
@@ -429,20 +462,14 @@
     </div>
   </div>
 
-  <!-- ── Step 7: Якості в інших (до 3) ── -->
+  <!-- ── Step 8: Стиль мислення ── -->
   <div class="step" id="step-8">
     <div class="step-num">Крок 8</div>
-    <div class="step-q">Які якості цінуєш в інших?</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-8">
-      <button class="tag" data-val="honesty" onclick="selectMulti(8,this,3)">Чесність</button>
-      <button class="tag" data-val="humor" onclick="selectMulti(8,this,3)">Гумор</button>
-      <button class="tag" data-val="empathy" onclick="selectMulti(8,this,3)">Емпатія</button>
-      <button class="tag" data-val="openness" onclick="selectMulti(8,this,3)">Відкритість</button>
-      <button class="tag" data-val="intellect" onclick="selectMulti(8,this,3)">Інтелект</button>
-      <button class="tag" data-val="creativity" onclick="selectMulti(8,this,3)">Креативність</button>
-      <button class="tag" data-val="adventure" onclick="selectMulti(8,this,3)">Пригоди</button>
-      <button class="tag" data-val="kindness" onclick="selectMulti(8,this,3)">Доброта</button>
+    <div class="step-q">Твої думки формуються через…</div>
+    <div class="opts-list">
+      <button class="opt" data-val="logic" onclick="selectSingle(8,this)"><div class="check"></div>Логіку і факти</button>
+      <button class="opt" data-val="emotions" onclick="selectSingle(8,this)"><div class="check"></div>Емоції і відчуття</button>
+      <button class="opt" data-val="mood" onclick="selectSingle(8,this)"><div class="check"></div>Залежно від настрою</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(7)">← Назад</button>
@@ -450,20 +477,20 @@
     </div>
   </div>
 
-  <!-- ── Step 8: Власні якості (до 3) ── -->
+  <!-- ── Step 9: Якості в інших (до 3) ── -->
   <div class="step" id="step-9">
     <div class="step-num">Крок 9</div>
-    <div class="step-q">Які якості бачать у тобі друзі?</div>
+    <div class="step-q">Які якості цінуєш в інших?</div>
     <div class="step-hint">Обери до 3 варіантів</div>
     <div class="opts-tags" id="tags-9">
-      <button class="tag" data-val="kind" onclick="selectMulti(9,this,3)">Добрий</button>
-      <button class="tag" data-val="honest" onclick="selectMulti(9,this,3)">Чесний</button>
-      <button class="tag" data-val="calm" onclick="selectMulti(9,this,3)">Спокійний</button>
-      <button class="tag" data-val="smart" onclick="selectMulti(9,this,3)">Розумний</button>
-      <button class="tag" data-val="caring" onclick="selectMulti(9,this,3)">Дбайливий</button>
-      <button class="tag" data-val="funny" onclick="selectMulti(9,this,3)">Смішний</button>
-      <button class="tag" data-val="creative" onclick="selectMulti(9,this,3)">Творчий</button>
-      <button class="tag" data-val="adventurous" onclick="selectMulti(9,this,3)">Любитель пригод</button>
+      <button class="tag" data-val="honesty" onclick="selectMulti(9,this,3)">Чесність</button>
+      <button class="tag" data-val="humor" onclick="selectMulti(9,this,3)">Гумор</button>
+      <button class="tag" data-val="empathy" onclick="selectMulti(9,this,3)">Емпатія</button>
+      <button class="tag" data-val="openness" onclick="selectMulti(9,this,3)">Відкритість</button>
+      <button class="tag" data-val="intellect" onclick="selectMulti(9,this,3)">Інтелект</button>
+      <button class="tag" data-val="creativity" onclick="selectMulti(9,this,3)">Креативність</button>
+      <button class="tag" data-val="adventure" onclick="selectMulti(9,this,3)">Пригоди</button>
+      <button class="tag" data-val="kindness" onclick="selectMulti(9,this,3)">Доброта</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(8)">← Назад</button>
@@ -471,17 +498,20 @@
     </div>
   </div>
 
-  <!-- ── Step 9: Сфера роботи ── -->
+  <!-- ── Step 10: Власні якості (до 3) ── -->
   <div class="step" id="step-10">
     <div class="step-num">Крок 10</div>
-    <div class="step-q">Твоя сфера діяльності?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="none" onclick="selectSingle(10,this)"><div class="check"></div>Не працюю</button>
-      <button class="opt" data-val="healthcare" onclick="selectSingle(10,this)"><div class="check"></div>Охорона здоров'я</button>
-      <button class="opt" data-val="tech" onclick="selectSingle(10,this)"><div class="check"></div>Технології</button>
-      <button class="opt" data-val="finance" onclick="selectSingle(10,this)"><div class="check"></div>Фінанси</button>
-      <button class="opt" data-val="physical" onclick="selectSingle(10,this)"><div class="check"></div>Фізична праця</button>
-      <button class="opt" data-val="other" onclick="selectSingle(10,this)"><div class="check"></div>Інше</button>
+    <div class="step-q">Які якості бачать у тобі друзі?</div>
+    <div class="step-hint">Обери до 3 варіантів</div>
+    <div class="opts-tags" id="tags-10">
+      <button class="tag" data-val="kind" onclick="selectMulti(10,this,3)">Добрий</button>
+      <button class="tag" data-val="honest" onclick="selectMulti(10,this,3)">Чесний</button>
+      <button class="tag" data-val="calm" onclick="selectMulti(10,this,3)">Спокійний</button>
+      <button class="tag" data-val="smart" onclick="selectMulti(10,this,3)">Розумний</button>
+      <button class="tag" data-val="caring" onclick="selectMulti(10,this,3)">Дбайливий</button>
+      <button class="tag" data-val="funny" onclick="selectMulti(10,this,3)">Смішний</button>
+      <button class="tag" data-val="creative" onclick="selectMulti(10,this,3)">Творчий</button>
+      <button class="tag" data-val="adventurous" onclick="selectMulti(10,this,3)">Любитель пригод</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(9)">← Назад</button>
@@ -489,15 +519,17 @@
     </div>
   </div>
 
-  <!-- ── Step 10: Жанр фільму ── -->
+  <!-- ── Step 11: Сфера роботи ── -->
   <div class="step" id="step-11">
     <div class="step-num">Крок 11</div>
-    <div class="step-q">Якби твоє життя було жанром фільму…</div>
-    <div class="opts-grid">
-      <button class="opt" data-val="comedy" onclick="selectSingle(11,this)"><div class="check"></div>Комедія</button>
-      <button class="opt" data-val="drama" onclick="selectSingle(11,this)"><div class="check"></div>Драма</button>
-      <button class="opt" data-val="adventure" onclick="selectSingle(11,this)"><div class="check"></div>Пригода</button>
-      <button class="opt" data-val="romance" onclick="selectSingle(11,this)"><div class="check"></div>Романтика</button>
+    <div class="step-q">Твоя сфера діяльності?</div>
+    <div class="opts-list">
+      <button class="opt" data-val="none" onclick="selectSingle(11,this)"><div class="check"></div>Не працюю</button>
+      <button class="opt" data-val="healthcare" onclick="selectSingle(11,this)"><div class="check"></div>Охорона здоров'я</button>
+      <button class="opt" data-val="tech" onclick="selectSingle(11,this)"><div class="check"></div>Технології</button>
+      <button class="opt" data-val="finance" onclick="selectSingle(11,this)"><div class="check"></div>Фінанси</button>
+      <button class="opt" data-val="physical" onclick="selectSingle(11,this)"><div class="check"></div>Фізична праця</button>
+      <button class="opt" data-val="other" onclick="selectSingle(11,this)"><div class="check"></div>Інше</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(10)">← Назад</button>
@@ -505,16 +537,15 @@
     </div>
   </div>
 
-  <!-- ── Step 11: Активності (до 3) ── -->
+  <!-- ── Step 12: Жанр фільму ── -->
   <div class="step" id="step-12">
     <div class="step-num">Крок 12</div>
-    <div class="step-q">Улюблені активності?</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-12">
-      <button class="tag" data-val="music" onclick="selectMulti(12,this,3)">Музика / концерти</button>
-      <button class="tag" data-val="museums" onclick="selectMulti(12,this,3)">Музеї та мистецтво</button>
-      <button class="tag" data-val="nature" onclick="selectMulti(12,this,3)">Пригоди на природі</button>
-      <button class="tag" data-val="food" onclick="selectMulti(12,this,3)">Пробую нові страви</button>
+    <div class="step-q">Якби твоє життя було жанром фільму…</div>
+    <div class="opts-grid">
+      <button class="opt" data-val="comedy" onclick="selectSingle(12,this)"><div class="check"></div>Комедія</button>
+      <button class="opt" data-val="drama" onclick="selectSingle(12,this)"><div class="check"></div>Драма</button>
+      <button class="opt" data-val="adventure" onclick="selectSingle(12,this)"><div class="check"></div>Пригода</button>
+      <button class="opt" data-val="romance" onclick="selectSingle(12,this)"><div class="check"></div>Романтика</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(11)">← Назад</button>
@@ -522,15 +553,16 @@
     </div>
   </div>
 
-  <!-- ── Step 12: Тип групи ── -->
+  <!-- ── Step 13: Активності (до 3) ── -->
   <div class="step" id="step-13">
     <div class="step-num">Крок 13</div>
-    <div class="step-q">Ідеальна компанія для тебе — це…</div>
-    <div class="opts-list">
-      <button class="opt" data-val="small_safe" onclick="selectSingle(13,this)"><div class="check"></div>Маленька й безпечна</button>
-      <button class="opt" data-val="smart_inspiring" onclick="selectSingle(13,this)"><div class="check"></div>Розумна й надихаюча</button>
-      <button class="opt" data-val="playful" onclick="selectSingle(13,this)"><div class="check"></div>Грайлива й несподівана</button>
-      <button class="opt" data-val="flexible" onclick="selectSingle(13,this)"><div class="check"></div>Люди створюють момент</button>
+    <div class="step-q">Улюблені активності?</div>
+    <div class="step-hint">Обери до 3 варіантів</div>
+    <div class="opts-tags" id="tags-13">
+      <button class="tag" data-val="music" onclick="selectMulti(13,this,3)">Музика / концерти</button>
+      <button class="tag" data-val="museums" onclick="selectMulti(13,this,3)">Музеї та мистецтво</button>
+      <button class="tag" data-val="nature" onclick="selectMulti(13,this,3)">Пригоди на природі</button>
+      <button class="tag" data-val="food" onclick="selectMulti(13,this,3)">Пробую нові страви</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(12)">← Назад</button>
@@ -538,16 +570,15 @@
     </div>
   </div>
 
-  <!-- ── Step 13: Відчуття після вечора (до 3) ── -->
+  <!-- ── Step 14: Тип групи ── -->
   <div class="step" id="step-14">
     <div class="step-num">Крок 14</div>
-    <div class="step-q">Після вечора хочу відчути…</div>
-    <div class="step-hint">Обери до 3 варіантів</div>
-    <div class="opts-tags" id="tags-14">
-      <button class="tag" data-val="energized" onclick="selectMulti(14,this,3)">Заряджений енергією</button>
-      <button class="tag" data-val="noticed" onclick="selectMulti(14,this,3)">Поміченим</button>
-      <button class="tag" data-val="calm" onclick="selectMulti(14,this,3)">Спокійним</button>
-      <button class="tag" data-val="surprised" onclick="selectMulti(14,this,3)">Здивованим</button>
+    <div class="step-q">Ідеальна компанія для тебе — це…</div>
+    <div class="opts-list">
+      <button class="opt" data-val="small_safe" onclick="selectSingle(14,this)"><div class="check"></div>Маленька й безпечна</button>
+      <button class="opt" data-val="smart_inspiring" onclick="selectSingle(14,this)"><div class="check"></div>Розумна й надихаюча</button>
+      <button class="opt" data-val="playful" onclick="selectSingle(14,this)"><div class="check"></div>Грайлива й несподівана</button>
+      <button class="opt" data-val="flexible" onclick="selectSingle(14,this)"><div class="check"></div>Люди створюють момент</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(13)">← Назад</button>
@@ -555,14 +586,16 @@
     </div>
   </div>
 
-  <!-- ── Step 14: Діти ── -->
+  <!-- ── Step 15: Відчуття після вечора (до 3) ── -->
   <div class="step" id="step-15">
     <div class="step-num">Крок 15</div>
-    <div class="step-q">У тебе є діти?</div>
-    <div class="opts-list">
-      <button class="opt" data-val="yes" onclick="selectSingle(15,this)"><div class="check"></div>Так</button>
-      <button class="opt" data-val="no" onclick="selectSingle(15,this)"><div class="check"></div>Ні</button>
-      <button class="opt" data-val="prefer_not" onclick="selectSingle(15,this)"><div class="check"></div>Не хочу говорити</button>
+    <div class="step-q">Після вечора хочу відчути…</div>
+    <div class="step-hint">Обери до 3 варіантів</div>
+    <div class="opts-tags" id="tags-15">
+      <button class="tag" data-val="energized" onclick="selectMulti(15,this,3)">Заряджений енергією</button>
+      <button class="tag" data-val="noticed" onclick="selectMulti(15,this,3)">Поміченим</button>
+      <button class="tag" data-val="calm" onclick="selectMulti(15,this,3)">Спокійним</button>
+      <button class="tag" data-val="surprised" onclick="selectMulti(15,this,3)">Здивованим</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(14)">← Назад</button>
@@ -570,20 +603,35 @@
     </div>
   </div>
 
-  <!-- ── Step 15: Сімейний статус ── -->
+  <!-- ── Step 16: Діти ── -->
   <div class="step" id="step-16">
     <div class="step-num">Крок 16</div>
-    <div class="step-q">Твій сімейний статус?</div>
+    <div class="step-q">У тебе є діти?</div>
     <div class="opts-list">
-      <button class="opt" data-val="single" onclick="selectSingle(16,this)"><div class="check"></div>Одинокий / одинока</button>
-      <button class="opt" data-val="married" onclick="selectSingle(16,this)"><div class="check"></div>Одружений / одружена</button>
-      <button class="opt" data-val="complicated" onclick="selectSingle(16,this)"><div class="check"></div>Все складно</button>
-      <button class="opt" data-val="in_relationship" onclick="selectSingle(16,this)"><div class="check"></div>У стосунках</button>
+      <button class="opt" data-val="yes" onclick="selectSingle(16,this)"><div class="check"></div>Так</button>
+      <button class="opt" data-val="no" onclick="selectSingle(16,this)"><div class="check"></div>Ні</button>
       <button class="opt" data-val="prefer_not" onclick="selectSingle(16,this)"><div class="check"></div>Не хочу говорити</button>
     </div>
     <div class="nav">
       <button class="btn-back" onclick="back(15)">← Назад</button>
-      <button class="btn-next" id="next-16" disabled onclick="finish()">Завершити ✓</button>
+      <button class="btn-next" id="next-16" disabled onclick="advance(16)">Далі →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 17: Сімейний статус ── -->
+  <div class="step" id="step-17">
+    <div class="step-num">Крок 17</div>
+    <div class="step-q">Твій сімейний статус?</div>
+    <div class="opts-list">
+      <button class="opt" data-val="single" onclick="selectSingle(17,this)"><div class="check"></div>Одинокий / одинока</button>
+      <button class="opt" data-val="married" onclick="selectSingle(17,this)"><div class="check"></div>Одружений / одружена</button>
+      <button class="opt" data-val="complicated" onclick="selectSingle(17,this)"><div class="check"></div>Все складно</button>
+      <button class="opt" data-val="in_relationship" onclick="selectSingle(17,this)"><div class="check"></div>У стосунках</button>
+      <button class="opt" data-val="prefer_not" onclick="selectSingle(17,this)"><div class="check"></div>Не хочу говорити</button>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="back(16)">← Назад</button>
+      <button class="btn-next" id="next-17" disabled onclick="finish()">Завершити ✓</button>
     </div>
   </div>
 
@@ -614,9 +662,12 @@ function uuidv4() {
 }
 
 // ── State ──
-const TOTAL = 16;
+const TOTAL = 17;
 let current = 1;
 const answers = {};
+
+// Contact step state
+let contactType = null; // 'telegram' | 'phone'
 
 // ── Progress ──
 function updateProgress(step) {
@@ -661,11 +712,75 @@ function selectMulti(step, el, max) {
   document.getElementById(`next-${step}`).disabled = answers[step].length === 0;
 }
 
+// ── Contact step ──
+function selectContactType(el) {
+  document.querySelectorAll('#contact-type-list .opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  contactType = el.dataset.val;
+
+  const input = document.getElementById('contact-input');
+  const wrap = document.getElementById('contact-input-wrap');
+  wrap.style.display = 'block';
+
+  if (contactType === 'telegram') {
+    input.placeholder = '@username';
+    input.type = 'text';
+  } else {
+    input.placeholder = '+380XXXXXXXXX';
+    input.type = 'tel';
+  }
+
+  input.value = '';
+  input.classList.remove('valid');
+  document.getElementById('contact-error').textContent = '';
+  document.getElementById('next-2').disabled = true;
+  input.focus();
+}
+
+function checkContact() {
+  const val = document.getElementById('contact-input').value.trim();
+  const errEl = document.getElementById('contact-error');
+  const input = document.getElementById('contact-input');
+  let valid = false;
+
+  if (contactType === 'telegram') {
+    if (val.length === 0) {
+      errEl.textContent = '';
+    } else if (!val.startsWith('@')) {
+      errEl.textContent = 'Має починатись з @';
+    } else if (val.length < 4) {
+      errEl.textContent = 'Занадто коротко';
+    } else {
+      errEl.textContent = '';
+      valid = true;
+    }
+  } else if (contactType === 'phone') {
+    const digits = val.replace(/\D/g, '');
+    if (val.length === 0) {
+      errEl.textContent = '';
+    } else if (digits.length < 10) {
+      errEl.textContent = 'Мінімум 10 цифр';
+    } else {
+      errEl.textContent = '';
+      valid = true;
+    }
+  }
+
+  input.classList.toggle('valid', valid);
+  document.getElementById('next-2').disabled = !valid;
+
+  if (valid) {
+    answers[2] = { contact_type: contactType, contact_value: val };
+  }
+}
+
 // ── Navigate forward ──
 function advance(step) {
   if (step === 1) {
     const name = document.getElementById('name-input').value.trim();
     if (name.length < 2) return;
+  } else if (step === 2) {
+    if (!answers[2] || !answers[2].contact_value) return;
   } else if (!answers[step] || (Array.isArray(answers[step]) && answers[step].length === 0)) return;
 
   const cur = document.getElementById(`step-${step}`);
@@ -697,9 +812,9 @@ function back(step) {
 
 // ── Finish & save ──
 async function finish() {
-  if (!answers[16]) return;
+  if (!answers[17]) return;
 
-  const btn = document.getElementById('next-16');
+  const btn = document.getElementById('next-17');
   btn.disabled = true;
   btn.textContent = 'Зберігаємо…';
 
@@ -708,21 +823,23 @@ async function finish() {
   const profile = {
     id:                  userId,
     name:                document.getElementById('name-input').value.trim() || null,
-    gender:              answers[2]  || null,
-    age_group:           answers[3]  || null,
-    meeting_types:       answers[4]  || [],
-    goals:               answers[5]  || [],
-    personality_type:    answers[6]  || null,
-    decision_style:      answers[7]  || null,
-    values_in_others:    answers[8]  || [],
-    own_qualities:       answers[9]  || [],
-    industry:            answers[10]  || null,
-    life_genre:          answers[11] || null,
-    activities:          answers[12] || [],
-    group_vibe:          answers[13] || null,
-    after_feeling:       answers[14] || [],
-    has_children:        answers[15] || null,
-    relationship_status: answers[16] || null,
+    contact_type:        answers[2]?.contact_type  || null,
+    contact_value:       answers[2]?.contact_value || null,
+    gender:              answers[3]  || null,
+    age_group:           answers[4]  || null,
+    meeting_types:       answers[5]  || [],
+    goals:               answers[6]  || [],
+    personality_type:    answers[7]  || null,
+    decision_style:      answers[8]  || null,
+    values_in_others:    answers[9]  || [],
+    own_qualities:       answers[10] || [],
+    industry:            answers[11] || null,
+    life_genre:          answers[12] || null,
+    activities:          answers[13] || [],
+    group_vibe:          answers[14] || null,
+    after_feeling:       answers[15] || [],
+    has_children:        answers[16] || null,
+    relationship_status: answers[17] || null,
     is_onboarded:        true,
   };
 
@@ -736,7 +853,7 @@ async function finish() {
       errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:20px;z-index:9999;font-size:14px;word-break:break-all;';
       errDiv.textContent = 'ПОМИЛКА: ' + JSON.stringify(error);
       document.body.appendChild(errDiv);
-      return; // зупинити флоу
+      return;
     }
     localStorage.setItem('meetnow_user_id', userId);
     localStorage.setItem('meetnow_profile', JSON.stringify(profile));
