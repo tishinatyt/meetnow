@@ -190,6 +190,40 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 .geo-btn:hover { border-color: var(--accent); }
 #geo-status { font-size: 12px; margin-top: 6px; color: var(--muted); }
 
+/* ── Privacy selector ── */
+.privacy-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.privacy-opt {
+  border: 2px solid var(--border); border-radius: 14px;
+  padding: 14px 12px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+.privacy-opt:hover { border-color: #BFBFBF; }
+.privacy-opt.active { border-color: var(--accent); background: var(--accent-dim); }
+.privacy-opt-emoji { font-size: 24px; margin-bottom: 6px; }
+.privacy-opt-label { font-size: 13px; font-weight: 800; }
+.privacy-opt-sub { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+/* ── Invite link box ── */
+.invite-box {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 14px 16px; margin-top: 16px; text-align: left;
+}
+.invite-box-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.invite-link-row { display: flex; gap: 8px; align-items: center; }
+.invite-link-text {
+  flex: 1; background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; font-size: 12px;
+  color: var(--accent); font-family: inherit; word-break: break-all;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.btn-copy {
+  flex-shrink: 0; background: var(--accent); color: #fff;
+  border: none; border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  white-space: nowrap; transition: background 0.15s;
+}
+.btn-copy:hover { background: var(--accent-dark); }
+
 /* ── Success screen ── */
 .success-wrap { display: none; text-align: center; padding: 16px 0 8px; }
 .success-wrap .s-icon { font-size: 52px; margin-bottom: 14px; }
@@ -309,6 +343,21 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
         <input type="text" id="c-title" placeholder="Наприклад: Ранкова пробіжка в парку">
       </div>
       <div class="form-group">
+        <label>Тип доступу</label>
+        <div class="privacy-opts">
+          <div class="privacy-opt active" id="priv-public" onclick="selectPrivacy('public')">
+            <div class="privacy-opt-emoji">🌍</div>
+            <div class="privacy-opt-label">Публічний</div>
+            <div class="privacy-opt-sub">Видно всім у стрічці</div>
+          </div>
+          <div class="privacy-opt" id="priv-private" onclick="selectPrivacy('private')">
+            <div class="privacy-opt-emoji">🔒</div>
+            <div class="privacy-opt-label">Приватний</div>
+            <div class="privacy-opt-sub">Тільки за посиланням</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
         <label>Тип заходу</label>
         <select id="c-type">
           <option value="coffee">☕ Кава</option>
@@ -365,8 +414,17 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
     </div>
     <div class="success-wrap" id="create-success">
       <div class="s-icon">🎉</div>
-      <h3>Захід надіслано!</h3>
-      <p>З'явиться на сайті після перевірки.<br>Зазвичай це займає менше години.</p>
+      <h3 id="create-success-title">Захід надіслано!</h3>
+      <p id="create-success-text">З'явиться на сайті після перевірки.<br>Зазвичай це займає менше години.</p>
+      <div id="invite-link-section" style="display:none">
+        <div class="invite-box">
+          <div class="invite-box-label">🔗 Надішліть це посилання людям яких хочете запросити</div>
+          <div class="invite-link-row">
+            <div class="invite-link-text" id="invite-link-text"></div>
+            <button class="btn-copy" onclick="copyInviteLink()">Копіювати</button>
+          </div>
+        </div>
+      </div>
       <button class="btn-cancel" style="margin-top:20px" onclick="closeOverlay('create-overlay')">Закрити</button>
     </div>
   </div>
@@ -389,6 +447,8 @@ let activeJoinId = null;
 let userLat = null, userLng = null;
 let radiusKm = 2;
 let createLat = null, createLng = null;
+let privacyType = 'public';
+const INVITE_BASE = 'https://tishinatyt.github.io/meetnow/local-events.html';
 
 // ── Supabase helpers ──
 async function sbGet(table, params) {
@@ -405,6 +465,16 @@ async function sbPost(table, data) {
     body: JSON.stringify(data)
   });
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || res.statusText); }
+}
+async function sbPostReturn(table, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || res.statusText); }
+  const result = await res.json();
+  return Array.isArray(result) ? result[0] : result;
 }
 async function sbRpc(fn, params) {
   const res = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
@@ -488,7 +558,8 @@ async function loadEvents() {
   document.getElementById('events-grid').innerHTML = '';
   document.getElementById('empty').style.display = 'none';
   try {
-    allEvents = await sbGet('local_events', 'status=eq.published&order=event_date.asc');
+    const all = await sbGet('local_events', 'status=eq.published&order=event_date.asc');
+    allEvents = all.filter(ev => !ev.privacy_type || ev.privacy_type === 'public');
   } catch {
     allEvents = [];
   }
@@ -646,6 +717,7 @@ function openCreateModal() {
   document.getElementById('geo-status').textContent = '';
   document.getElementById('geo-manual').style.display = 'none';
   createLat = null; createLng = null;
+  selectPrivacy('public');
   document.getElementById('create-form-wrap').style.display = 'block';
   document.getElementById('create-success').style.display = 'none';
   document.getElementById('btn-create-submit').disabled = false;
@@ -683,7 +755,7 @@ async function submitCreate() {
   const eventDate = new Date(`${date}T${time}`).toISOString();
 
   try {
-    await sbPost('local_events', {
+    const created = await sbPostReturn('local_events', {
       creator_name: name,
       creator_contact: contact,
       title,
@@ -695,23 +767,79 @@ async function submitCreate() {
       participant_count: 0,
       latitude: createLat,
       longitude: createLng,
+      privacy_type: privacyType,
       status: 'pending'
     });
 
     // Notify admin
     const typeLabel = TYPE_LABEL[type] || type;
+    const privLabel = privacyType === 'private' ? '🔒 Приватний' : '🌍 Публічний';
     await tgSend(ADMIN_CHAT_ID,
-      `🆕 Новий локальний захід на модерації!\n\n📌 ${title}\n${typeLabel} · ${formatDate(eventDate)}\n📍 ${location}\n\nОрганізатор: ${name}\nКонтакт: ${contact}`
+      `🆕 Новий локальний захід на модерації!\n\n📌 ${title}\n${typeLabel} · ${privLabel} · ${formatDate(eventDate)}\n📍 ${location}\n\nОрганізатор: ${name}\nКонтакт: ${contact}`
     );
 
     localStorage.setItem('meetnow_user_name', name);
 
+    // Show success screen
+    if (privacyType === 'private' && created?.id) {
+      const inviteUrl = `${INVITE_BASE}?invite=${created.id}`;
+      document.getElementById('create-success-title').textContent = '🔒 Приватний захід створено!';
+      document.getElementById('create-success-text').textContent = 'Надішліть посилання запрошеним учасникам.';
+      document.getElementById('invite-link-text').textContent = inviteUrl;
+      document.getElementById('invite-link-section').style.display = 'block';
+    } else {
+      document.getElementById('create-success-title').textContent = 'Захід надіслано!';
+      document.getElementById('create-success-text').innerHTML = 'З\'явиться на сайті після перевірки.<br>Зазвичай це займає менше години.';
+      document.getElementById('invite-link-section').style.display = 'none';
+    }
+
     document.getElementById('create-form-wrap').style.display = 'none';
     document.getElementById('create-success').style.display = 'block';
-    loadEvents();
+    if (privacyType === 'public') loadEvents();
   } catch (err) {
     toast('Помилка: ' + err.message);
     btn.disabled = false; btn.textContent = 'Опублікувати захід →';
+  }
+}
+
+// ── Privacy selector ──
+function selectPrivacy(type) {
+  privacyType = type;
+  document.getElementById('priv-public').classList.toggle('active', type === 'public');
+  document.getElementById('priv-private').classList.toggle('active', type === 'private');
+}
+
+// ── Copy invite link ──
+function copyInviteLink() {
+  const link = document.getElementById('invite-link-text').textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✅ Скопійовано';
+    setTimeout(() => { btn.textContent = 'Копіювати'; }, 2000);
+  }).catch(() => {
+    toast('Не вдалось скопіювати — виділіть посилання вручну');
+  });
+}
+
+// ── Handle ?invite= param ──
+async function handleInviteParam() {
+  const inviteId = new URLSearchParams(location.search).get('invite');
+  if (!inviteId) return;
+  try {
+    // Load the specific private event
+    const results = await sbGet('local_events', `id=eq.${inviteId}&status=eq.published`);
+    if (results && results.length) {
+      const ev = results[0];
+      // Add to allEvents so join modal can find it
+      if (!allEvents.find(e => String(e.id) === String(ev.id))) {
+        allEvents.push(ev);
+      }
+      openJoinModal(ev.id);
+    } else {
+      toast('Захід не знайдено або ще не опублікований');
+    }
+  } catch {
+    toast('Не вдалось завантажити захід');
   }
 }
 
@@ -734,7 +862,7 @@ function toast(msg) {
 
 // ── Init ──
 tryGetGeo();
-loadEvents();
+loadEvents().then(() => handleInviteParam());
 </script>
 </body>
 </html>
