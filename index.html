@@ -504,11 +504,11 @@ footer {
   <div class="section-inner">
     <div class="section-label">Анонси</div>
     <h2 class="section-title">Найближчі заходи</h2>
-    <p class="section-sub">Реальні події з живими людьми — приєднуйся зараз</p>
+    <p class="section-sub">Глобальні та локальні заходи в Чернігові</p>
     <div class="uev-grid" id="uev-grid"></div>
     <div style="text-align:center;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="events.html" class="uev-all-link">Переглянути всі заходи →</a>
-      <a href="local-events.html" class="uev-all-link" style="background:var(--white);color:var(--accent);border:2px solid var(--accent)">📍 Локальні заходи →</a>
+      <a href="events.html" class="uev-all-link">🌍 Глобальні заходи →</a>
+      <a href="local-events.html" class="uev-all-link" style="background:var(--white);color:var(--accent);border:2px solid var(--accent)">📍 Локальні зустрічі →</a>
     </div>
   </div>
 </section>
@@ -786,18 +786,20 @@ function toggleFaq(btn) {
     const mm = String(d.getMinutes()).padStart(2,'0');
     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} о ${hh}:${mm}`;
   }
-  const BG = { coffee:'#FFF4F0', bar:'#F4F0FF', running:'#F0F4FF', workshop:'#FFF4FF', dinner:'#F0FFF4' };
-  const EMOJI = { coffee:'☕', bar:'🍷', running:'🏃', workshop:'🎨', dinner:'🍽️' };
-  const LABEL = { coffee:'☕ Кава та розмова', bar:'🍷 Бар та коктейлі', running:'🏃 Пробіжка', workshop:'🎨 Майстер-клас', dinner:'🍽️ Вечеря' };
+  const BG = { coffee:'#FFF4F0', bar:'#F4F0FF', running:'#F0F4FF', workshop:'#FFF4FF', dinner:'#F0FFF4', walk:'#F4FFF0', games:'#F4F0FF' };
+  const EMOJI = { coffee:'☕', bar:'🍷', running:'🏃', workshop:'🎨', dinner:'🍽️', walk:'🚶', games:'🎮' };
+  const LABEL = { coffee:'☕ Кава та розмова', bar:'🍷 Бар та коктейлі', running:'🏃 Пробіжка', workshop:'🎨 Майстер-клас', dinner:'🍽️ Вечеря', walk:'🚶 Прогулянка', games:'🎮 Ігри' };
   const joined = new Set(JSON.parse(localStorage.getItem('meetnow_joined') || '[]'));
 
-  const events = [
-    { id:'mock-1', type:'coffee',  title:'☕ Ранкова кава та знайомства', date: nextWeekday(6,10,0),  venue:"Кав'ярня 'Горіх', вул. Шевченка 12", max:6, reg:3 },
-    { id:'mock-2', type:'bar',     title:'🍷 Вечір крафтового пива',      date: nextWeekday(5,19,0),  venue:"Craft Bar 'Хміль', вул. Миру 5",       max:6, reg:4 },
-    { id:'mock-3', type:'running', title:'🏃 Ранкова пробіжка в парку',   date: nextWeekday(0,8,0),   venue:'Парк ім. Коцюбинського',               max:6, reg:2 },
-    { id:'mock-4', type:'workshop',title:'🎨 Майстер-клас з акварелі',    date: nextWeekday(3,18,0),  venue:"Арт-студія 'Палітра', вул. Гоголя 8",  max:8, reg:5 },
-    { id:'mock-5', type:'dinner',  title:'🍽️ Вечеря з незнайомцями',      date: nextWeekday(6,19,30), venue:"Ресторан 'Чернігів', пр. Миру 32",     max:4, reg:2 },
+  // 2 global + 1 local mock events
+  const globalEvents = [
+    { id:'mock-1', kind:'global', type:'workshop', title:'🎨 Майстер-клас з акварелі',  date: nextWeekday(3,18,0),  venue:"Арт-студія 'Палітра', вул. Гоголя 8", max:8, reg:5 },
+    { id:'mock-2', kind:'global', type:'bar',      title:'🍷 Вечір крафтового пива',     date: nextWeekday(5,19,0),  venue:"Craft Bar 'Хміль', вул. Миру 5",      max:6, reg:4 },
   ];
+  const localEvents = [
+    { id:'mock-3', kind:'local',  type:'running',  title:'🏃 Оля шукає компанію',        date: nextWeekday(0,8,0),   venue:'Парк ім. Коцюбинського', max:3, reg:1, creator:'Оля' },
+  ];
+  const events = [...globalEvents, ...localEvents];
 
   const grid = document.getElementById('uev-grid');
   if (!grid) return;
@@ -807,27 +809,39 @@ function toggleFaq(btn) {
     const isFull = reg >= ev.max;
     const isJoined = joined.has(ev.id);
     const pct = Math.min(100, Math.round(reg / ev.max * 100));
+    const isLocal = ev.kind === 'local';
+    const targetUrl = isLocal ? 'local-events.html' : 'events.html';
+
     let btnHtml;
     if (isJoined) {
       btnHtml = `<div class="btn-uev-join" style="background:#22c55e;box-shadow:0 3px 12px rgba(34,197,94,0.28);cursor:default">Ти йдеш ✓</div>`;
     } else if (isFull) {
       btnHtml = `<div class="btn-uev-join" style="background:#EDEBE6;color:#666;box-shadow:none;cursor:default">Місць немає</div>`;
     } else {
-      btnHtml = `<a href="events.html" class="btn-uev-join">Приєднатись →</a>`;
+      btnHtml = `<a href="${targetUrl}" class="btn-uev-join">Приєднатись →</a>`;
     }
+
+    const typeBadge = isLocal
+      ? `<span class="uev-badge" style="background:#F0F4FF;color:#3b82f6">📍 Локальна зустріч</span>`
+      : `<span class="uev-badge">${LABEL[ev.type] || ev.type}</span>`;
+
+    const creatorHtml = isLocal && ev.creator
+      ? `<div class="uev-meta">👤 ${ev.creator}</div>`
+      : '';
 
     const card = document.createElement('div');
     card.className = 'uev-card';
     card.innerHTML = `
       <div class="uev-placeholder" style="background:${BG[ev.type]}">${EMOJI[ev.type]}</div>
       <div class="uev-body">
-        <span class="uev-badge">${LABEL[ev.type]}</span>
+        ${typeBadge}
         <div class="uev-title">${ev.title}</div>
+        ${creatorHtml}
         <div class="uev-meta">📅 ${fmtDate(ev.date)}</div>
         <div class="uev-meta">📍 ${ev.venue}</div>
         <div class="uev-progress">
           <div class="uev-progress-label">
-            <span>${reg} / ${ev.max} учасників</span>
+            <span>${isLocal ? 'Шукає' : 'Учасників:'} ${reg} / ${ev.max}</span>
             <span>${isFull ? '🔴 Заповнено' : `${ev.max - reg} місць`}</span>
           </div>
           <div class="uev-bar"><div class="uev-bar-fill" style="width:${pct}%"></div></div>

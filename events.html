@@ -232,7 +232,7 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 <div class="header">
   <div class="header-top">
     <a href="index.html" class="logo">Meet<span>Now</span></a>
-    <div class="header-title">Заходи в Чернігові</div>
+    <div class="header-title">Глобальні заходи</div>
     <a href="index.html" class="back-link">← На головну</a>
   </div>
   <div style="border-bottom:1px solid var(--border);padding:0 16px">
@@ -261,13 +261,12 @@ html, body { min-height: 100%; background: var(--bg); color: var(--text); font-f
 
 <!-- Main -->
 <div id="main">
-  <a href="organizer-cabinet.html" class="organizer-cta">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px">
     <div>
-      <div class="organizer-cta-text">Ви організатор або маєте заклад?</div>
-      <div class="organizer-cta-sub">Додайте свій захід — безкоштовно</div>
+      <div style="font-size:13px;color:var(--muted)">Концерти, стендапи, майстер-класи, ресторанні вечори</div>
     </div>
-    <div class="organizer-cta-arrow">→</div>
-  </a>
+    <a href="organizer-cabinet.html" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity 0.15s" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">+ Додати захід</a>
+  </div>
 
   <div id="loading" class="skeletons">
     <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w70"></div><div class="sk-line"></div><div class="sk-line w50"></div></div></div>
@@ -549,7 +548,7 @@ function renderEvents() {
           } else if (isFull) {
             return `<button class="btn-reg full" disabled>Місць немає</button>`;
           } else {
-            const label = ev.mock ? 'Приєднатись →' : 'Зареєструватись →';
+            const label = 'Приєднатись →';
             return `<button class="btn-reg" onclick="openModal('${escHtml(ev.id)}', this)">${label}</button>`;
           }
         })()}
