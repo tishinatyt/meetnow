@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MeetNow — Локальні заходи</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F8F7F4;
+  --card: #FFFFFF;
+  --card2: #EDEBE6;
+  --border: #E5E5E5;
+  --accent: #FF6B35;
+  --accent-dim: #FFF4F0;
+  --accent-dark: #e85a22;
+  --text: #1A1A1A;
+  --muted: #666666;
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.10);
+}
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* ── Header ── */
+.header { position: sticky; top: 0; z-index: 30; background: var(--card); border-bottom: 1px solid var(--border); }
+.header-top {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 16px; height: 56px;
+  display: flex; align-items: center; gap: 12px;
+}
+.logo { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; text-decoration: none; }
+.logo span { color: var(--accent); }
+.header-title { font-size: 16px; font-weight: 700; }
+.back-link { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; margin-left: auto; }
+.back-link:hover { color: var(--text); }
+
+/* ── Tabs ── */
+.tabs-wrap { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 16px; }
+.tabs { max-width: 1100px; margin: 0 auto; display: flex; gap: 0; }
+.tab-btn {
+  flex: 1; max-width: 180px;
+  padding: 12px 8px; font-size: 14px; font-weight: 700;
+  color: var(--muted); background: none; border: none;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer; font-family: inherit; transition: color 0.15s, border-color 0.15s;
+  text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Toolbar ── */
+.toolbar-wrap { background: var(--bg); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.toolbar { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-create {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 100px;
+  padding: 9px 18px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s; white-space: nowrap;
+}
+.btn-create:hover { background: var(--accent-dark); }
+
+/* ── Radius filter ── */
+#radius-filter { display: none; align-items: center; gap: 6px; flex-wrap: wrap; }
+#radius-filter .rf-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.radius-btn {
+  background: var(--card); border: 1.5px solid var(--border);
+  color: var(--muted); border-radius: 100px;
+  padding: 6px 14px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.radius-btn:hover { border-color: #BFBFBF; color: var(--text); }
+.radius-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Main ── */
+#main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ── Skeleton ── */
+.skeletons { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.skeleton-card { background: var(--card); border-radius: 16px; overflow: hidden; }
+.sk-top { height: 120px; background: var(--card2); animation: pulse 1.4s ease-in-out infinite; }
+.sk-body { padding: 16px; }
+.sk-line { height: 13px; background: var(--card2); border-radius: 100px; margin-bottom: 10px; animation: pulse 1.4s ease-in-out infinite; }
+.sk-line.w50 { width: 50%; } .sk-line.w70 { width: 70%; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── Events grid ── */
+#events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+/* ── Event card ── */
+.ev-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.ev-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.10); transform: translateY(-3px); }
+.ev-top {
+  width: 100%; height: 100px;
+  display: flex; align-items: center; justify-content: center; font-size: 52px;
+}
+.ev-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 0; }
+.ev-badge {
+  display: inline-block; background: var(--accent-dim); color: var(--accent);
+  font-size: 11px; font-weight: 800; border-radius: 100px;
+  padding: 3px 10px; margin-bottom: 8px;
+}
+.ev-title { font-size: 16px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+.ev-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px; }
+.ev-meta-icon { flex-shrink: 0; }
+.ev-progress { margin: 10px 0 2px; }
+.ev-prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.ev-bar { height: 4px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.ev-bar-fill { height: 100%; background: var(--accent); border-radius: 100px; }
+.ev-distance { font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 6px; }
+.btn-join {
+  width: 100%; margin-top: 14px; background: var(--accent); color: #fff;
+  border: none; border-radius: 10px; padding: 12px;
+  font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: opacity 0.15s; box-shadow: 0 3px 14px rgba(255,107,53,0.30);
+}
+.btn-join:hover { opacity: 0.9; }
+.btn-join.joined { background: var(--green); box-shadow: 0 3px 14px rgba(34,197,94,0.30); cursor: default; }
+.btn-join.joined:hover { opacity: 1; }
+.btn-join.full { background: var(--card2); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+
+/* ── Empty ── */
+#empty { display: none; text-align: center; padding: 80px 24px; }
+#empty .empty-icon { font-size: 56px; margin-bottom: 16px; }
+#empty h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+#empty p { font-size: 14px; color: var(--muted); }
+
+/* ── Overlay ── */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.65);
+  align-items: flex-end; justify-content: center;
+}
+.overlay.show { display: flex; }
+.sheet {
+  background: var(--card); border-radius: 24px 24px 0 0;
+  padding: 24px 20px 40px; width: 100%; max-width: 520px;
+  animation: slideUp 0.3s ease; max-height: 92vh; overflow-y: auto;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 100px; margin: 0 auto 20px; }
+.sheet-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+
+/* ── Form elements ── */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-size: 15px; font-weight: 500;
+  color: var(--text); font-family: inherit; outline: none;
+  transition: border-color 0.15s; -webkit-appearance: none;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 72px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.btn-submit {
+  width: 100%; background: var(--accent); color: #fff;
+  border: none; border-radius: 14px; padding: 16px;
+  font-size: 16px; font-weight: 800; cursor: pointer;
+  font-family: inherit; box-shadow: 0 4px 24px rgba(255,107,53,0.35);
+  transition: opacity 0.15s, transform 0.15s; margin-top: 4px;
+}
+.btn-submit:hover:not(:disabled) { transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-cancel {
+  width: 100%; background: none; border: 1.5px solid var(--border);
+  color: var(--muted); border-radius: 12px; padding: 13px;
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 10px;
+}
+
+.geo-btn {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  cursor: pointer; font-family: inherit; width: 100%;
+  text-align: left; transition: border-color 0.15s;
+}
+.geo-btn:hover { border-color: var(--accent); }
+#geo-status { font-size: 12px; margin-top: 6px; color: var(--muted); }
+
+/* ── Success screen ── */
+.success-wrap { display: none; text-align: center; padding: 16px 0 8px; }
+.success-wrap .s-icon { font-size: 52px; margin-bottom: 14px; }
+.success-wrap h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.success-wrap p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #ef4444; color: #fff;
+  padding: 12px 24px; border-radius: 100px;
+  font-size: 14px; font-weight: 600;
+  transition: transform 0.3s; z-index: 99; white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 600px) {
+  #events-grid { grid-template-columns: 1fr; }
+  .skeletons { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <a href="index.html" class="logo">Meet<span>Now</span></a>
+    <div class="header-title">Локальні заходи</div>
+    <a href="index.html" class="back-link">← На головну</a>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <a href="events.html" class="tab-btn">🌍 Глобальні</a>
+    <button class="tab-btn active">📍 Локальні <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:2px;vertical-align:middle"></span></button>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar-wrap">
+  <div class="toolbar">
+    <button class="btn-create" onclick="openCreateModal()">+ Створити захід</button>
+    <div id="radius-filter">
+      <span class="rf-label">📏 Радіус:</span>
+      <button class="radius-btn active" data-km="2" onclick="setRadius(this)">2 км</button>
+      <button class="radius-btn" data-km="5" onclick="setRadius(this)">5 км</button>
+      <button class="radius-btn" data-km="10" onclick="setRadius(this)">10 км</button>
+      <button class="radius-btn" data-km="0" onclick="setRadius(this)">Всі</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="loading" class="skeletons">
+    <div class="skeleton-card"><div class="sk-top"></div><div class="sk-body"><div class="sk-line w70"></div><div class="sk-line"></div><div class="sk-line w50"></div></div></div>
+    <div class="skeleton-card"><div class="sk-top"></div><div class="sk-body"><div class="sk-line w70"></div><div class="sk-line"></div><div class="sk-line w50"></div></div></div>
+    <div class="skeleton-card"><div class="sk-top"></div><div class="sk-body"><div class="sk-line w70"></div><div class="sk-line"></div><div class="sk-line w50"></div></div></div>
+  </div>
+  <div id="events-grid"></div>
+  <div id="empty">
+    <div class="empty-icon">📍</div>
+    <h3>Поки немає локальних заходів</h3>
+    <p>Стань першим — організуй зустріч у своєму районі!</p>
+    <button class="btn-create" style="margin:20px auto 0;display:inline-flex" onclick="openCreateModal()">+ Створити захід</button>
+  </div>
+</div>
+
+<!-- ── Join modal ── -->
+<div class="overlay" id="join-overlay" onclick="handleOverlayClick(event,'join-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="join-form-wrap">
+      <div class="sheet-title" id="join-title">Приєднатись до заходу</div>
+      <div class="form-group">
+        <label>Твоє ім'я</label>
+        <input type="text" id="join-name" placeholder="Ім'я та прізвище">
+      </div>
+      <div class="form-group">
+        <label>Telegram або телефон</label>
+        <input type="text" id="join-contact" placeholder="@username або +380...">
+      </div>
+      <button class="btn-submit" id="btn-join-submit" onclick="submitJoin()">Підтвердити →</button>
+      <button class="btn-cancel" onclick="closeOverlay('join-overlay')">Скасувати</button>
+    </div>
+    <div class="success-wrap" id="join-success">
+      <div class="s-icon">✅</div>
+      <h3>Заявку надіслано!</h3>
+      <p>Організатор зв'яжеться з тобою<br>через Telegram або телефон.</p>
+      <button class="btn-cancel" style="margin-top:20px" onclick="closeOverlay('join-overlay')">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Create modal ── -->
+<div class="overlay" id="create-overlay" onclick="handleOverlayClick(event,'create-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="create-form-wrap">
+      <div class="sheet-title">Створити локальний захід</div>
+
+      <div class="form-group">
+        <label>Твоє ім'я *</label>
+        <input type="text" id="c-name" placeholder="Як тебе звати">
+      </div>
+      <div class="form-group">
+        <label>Твій Telegram або телефон *</label>
+        <input type="text" id="c-contact" placeholder="@username або +380...">
+      </div>
+      <div class="form-group">
+        <label>Назва заходу *</label>
+        <input type="text" id="c-title" placeholder="Наприклад: Ранкова пробіжка в парку">
+      </div>
+      <div class="form-group">
+        <label>Тип заходу</label>
+        <select id="c-type">
+          <option value="coffee">☕ Кава</option>
+          <option value="running">🏃 Пробіжка</option>
+          <option value="walk">🚶 Прогулянка</option>
+          <option value="games">🎮 Ігри</option>
+          <option value="food">🍕 Їжа</option>
+          <option value="creative">🎨 Творчість</option>
+          <option value="other">✨ Інше</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Опис (необов'язково)</label>
+        <textarea id="c-desc" placeholder="Розкажи детальніше про захід..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label>Дата *</label>
+          <input type="date" id="c-date">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Час *</label>
+          <input type="time" id="c-time">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label>Місце зустрічі *</label>
+        <input type="text" id="c-location" placeholder="Кав'ярня 'Горіх', вул. Шевченка 12">
+      </div>
+      <div class="form-group">
+        <label>Макс. учасників</label>
+        <input type="number" id="c-max" value="6" min="2" max="50">
+      </div>
+      <div class="form-group">
+        <label>📍 Геолокація (для показу відстані)</label>
+        <button class="geo-btn" onclick="detectGeo()">📍 Визначити моє місцезнаходження</button>
+        <div id="geo-status"></div>
+        <div id="geo-manual" style="display:none;margin-top:10px">
+          <div class="form-row">
+            <div class="form-group" style="margin:0">
+              <label style="font-weight:600">Широта</label>
+              <input type="number" id="c-lat" placeholder="51.4982" step="0.0001">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-weight:600">Довгота</label>
+              <input type="number" id="c-lng" placeholder="31.2893" step="0.0001">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btn-create-submit" onclick="submitCreate()">Опублікувати захід →</button>
+      <button class="btn-cancel" onclick="closeOverlay('create-overlay')">Скасувати</button>
+    </div>
+    <div class="success-wrap" id="create-success">
+      <div class="s-icon">🎉</div>
+      <h3>Захід надіслано!</h3>
+      <p>З'явиться на сайті після перевірки.<br>Зазвичай це займає менше години.</p>
+      <button class="btn-cancel" style="margin-top:20px" onclick="closeOverlay('create-overlay')">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL = 'https://pqasdmiqnlyyjwmmqeyc.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxYXNkbWlxbmx5eWp3bW1xZXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDc4ODgsImV4cCI6MjA5Mjc4Mzg4OH0.3CG1PiCOPHNC9PW6txXo-5PWTNxDpAurOxXGlGnni2s';
+const TG_TOKEN = '8505241162:AAFBF9gwIeiVkVZhCWa6ltGfPi_3RNhEqoI';
+const ADMIN_CHAT_ID = 503549265;
+
+const TYPE_EMOJI = { coffee:'☕', running:'🏃', walk:'🚶', games:'🎮', food:'🍕', creative:'🎨', other:'✨', workshop:'🎨', bar:'🍷', dinner:'🍽️' };
+const TYPE_LABEL = { coffee:'☕ Кава', running:'🏃 Пробіжка', walk:'🚶 Прогулянка', games:'🎮 Ігри', food:'🍕 Їжа', creative:'🎨 Творчість', other:'✨ Інше', workshop:'🎨 Майстер-клас', bar:'🍷 Бар', dinner:'🍽️ Вечеря' };
+const TYPE_BG = { coffee:'#FFF4F0', running:'#F0F4FF', walk:'#F4FFF0', games:'#F4F0FF', food:'#FFFFF0', creative:'#FFF4FF', other:'#F0F0FF', workshop:'#FFF4FF', bar:'#F4F0FF', dinner:'#F0FFF4' };
+
+let allEvents = [];
+let activeJoinId = null;
+let userLat = null, userLng = null;
+let radiusKm = 2;
+let createLat = null, createLng = null;
+
+// ── Supabase helpers ──
+async function sbGet(table, params) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+  });
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+async function sbPost(table, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || res.statusText); }
+}
+async function sbRpc(fn, params) {
+  const res = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+  if (!res.ok) throw new Error(res.statusText);
+}
+
+// ── Telegram ──
+async function tgSend(chatId, text) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
+    });
+  } catch {}
+}
+
+// ── Haversine distance (km) ──
+function distKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── Geolocation ──
+function tryGetGeo() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    document.getElementById('radius-filter').style.display = 'flex';
+    renderEvents();
+  }, () => {});
+}
+
+function detectGeo() {
+  const status = document.getElementById('geo-status');
+  if (!navigator.geolocation) { status.textContent = 'Геолокація недоступна у вашому браузері'; document.getElementById('geo-manual').style.display = 'block'; return; }
+  status.textContent = '⏳ Визначаємо місцезнаходження…';
+  navigator.geolocation.getCurrentPosition(pos => {
+    createLat = pos.coords.latitude;
+    createLng = pos.coords.longitude;
+    status.textContent = `✅ Знайдено: ${createLat.toFixed(4)}, ${createLng.toFixed(4)}`;
+    document.getElementById('geo-manual').style.display = 'none';
+  }, () => {
+    status.textContent = 'Не вдалось визначити. Введіть координати вручну:';
+    document.getElementById('geo-manual').style.display = 'block';
+  });
+}
+
+function setRadius(btn) {
+  document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  radiusKm = parseFloat(btn.dataset.km);
+  renderEvents();
+}
+
+// ── Date format ──
+function formatDate(iso) {
+  const d = new Date(iso);
+  const days = ['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота'];
+  const months = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} о ${hh}:${mm}`;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Load events ──
+async function loadEvents() {
+  document.getElementById('loading').style.display = 'grid';
+  document.getElementById('events-grid').innerHTML = '';
+  document.getElementById('empty').style.display = 'none';
+  try {
+    allEvents = await sbGet('local_events', 'status=eq.published&order=event_date.asc');
+  } catch {
+    allEvents = [];
+  }
+  document.getElementById('loading').style.display = 'none';
+  renderEvents();
+}
+
+function renderEvents() {
+  const grid = document.getElementById('events-grid');
+  grid.innerHTML = '';
+
+  let filtered = allEvents;
+
+  // Radius filter (only if geo available)
+  if (userLat !== null && radiusKm > 0) {
+    filtered = filtered.filter(ev => {
+      if (!ev.latitude || !ev.longitude) return true; // show if no geo
+      return distKm(userLat, userLng, ev.latitude, ev.longitude) <= radiusKm;
+    });
+  }
+
+  if (!filtered.length) { document.getElementById('empty').style.display = 'block'; return; }
+  document.getElementById('empty').style.display = 'none';
+
+  filtered.forEach(ev => {
+    const count = ev.participant_count || 0;
+    const max = ev.max_participants || 0;
+    const isFull = max > 0 && count >= max;
+    const pct = max > 0 ? Math.min(100, Math.round(count / max * 100)) : 0;
+    const emoji = TYPE_EMOJI[ev.type] || '📅';
+    const label = TYPE_LABEL[ev.type] || ev.type;
+    const bg = TYPE_BG[ev.type] || '#F8F7F4';
+    const dateStr = ev.event_date ? formatDate(ev.event_date) : 'Дата уточнюється';
+
+    let distHtml = '';
+    if (userLat !== null && ev.latitude && ev.longitude) {
+      const d = distKm(userLat, userLng, ev.latitude, ev.longitude);
+      distHtml = `<div class="ev-distance">📏 ${d < 1 ? Math.round(d*1000)+'м' : d.toFixed(1)+'км'} від тебе</div>`;
+    }
+
+    let btnHtml;
+    if (isFull) {
+      btnHtml = `<button class="btn-join full" disabled>Місць немає</button>`;
+    } else {
+      btnHtml = `<button class="btn-join" onclick="openJoinModal('${escHtml(ev.id)}')">Приєднатись →</button>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'ev-card';
+    card.id = 'ev-' + ev.id;
+    card.innerHTML = `
+      <div class="ev-top" style="background:${bg}">${emoji}</div>
+      <div class="ev-body">
+        <span class="ev-badge">${label}</span>
+        <div class="ev-title">${escHtml(ev.title)}</div>
+        <div class="ev-meta"><span class="ev-meta-icon">👤</span><span>Організатор: ${escHtml(ev.creator_name)}</span></div>
+        <div class="ev-meta"><span class="ev-meta-icon">📅</span><span>${dateStr}</span></div>
+        <div class="ev-meta"><span class="ev-meta-icon">📍</span><span>${escHtml(ev.location_name)}</span></div>
+        ${max > 0 ? `
+        <div class="ev-progress">
+          <div class="ev-prog-label">
+            <span>👥 ${count} / ${max} учасників</span>
+            <span>${isFull ? '🔴 Немає місць' : max - count + ' вільних'}</span>
+          </div>
+          <div class="ev-bar"><div class="ev-bar-fill" style="width:${pct}%"></div></div>
+        </div>` : ''}
+        ${distHtml}
+        ${btnHtml}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── Join modal ──
+function openJoinModal(eventId) {
+  activeJoinId = eventId;
+  const ev = allEvents.find(e => String(e.id) === String(eventId));
+  document.getElementById('join-title').textContent = 'Приєднатись' + (ev ? ` — ${ev.title}` : '');
+  document.getElementById('join-name').value = localStorage.getItem('meetnow_user_name') || '';
+  document.getElementById('join-contact').value = '';
+  document.getElementById('join-form-wrap').style.display = 'block';
+  document.getElementById('join-success').style.display = 'none';
+  document.getElementById('btn-join-submit').disabled = false;
+  document.getElementById('btn-join-submit').textContent = 'Підтвердити →';
+  document.getElementById('join-overlay').classList.add('show');
+}
+
+async function submitJoin() {
+  const name = document.getElementById('join-name').value.trim();
+  const contact = document.getElementById('join-contact').value.trim();
+  if (!name) { toast("Введи своє ім'я"); return; }
+  if (!contact) { toast('Введи Telegram або телефон'); return; }
+
+  const btn = document.getElementById('btn-join-submit');
+  btn.disabled = true; btn.textContent = 'Надсилаємо…';
+
+  const ev = allEvents.find(e => String(e.id) === String(activeJoinId));
+
+  try {
+    await sbPost('local_event_participants', {
+      event_id: activeJoinId,
+      name,
+      contact,
+      status: 'pending'
+    });
+
+    // Increment participant_count
+    try {
+      await fetch(`${SB_URL}/rest/v1/local_events?id=eq.${activeJoinId}`, {
+        method: 'PATCH',
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ participant_count: (ev?.participant_count || 0) + 1 })
+      });
+      if (ev) ev.participant_count = (ev.participant_count || 0) + 1;
+    } catch {}
+
+    // Notify organizer
+    if (ev?.creator_telegram_chat_id) {
+      await tgSend(ev.creator_telegram_chat_id,
+        `👋 Хтось хоче приєднатись до твого заходу <b>${ev.title}</b>!\n\nІм'я: ${name}\nКонтакт: ${contact}\n\nПідтвердити участь?`
+      );
+    }
+
+    // Notify admin
+    await tgSend(ADMIN_CHAT_ID,
+      `📍 Новий учасник на локальному заході!\n\n📌 Захід: ${ev?.title || activeJoinId}\n👤 Ім'я: ${name}\n📞 Контакт: ${contact}`
+    );
+
+    localStorage.setItem('meetnow_user_name', name);
+
+    document.getElementById('join-form-wrap').style.display = 'none';
+    document.getElementById('join-success').style.display = 'block';
+    renderEvents();
+  } catch (err) {
+    toast('Помилка: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Підтвердити →';
+  }
+}
+
+// ── Create modal ──
+function openCreateModal() {
+  // Set default date to today
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  document.getElementById('c-date').value = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('c-time').value = '18:00';
+  document.getElementById('c-name').value = localStorage.getItem('meetnow_user_name') || '';
+  document.getElementById('c-contact').value = '';
+  document.getElementById('c-title').value = '';
+  document.getElementById('c-desc').value = '';
+  document.getElementById('c-location').value = '';
+  document.getElementById('c-max').value = '6';
+  document.getElementById('geo-status').textContent = '';
+  document.getElementById('geo-manual').style.display = 'none';
+  createLat = null; createLng = null;
+  document.getElementById('create-form-wrap').style.display = 'block';
+  document.getElementById('create-success').style.display = 'none';
+  document.getElementById('btn-create-submit').disabled = false;
+  document.getElementById('btn-create-submit').textContent = 'Опублікувати захід →';
+  document.getElementById('create-overlay').classList.add('show');
+}
+
+async function submitCreate() {
+  const name = document.getElementById('c-name').value.trim();
+  const contact = document.getElementById('c-contact').value.trim();
+  const title = document.getElementById('c-title').value.trim();
+  const type = document.getElementById('c-type').value;
+  const desc = document.getElementById('c-desc').value.trim();
+  const date = document.getElementById('c-date').value;
+  const time = document.getElementById('c-time').value;
+  const location = document.getElementById('c-location').value.trim();
+  const maxP = parseInt(document.getElementById('c-max').value) || 6;
+
+  if (!name) { toast("Введи своє ім'я"); return; }
+  if (!contact) { toast('Введи Telegram або телефон'); return; }
+  if (!title) { toast('Введи назву заходу'); return; }
+  if (!date || !time) { toast('Вкажи дату та час'); return; }
+  if (!location) { toast('Вкажи місце зустрічі'); return; }
+
+  // Merge manual lat/lng if entered
+  if (!createLat) {
+    const latVal = parseFloat(document.getElementById('c-lat')?.value);
+    const lngVal = parseFloat(document.getElementById('c-lng')?.value);
+    if (!isNaN(latVal) && !isNaN(lngVal)) { createLat = latVal; createLng = lngVal; }
+  }
+
+  const btn = document.getElementById('btn-create-submit');
+  btn.disabled = true; btn.textContent = 'Надсилаємо…';
+
+  const eventDate = new Date(`${date}T${time}`).toISOString();
+
+  try {
+    await sbPost('local_events', {
+      creator_name: name,
+      creator_contact: contact,
+      title,
+      type,
+      description: desc || null,
+      event_date: eventDate,
+      location_name: location,
+      max_participants: maxP,
+      participant_count: 0,
+      latitude: createLat,
+      longitude: createLng,
+      status: 'pending'
+    });
+
+    // Notify admin
+    const typeLabel = TYPE_LABEL[type] || type;
+    await tgSend(ADMIN_CHAT_ID,
+      `🆕 Новий локальний захід на модерації!\n\n📌 ${title}\n${typeLabel} · ${formatDate(eventDate)}\n📍 ${location}\n\nОрганізатор: ${name}\nКонтакт: ${contact}`
+    );
+
+    localStorage.setItem('meetnow_user_name', name);
+
+    document.getElementById('create-form-wrap').style.display = 'none';
+    document.getElementById('create-success').style.display = 'block';
+    loadEvents();
+  } catch (err) {
+    toast('Помилка: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Опублікувати захід →';
+  }
+}
+
+// ── Overlay helpers ──
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('show');
+  if (id === 'join-overlay') activeJoinId = null;
+}
+function handleOverlayClick(e, id) {
+  if (e.target === document.getElementById(id)) closeOverlay(id);
+}
+
+// ── Toast ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Init ──
+tryGetGeo();
+loadEvents();
+</script>
+</body>
+</html>
