@@ -448,7 +448,6 @@ footer {
       <p class="hero-sub">AI підбирає компанію. Ти просто приходиш.</p>
       <div class="hero-cta">
         <a href="onboarding.html" class="btn-cta">Знайти компанію →</a>
-        <div class="hero-trust">🎯 Депозит тільки після матчингу — безкоштовно приєднатись</div>
       </div>
     </div>
     <div class="hero-visual">
@@ -792,11 +791,11 @@ function toggleFaq(btn) {
   const joined = new Set(JSON.parse(localStorage.getItem('meetnow_joined') || '[]'));
 
   const events = [
-    { id:'mock-1', type:'coffee', title:'☕ Ранкова кава та знайомства', date: nextWeekday(6,10,0), venue:"Кав'ярня 'Горіх', вул. Шевченка 12", max:6, reg:3, price:null, note:'депозит 100 грн' },
-    { id:'mock-2', type:'bar',    title:'🍷 Вечір крафтового пива',      date: nextWeekday(5,19,0), venue:"Craft Bar 'Хміль', вул. Миру 5",       max:6, reg:4, price:null, note:'депозит 200 грн' },
-    { id:'mock-3', type:'running',title:'🏃 Ранкова пробіжка в парку',   date: nextWeekday(0,8,0),  venue:'Парк ім. Коцюбинського',               max:6, reg:2, price:null, note:null },
-    { id:'mock-4', type:'workshop',title:'🎨 Майстер-клас з акварелі',   date: nextWeekday(3,18,0), venue:"Арт-студія 'Палітра', вул. Гоголя 8",  max:8, reg:5, price:350,  note:null },
-    { id:'mock-5', type:'dinner', title:'🍽️ Вечеря з незнайомцями',      date: nextWeekday(6,19,30),venue:"Ресторан 'Чернігів', пр. Миру 32",     max:4, reg:2, price:null, note:'депозит 200 грн' },
+    { id:'mock-1', type:'coffee',  title:'☕ Ранкова кава та знайомства', date: nextWeekday(6,10,0),  venue:"Кав'ярня 'Горіх', вул. Шевченка 12", max:6, reg:3 },
+    { id:'mock-2', type:'bar',     title:'🍷 Вечір крафтового пива',      date: nextWeekday(5,19,0),  venue:"Craft Bar 'Хміль', вул. Миру 5",       max:6, reg:4 },
+    { id:'mock-3', type:'running', title:'🏃 Ранкова пробіжка в парку',   date: nextWeekday(0,8,0),   venue:'Парк ім. Коцюбинського',               max:6, reg:2 },
+    { id:'mock-4', type:'workshop',title:'🎨 Майстер-клас з акварелі',    date: nextWeekday(3,18,0),  venue:"Арт-студія 'Палітра', вул. Гоголя 8",  max:8, reg:5 },
+    { id:'mock-5', type:'dinner',  title:'🍽️ Вечеря з незнайомцями',      date: nextWeekday(6,19,30), venue:"Ресторан 'Чернігів', пр. Миру 32",     max:4, reg:2 },
   ];
 
   const grid = document.getElementById('uev-grid');
@@ -807,10 +806,6 @@ function toggleFaq(btn) {
     const isFull = reg >= ev.max;
     const isJoined = joined.has(ev.id);
     const pct = Math.min(100, Math.round(reg / ev.max * 100));
-    const priceHtml = ev.price
-      ? `<div class="uev-price">${ev.price} грн</div>`
-      : `<div><div class="uev-price free">Безкоштовно</div>${ev.note ? `<div class="uev-price-note">(${ev.note})</div>` : ''}</div>`;
-
     let btnHtml;
     if (isJoined) {
       btnHtml = `<div class="btn-uev-join" style="background:#22c55e;box-shadow:0 3px 12px rgba(34,197,94,0.28);cursor:default">Ти йдеш ✓</div>`;
@@ -836,7 +831,6 @@ function toggleFaq(btn) {
           </div>
           <div class="uev-bar"><div class="uev-bar-fill" style="width:${pct}%"></div></div>
         </div>
-        <div class="uev-price-row">${priceHtml}</div>
         ${btnHtml}
       </div>`;
     grid.appendChild(card);
