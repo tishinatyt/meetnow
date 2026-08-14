@@ -71,7 +71,7 @@ export default function EventMap({ lat, lng, title }: Props) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-48 rounded-2xl overflow-hidden border border-gray-800"
+      className="w-full h-48 rounded-2xl overflow-hidden border border-gray-200"
       style={{ zIndex: 0 }}
     />
   )

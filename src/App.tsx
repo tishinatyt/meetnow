@@ -10,6 +10,7 @@ import Chat from '@/pages/Chat'
 import Profile from '@/pages/Profile'
 import EventDetail from '@/pages/EventDetail'
 import EventChatPlaceholder from '@/pages/EventChatPlaceholder'
+import Chats from '@/pages/Chats'
 
 function AppLayout() {
   return (
@@ -21,6 +22,7 @@ function AppLayout() {
         <Route path="/matches" element={<Matches />} />
         <Route path="/chat/:matchId" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/chats" element={<Chats />} />
         <Route path="/event/:id" element={<EventDetail />} />
         <Route path="/event/:id/chat" element={<EventChatPlaceholder />} />
       </Routes>
