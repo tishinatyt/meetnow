@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import BottomNav from '@/components/BottomNav'
+import HomeScreen from '@/pages/HomeScreen'
 import Feed from '@/pages/Feed'
 import CreateActivity from '@/pages/CreateActivity'
 import Matches from '@/pages/Matches'
@@ -14,7 +15,8 @@ function AppLayout() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Feed />} />
+        <Route path="/" element={<HomeScreen />} />
+        <Route path="/feed-old" element={<Feed />} />
         <Route path="/create" element={<CreateActivity />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/chat/:matchId" element={<Chat />} />
