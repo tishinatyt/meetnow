@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEvent } from '@/hooks/useEvent'
 import { useAuth } from '@/contexts/AuthContext'
@@ -76,6 +76,7 @@ export default function EventDetail() {
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
   const [joined, setJoined] = useState(false)
+  const joiningRef = useRef(false) // synchronous guard — blocks double-clicks before re-render
 
   useEffect(() => {
     if (!event?.location_lat || !event?.location_lng) return
@@ -93,10 +94,12 @@ export default function EventDetail() {
   }, [participants, supaUser])
 
   async function handleJoin() {
-    if (!supaUser || !event) return
+    if (!supaUser || !event || joiningRef.current) return
+    joiningRef.current = true  // set synchronously — blocks any click before next render
     setJoining(true)
     setJoinError(null)
     const { error: err } = await joinEvent(supaUser.id)
+    joiningRef.current = false
     if (err) {
       setJoinError(err)
       setJoining(false)

@@ -340,19 +340,17 @@ export default function HomeScreen() {
     if (!supaUser) return
     setLoadingMy(true)
 
+    // ── Step 1: get participation rows (event_id + role only, no FK join to events)
+    // Separating this from the events fetch avoids a PostgREST FK-join RLS edge case
+    // where events_select_private fails silently when evaluated inside an embedded join.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: participations } = await (supabase as any)
+    const { data: participations, error: partError } = await (supabase as any)
       .from('event_participants')
-      .select(`
-        role,
-        event:events!event_participants_event_id_fkey(
-          id, title, category, address_text, event_datetime,
-          min_age, max_age, gender_filter, cover_photo_url, max_participants,
-          organizer:users!events_organizer_id_fkey(id, name, avatar_url, google_verified)
-        )
-      `)
+      .select('event_id, role')
       .eq('user_id', supaUser.id)
       .eq('status', 'joined')
+
+    if (partError) console.error('[fetchMyEvents] participations error:', partError)
 
     if (!participations || participations.length === 0) {
       setMyEvents([])
@@ -362,38 +360,56 @@ export default function HomeScreen() {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const eventIds: string[] = (participations as any[])
-      .map((p: any) => toSingle(p.event)?.id)
-      .filter(Boolean)
+    const roleByEvent = new Map<string, string>((participations as any[]).map((p: any) => [p.event_id, p.role]))
+    const eventIds = [...roleByEvent.keys()]
 
     setMyEventIds(new Set(eventIds))
 
+    // ── Step 2: fetch events and all participants in parallel
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: allParts } = await (supabase as any)
-      .from('event_participants')
-      .select(`
-        event_id, user_id,
-        user:users!event_participants_user_id_fkey(id, name, avatar_url)
-      `)
-      .in('event_id', eventIds)
-      .eq('status', 'joined')
+    const [eventsRes, allPartsRes] = await Promise.all([
+      (supabase as any)
+        .from('events')
+        .select(`
+          id, title, category, address_text, event_datetime,
+          min_age, max_age, gender_filter, cover_photo_url, max_participants,
+          organizer:users!events_organizer_id_fkey(id, name, avatar_url, google_verified)
+        `)
+        .in('id', eventIds),
+      (supabase as any)
+        .from('event_participants')
+        .select(`
+          event_id, user_id,
+          user:users!event_participants_user_id_fkey(id, name, avatar_url)
+        `)
+        .in('event_id', eventIds)
+        .eq('status', 'joined'),
+    ])
+
+    if (eventsRes.error) console.error('[fetchMyEvents] events error:', eventsRes.error)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const eventsById = new Map<string, any>((eventsRes.data ?? []).map((e: any) => [e.id, e]))
 
     const partsByEvent = new Map<string, ParticipantInfo[]>()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const p of (allParts ?? []) as any[]) {
+    for (const p of (allPartsRes.data ?? []) as any[]) {
       const list = partsByEvent.get(p.event_id) ?? []
       list.push({ user_id: p.user_id, user: toSingle(p.user) })
       partsByEvent.set(p.event_id, list)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapped: MyEvent[] = (participations as any[])
-      .map((p: any) => {
-        const ev = toSingle(p.event)
-        if (!ev) return null
+    const mapped: MyEvent[] = eventIds
+      .map((eid) => {
+        const ev = eventsById.get(eid)
+        if (!ev) {
+          console.error('[fetchMyEvents] event not visible for event_id:', eid, '— RLS may be blocking it')
+          return null
+        }
         return {
           eventId: ev.id,
-          role: p.role as 'organizer' | 'participant',
+          role: (roleByEvent.get(eid) ?? 'participant') as 'organizer' | 'participant',
           title: ev.title,
           category: ev.category,
           address_text: ev.address_text,

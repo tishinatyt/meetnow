@@ -125,9 +125,13 @@ export function useEvent(eventId: string) {
   }
 
   async function joinEvent(userId: string): Promise<{ error: string | null }> {
+    // upsert: safe even without UNIQUE constraint applied yet, and idempotent when it is
     const { error: err } = await supabase
       .from('event_participants')
-      .insert({ event_id: eventId, user_id: userId, role: 'participant', status: 'joined' })
+      .upsert(
+        { event_id: eventId, user_id: userId, role: 'participant', status: 'joined' },
+        { onConflict: 'event_id,user_id', ignoreDuplicates: true },
+      )
 
     if (err) return { error: err.message }
     // Reload participants list
