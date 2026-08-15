@@ -33,6 +33,7 @@ const TABS = [
   { key: 'food',    label: 'Їжа' },
   { key: 'games',   label: 'Ігри' },
   { key: 'walk',    label: 'Прогулянка' },
+  { key: 'art',     label: 'Мистецтво' },
   { key: 'other',   label: 'Інше' },
 ]
 
@@ -623,10 +624,18 @@ export default function HomeScreen() {
             {/* Empty state */}
             {!loadingPublic && shownPublic.length === 0 && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
-                <div className="text-4xl mb-3">🌐</div>
-                <p className="text-gray-500 text-sm">Публічних подій поки немає</p>
+                <div className="text-4xl mb-3">
+                  {selectedCategory !== 'all' ? (CATEGORY_EMOJI[selectedCategory] ?? '🔍') : '🌐'}
+                </div>
+                <p className="text-gray-500 text-sm">
+                  {selectedCategory !== 'all'
+                    ? `Поки немає подій у категорії «${CATEGORY_LABEL[selectedCategory] ?? selectedCategory}»`
+                    : 'Публічних подій поки немає'}
+                </p>
                 <p className="text-gray-400 text-xs mt-1">
-                  Спробуйте інший фільтр або перевірте пізніше
+                  {selectedCategory !== 'all'
+                    ? 'Спробуйте іншу категорію або збільшіть радіус пошуку'
+                    : 'Збільшіть радіус або перевірте пізніше'}
                 </p>
               </div>
             )}
