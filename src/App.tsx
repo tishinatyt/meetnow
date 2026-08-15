@@ -9,7 +9,7 @@ import Matches from '@/pages/Matches'
 import Chat from '@/pages/Chat'
 import Profile from '@/pages/Profile'
 import EventDetail from '@/pages/EventDetail'
-import EventChatPlaceholder from '@/pages/EventChatPlaceholder'
+import EventChat from '@/pages/EventChat'
 import Chats from '@/pages/Chats'
 
 // Routes with their own full-screen bottom CTA — BottomNav would cover them
@@ -30,7 +30,7 @@ function AppLayout() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/chats" element={<Chats />} />
         <Route path="/event/:id" element={<EventDetail />} />
-        <Route path="/event/:id/chat" element={<EventChatPlaceholder />} />
+        <Route path="/event/:id/chat" element={<EventChat />} />
       </Routes>
       {!hideNav && <BottomNav />}
     </>
