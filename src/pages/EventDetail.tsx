@@ -4,6 +4,7 @@ import { useEvent } from '@/hooks/useEvent'
 import { useAuth } from '@/contexts/AuthContext'
 import { getCurrentPosition } from '@/lib/geo'
 import EventMap from '@/components/EventMap'
+import CategoryPlaceholder from '@/components/CategoryPlaceholder'
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -145,19 +146,21 @@ export default function EventDetail() {
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-28">
 
       {/* ── Cover photo ────────────────────────────────────────────────── */}
-      {event.cover_photo_url && (
-        <div className="relative h-52 w-full overflow-hidden">
+      <div className="relative h-52 w-full overflow-hidden">
+        {event.cover_photo_url ? (
           <img
             src={event.cover_photo_url}
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
-        </div>
-      )}
+        ) : (
+          <CategoryPlaceholder category={event.category} className="h-52 w-full" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
+      </div>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className={`sticky top-0 bg-white/95 backdrop-blur z-20 border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm ${event.cover_photo_url ? '' : 'pt-4'}`}>
+      <div className="sticky top-0 bg-white/95 backdrop-blur z-20 border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm">
         <button
           onClick={() => navigate(-1)}
           className="text-gray-400 hover:text-gray-700 transition-colors p-1 -ml-1"
@@ -324,10 +327,10 @@ export default function EventDetail() {
         <div className="max-w-lg mx-auto">
           {isOrganizer ? (
             <button
-              disabled
-              className="w-full bg-gray-100 text-gray-400 font-semibold py-4 rounded-2xl text-center"
+              onClick={() => navigate(`/event/${event.id}/chat`)}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
             >
-              Ви організатор цього події
+              💬 Перейти в чат
             </button>
           ) : joined ? (
             <button

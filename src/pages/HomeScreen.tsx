@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { getCurrentPosition } from '@/lib/geo'
+import CategoryPlaceholder from '@/components/CategoryPlaceholder'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -21,18 +22,6 @@ const GENDER_LABEL: Record<string, string> = {
   any: 'Будь-хто', male: 'Хлопці', female: 'Дівчата',
 }
 
-const CATEGORY_GRADIENT: Record<string, string> = {
-  cinema:  'from-purple-100 to-indigo-100',
-  theatre: 'from-red-100 to-rose-100',
-  bar:     'from-amber-100 to-yellow-100',
-  sport:   'from-green-100 to-emerald-100',
-  music:   'from-blue-100 to-cyan-100',
-  food:    'from-orange-100 to-red-100',
-  games:   'from-indigo-100 to-violet-100',
-  walk:    'from-teal-100 to-green-100',
-  art:     'from-pink-100 to-rose-100',
-  other:   'from-gray-100 to-gray-200',
-}
 
 const TABS = [
   { key: 'all',     label: 'Усі' },
@@ -153,25 +142,6 @@ function AvatarStack({
   )
 }
 
-// ── CategoryCover ─────────────────────────────────────────────────────────────
-
-function CategoryCover({ category, url }: { category: string; url: string | null }) {
-  const gradient = CATEGORY_GRADIENT[category] ?? CATEGORY_GRADIENT.other
-  const emoji = CATEGORY_EMOJI[category] ?? '💬'
-
-  if (url) {
-    return (
-      <div className="h-32 w-full overflow-hidden">
-        <img src={url} alt="" className="w-full h-full object-cover" />
-      </div>
-    )
-  }
-  return (
-    <div className={`h-32 w-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-      <span className="text-5xl opacity-40">{emoji}</span>
-    </div>
-  )
-}
 
 // ── MyEventCard ───────────────────────────────────────────────────────────────
 
@@ -280,7 +250,13 @@ function PublicEventCard({ event }: { event: PublicEvent }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       {/* Cover */}
-      <CategoryCover category={event.category} url={event.cover_photo_url} />
+      {event.cover_photo_url ? (
+        <div className="h-32 w-full overflow-hidden">
+          <img src={event.cover_photo_url} alt="" className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <CategoryPlaceholder category={event.category} className="h-32 w-full" />
+      )}
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
