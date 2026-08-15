@@ -87,8 +87,9 @@ export default function EventDetail() {
   }, [event?.location_lat, event?.location_lng])
 
   useEffect(() => {
-    if (!supaUser || !participants.length) return
-    setJoined(participants.some((p) => p.user_id === supaUser.id))
+    if (!supaUser) return
+    // Don't guard on participants.length — empty array means "not joined", which is correct
+    setJoined(participants.some((p) => p.user_id === supaUser.id && p.status === 'joined'))
   }, [participants, supaUser])
 
   async function handleJoin() {
@@ -101,9 +102,9 @@ export default function EventDetail() {
       setJoining(false)
       return
     }
+    // Don't navigate immediately — show "Ви приєднались ✓" + chat button instead
     setJoined(true)
     setJoining(false)
-    navigate(`/event/${event.id}/chat`)
   }
 
   // ── render states ──────────────────────────────────────────────────────────
@@ -326,6 +327,7 @@ export default function EventDetail() {
       <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-4 safe-area-bottom shadow-sm">
         <div className="max-w-lg mx-auto">
           {isOrganizer ? (
+            // Organizer: go straight to chat
             <button
               onClick={() => navigate(`/event/${event.id}/chat`)}
               className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
@@ -333,26 +335,35 @@ export default function EventDetail() {
               💬 Перейти в чат
             </button>
           ) : joined ? (
-            <button
-              onClick={() => navigate(`/event/${event.id}/chat`)}
-              className="w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
-            >
-              💬 Відкрити чат події
-            </button>
+            // Already a participant: show success badge + chat button
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 text-green-600 text-sm font-medium">
+                <span className="text-green-500 text-lg">✓</span>
+                Ви приєднались до події
+              </div>
+              <button
+                onClick={() => navigate(`/event/${event.id}/chat`)}
+                className="w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+              >
+                💬 Перейти в чат події
+              </button>
+            </div>
           ) : isFull ? (
+            // No slots left
             <button
               disabled
               className="w-full bg-gray-100 text-gray-400 font-semibold py-4 rounded-2xl"
             >
-              🚫 Місця заповнені
+              🚫 Місць немає
             </button>
           ) : (
+            // Main CTA: join
             <button
               onClick={handleJoin}
               disabled={joining || !supaUser}
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
             >
-              {joining ? 'Приєднуємось...' : '💬 Приєднатися до чату'}
+              {joining ? 'Приєднуємось...' : 'Приєднатись'}
             </button>
           )}
         </div>
