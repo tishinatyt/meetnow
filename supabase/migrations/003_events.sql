@@ -270,12 +270,17 @@ create policy "events_delete"
 -- ----------------------------------------------------------------
 -- event_participants policies
 
--- Participants of an event can see all other participants for that event
+-- Own row always visible; other participants visible when user is in same event.
+-- user_id = auth.uid() short-circuits first so is_event_participant (STABLE) is
+-- never called for the user's own rows — avoids recursive-RLS / STABLE-cache bug.
 create policy "ep_select"
   on public.event_participants for select
   using (
     auth.uid() is not null
-    and public.is_event_participant(event_id)
+    and (
+      user_id = auth.uid()
+      or public.is_event_participant(event_id)
+    )
   );
 
 -- Any authenticated user can join (insert themselves as participant)
@@ -289,7 +294,8 @@ create policy "ep_insert"
 -- User can update their own participation (e.g. leave: status = 'left')
 create policy "ep_update_own"
   on public.event_participants for update
-  using (auth.uid() = user_id);
+  using     (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 -- ----------------------------------------------------------------
 -- event_chats policies
