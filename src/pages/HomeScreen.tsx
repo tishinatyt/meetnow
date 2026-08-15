@@ -49,6 +49,14 @@ const TABS = [
 
 const PAGE_SIZE = 10
 
+const RADIUS_OPTIONS = [
+  { value: 1,  label: '1 км' },
+  { value: 3,  label: '3 км' },
+  { value: 5,  label: '5 км' },
+  { value: 10, label: '10 км' },
+  { value: 50, label: 'Вся Чернігівщина' },
+]
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface OrganizerInfo {
@@ -249,17 +257,11 @@ function MyEventCard({ event }: { event: MyEvent }) {
         </div>
       )}
 
-      {/* Buttons */}
-      <div className="flex gap-2 px-4 pb-4">
-        <button
-          onClick={() => navigate(`/event/${event.eventId}`)}
-          className="flex-1 py-2 rounded-xl text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition-all active:scale-95"
-        >
-          Деталі
-        </button>
+      {/* Single button: Chat */}
+      <div className="px-4 pb-4">
         <button
           onClick={() => navigate(`/event/${event.eventId}/chat`)}
-          className="flex-1 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all active:scale-95"
+          className="w-full py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all active:scale-95"
         >
           💬 Чат
         </button>
@@ -270,24 +272,10 @@ function MyEventCard({ event }: { event: MyEvent }) {
 
 // ── PublicEventCard ───────────────────────────────────────────────────────────
 
-function PublicEventCard({
-  event,
-  onJoinAndChat,
-}: {
-  event: PublicEvent
-  onJoinAndChat: (eventId: string) => Promise<void>
-}) {
+function PublicEventCard({ event }: { event: PublicEvent }) {
   const navigate = useNavigate()
-  const [joining, setJoining] = useState(false)
   const emoji = CATEGORY_EMOJI[event.category] ?? '💬'
   const categoryLabel = CATEGORY_LABEL[event.category] ?? event.category
-
-  async function handleChat() {
-    setJoining(true)
-    await onJoinAndChat(event.id)
-    setJoining(false)
-    navigate(`/event/${event.id}/chat`)
-  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
@@ -339,22 +327,13 @@ function PublicEventCard({
           </span>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-2 mt-auto">
-          <button
-            onClick={() => navigate(`/event/${event.id}`)}
-            className="flex-1 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 transition-all active:scale-95"
-          >
-            Деталі
-          </button>
-          <button
-            onClick={handleChat}
-            disabled={joining}
-            className="flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white transition-all active:scale-95"
-          >
-            {joining ? '...' : '💬 Чат'}
-          </button>
-        </div>
+        {/* Single button: Details → /event/:id where join CTA lives */}
+        <button
+          onClick={() => navigate(`/event/${event.id}`)}
+          className="w-full mt-auto py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all active:scale-95"
+        >
+          Деталі →
+        </button>
       </div>
     </div>
   )
@@ -369,6 +348,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [publicPage, setPublicPage] = useState(1)
+  const [radiusKm, setRadiusKm] = useState(5)
 
   const [myEvents, setMyEvents] = useState<MyEvent[]>([])
   const [allPublicEvents, setAllPublicEvents] = useState<PublicEvent[]>([])
@@ -497,24 +477,14 @@ export default function HomeScreen() {
   useEffect(() => { fetchMyEvents() }, [fetchMyEvents])
   useEffect(() => { fetchPublicEvents() }, [fetchPublicEvents])
 
-  // ── Join event then navigate to chat (with join-first logic) ───────────────
-
-  async function handleJoinAndChat(eventId: string) {
-    if (!supaUser) return
-    // Insert participant record first (join), then caller navigates to chat
-    await supabase
-      .from('event_participants')
-      .insert({ event_id: eventId, user_id: supaUser.id, role: 'participant', status: 'joined' })
-  }
-
   // ── Derived / filtered lists ───────────────────────────────────────────────
 
   const filteredPublic = allPublicEvents
     .filter((e) => !myEventIds.has(e.id))
     .filter((e) => selectedCategory === 'all' || e.category === selectedCategory)
-    .filter(
-      (e) => !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+    .filter((e) => !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    // Radius filter: skip if distance unknown (no geo), otherwise apply
+    .filter((e) => e.distance_km === null || e.distance_km <= radiusKm)
 
   const filteredMy = myEvents.filter(
     (e) => !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -555,6 +525,18 @@ export default function HomeScreen() {
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
+
+            {/* Radius selector */}
+            <select
+              value={radiusKm}
+              onChange={(e) => { setRadiusKm(Number(e.target.value)); setPublicPage(1) }}
+              className="flex-shrink-0 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+              aria-label="Радіус пошуку"
+            >
+              {RADIUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
 
             {/* Notifications */}
             <button
@@ -677,11 +659,7 @@ export default function HomeScreen() {
             {!loadingPublic && shownPublic.length > 0 && (
               <div className="grid sm:grid-cols-2 gap-3">
                 {shownPublic.map((event) => (
-                  <PublicEventCard
-                    key={event.id}
-                    event={event}
-                    onJoinAndChat={handleJoinAndChat}
-                  />
+                  <PublicEventCard key={event.id} event={event} />
                 ))}
               </div>
             )}
