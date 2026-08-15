@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import BottomNav from '@/components/BottomNav'
@@ -12,7 +12,13 @@ import EventDetail from '@/pages/EventDetail'
 import EventChatPlaceholder from '@/pages/EventChatPlaceholder'
 import Chats from '@/pages/Chats'
 
+// Routes with their own full-screen bottom CTA — BottomNav would cover them
+const HIDE_NAV_PATTERNS = [/^\/event\//]
+
 function AppLayout() {
+  const { pathname } = useLocation()
+  const hideNav = HIDE_NAV_PATTERNS.some((re) => re.test(pathname))
+
   return (
     <>
       <Routes>
@@ -26,7 +32,7 @@ function AppLayout() {
         <Route path="/event/:id" element={<EventDetail />} />
         <Route path="/event/:id/chat" element={<EventChatPlaceholder />} />
       </Routes>
-      <BottomNav />
+      {!hideNav && <BottomNav />}
     </>
   )
 }

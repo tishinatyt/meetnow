@@ -144,7 +144,7 @@ export default function EventDetail() {
   const isFull = activeParticipants.length >= event.max_participants
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-28">
+    <div className="min-h-screen bg-gray-50 text-gray-900 pb-36">
 
       {/* ── Cover photo ────────────────────────────────────────────────── */}
       <div className="relative h-52 w-full overflow-hidden">
