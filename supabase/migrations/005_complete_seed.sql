@@ -291,7 +291,7 @@ insert into public.events (
   ST_SetSRID(ST_MakePoint(31.2845, 51.4945), 4326)::geography,
   'Майстерня «Глина та Форма», вул. Пирогова 4, Чернігів',
   now() + interval '5 days' + interval '15 hours',
-  8, 14, 55, 'any', 'upcoming'
+  8, 16, 55, 'any', 'upcoming'
 ),
 
 -- ── OTHER (new!) ─────────────────────────────────────────────

@@ -234,7 +234,7 @@ export default function EventChat() {
         )}
 
         {messages.map((msg) => {
-          const isMe = msg.sender_id === supaUser.id
+          const isMe = msg.sender_id === supaUser!.id
           return (
             <div
               key={msg.id}

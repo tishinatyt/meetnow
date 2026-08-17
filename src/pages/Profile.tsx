@@ -1,11 +1,9 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useMatches } from '@/hooks/useMatches'
 import { supabase } from '@/lib/supabase'
 
 export default function Profile() {
   const { profile, supaUser, signOut, refreshProfile } = useAuth()
-  const { matches } = useMatches()
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(profile?.name ?? '')
   const [age, setAge] = useState(String(profile?.age ?? ''))
@@ -117,7 +115,7 @@ export default function Profile() {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
-            <div className="text-3xl font-bold text-indigo-600">{matches.length}</div>
+            <div className="text-3xl font-bold text-indigo-600">0</div>
             <div className="text-sm text-gray-500 mt-1">Зустрічей</div>
           </div>
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">

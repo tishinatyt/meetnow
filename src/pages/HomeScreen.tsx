@@ -319,7 +319,6 @@ function PublicEventCard({ event }: { event: PublicEvent }) {
 // ── HomeScreen ────────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const navigate = useNavigate()
   const { supaUser } = useAuth()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -351,7 +350,6 @@ export default function HomeScreen() {
       .eq('status', 'joined')
 
     if (partError) console.error('[fetchMyEvents] participations error:', partError)
-    console.log('[Step1] participations:', JSON.stringify(participations, null, 2))
 
     if (!participations || participations.length === 0) {
       setMyEvents([])
@@ -360,12 +358,12 @@ export default function HomeScreen() {
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const roleByEvent = new Map<string, string>((participations as any[]).map((p: any) => [p.event_id, p.role]))
+    const roleByEvent = new Map<string, string>(
+      (participations as { event_id: string; role: string }[]).map((p) => [p.event_id, p.role])
+    )
     const eventIds = [...roleByEvent.keys()]
 
     setMyEventIds(new Set(eventIds))
-    console.log('[Step2] eventIds passed to query:', eventIds)
 
     // ── Step 2: fetch events and all participants in parallel
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -389,8 +387,6 @@ export default function HomeScreen() {
     ])
 
     if (eventsRes.error) console.error('[fetchMyEvents] events error:', eventsRes.error)
-    console.log('[Step2] events result:', JSON.stringify(eventsRes.data, null, 2))
-    console.log('[Step3] participants for avatars:', JSON.stringify(allPartsRes.data, null, 2))
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventsById = new Map<string, any>((eventsRes.data ?? []).map((e: any) => [e.id, e]))
@@ -429,7 +425,6 @@ export default function HomeScreen() {
       })
       .filter(Boolean) as MyEvent[]
 
-    console.log('[Final] merged myEvents array:', JSON.stringify(mapped, null, 2))
     setMyEvents(mapped)
     setLoadingMy(false)
   }, [supaUser])
@@ -449,7 +444,7 @@ export default function HomeScreen() {
 
     if (data) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const events: PublicEvent[] = (data as any[]).map((e: any) => ({
+      const events: PublicEvent[] = (data as any[]).map((e) => ({
         id: e.id,
         title: e.title,
         category: e.category,
@@ -592,13 +587,6 @@ export default function HomeScreen() {
               </div>
             )}
 
-            {/* Create button */}
-            <button
-              onClick={() => navigate('/create')}
-              className="w-full mt-4 py-3 rounded-2xl text-sm font-semibold bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 border-dashed transition-all active:scale-95"
-            >
-              + Створити особисту подію
-            </button>
           </div>
 
           {/* ── RIGHT: Громадські події ──────────────────────────────────── */}

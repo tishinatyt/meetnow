@@ -2,7 +2,6 @@ import { NavLink } from 'react-router-dom'
 
 const tabs = [
   { to: '/',        label: 'Головна', icon: '🏠' },
-  { to: '/create',  label: 'Створити', icon: '➕' },
   { to: '/chats',   label: 'Чати',    icon: '💬' },
   { to: '/profile', label: 'Профіль', icon: '👤' },
 ]

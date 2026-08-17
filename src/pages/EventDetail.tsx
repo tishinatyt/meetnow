@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEvent } from '@/hooks/useEvent'
 import { useAuth } from '@/contexts/AuthContext'
 import { getCurrentPosition } from '@/lib/geo'
-import EventMap from '@/components/EventMap'
 import CategoryPlaceholder from '@/components/CategoryPlaceholder'
+
+const EventMap = lazy(() => import('@/components/EventMap'))
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -306,11 +307,13 @@ export default function EventDetail() {
         {event.location_lat && event.location_lng ? (
           <div>
             <span className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Місце</span>
-            <EventMap
-              lat={event.location_lat}
-              lng={event.location_lng}
-              title={event.address_text || event.title}
-            />
+            <Suspense fallback={<div className="h-48 rounded-2xl bg-gray-100 animate-pulse" />}>
+              <EventMap
+                lat={event.location_lat}
+                lng={event.location_lng}
+                title={event.address_text || event.title}
+              />
+            </Suspense>
           </div>
         ) : event.address_text ? (
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center text-gray-500 text-sm">

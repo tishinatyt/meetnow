@@ -49,7 +49,7 @@ export default function Chats() {
     if (data) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const items: ChatItem[] = (data as any[])
-        .map((p: any) => {
+        .map((p) => {
           const ev = Array.isArray(p.event) ? p.event[0] : p.event
           if (!ev) return null
           const chatArr = Array.isArray(ev.chats) ? ev.chats : (ev.chats ? [ev.chats] : [])
