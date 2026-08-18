@@ -634,8 +634,9 @@ export default function HomeScreen() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Logo */}
-            <Link to="/" className="text-xl font-bold font-display flex-shrink-0 text-brand-petrol hover:opacity-80 transition-opacity">
-              📍 Поруч
+            {/* Logo wordmark — Fraunces, 'oo' accented in brand-amber to echo "nearby dots" */}
+            <Link to="/" className="font-display flex-shrink-0 hover:opacity-80 transition-opacity tracking-tight text-[1.35rem] font-semibold text-brand-petrol leading-none">
+              por<span className="text-brand-amber">oo</span>ch
             </Link>
 
             {/* City selector */}

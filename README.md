@@ -1,4 +1,4 @@
-# Поруч 📍
+# porooch
 
 PWA для ситуативних зустрічей. React + Vite + Supabase + Tailwind CSS.
 

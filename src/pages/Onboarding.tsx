@@ -6,8 +6,9 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-6 text-brand-ink">
       <div className="mb-10 text-center">
-        <div className="text-6xl mb-4">📍</div>
-        <h1 className="text-4xl font-bold tracking-tight font-display">Поруч</h1>
+        <h1 className="text-5xl font-semibold tracking-tight font-display text-brand-petrol mb-1">
+          por<span className="text-brand-amber">oo</span>ch
+        </h1>
         <p className="mt-3 text-brand-ink-soft text-lg">Ситуативні зустрічі поруч із тобою</p>
         <p className="mt-1 text-brand-ink-muted text-sm">Чернігів та більше</p>
       </div>

@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
-        name: 'Поруч',
-        short_name: 'Поруч',
+        name: 'porooch',
+        short_name: 'porooch',
         description: 'Ситуативні зустрічі поруч із тобою',
         theme_color: '#0F4C4C',
         background_color: '#FBF9F6',
