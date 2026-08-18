@@ -7,6 +7,7 @@ import Profile from '@/pages/Profile'
 import EventDetail from '@/pages/EventDetail'
 import EventChat from '@/pages/EventChat'
 import Chats from '@/pages/Chats'
+import CreateEvent from '@/pages/CreateEvent'
 
 // Routes with their own full-screen bottom CTA — BottomNav would cover them
 const HIDE_NAV_PATTERNS = [/^\/event\//]
@@ -23,6 +24,7 @@ function AppLayout() {
         <Route path="/chats" element={<Chats />} />
         <Route path="/event/:id" element={<EventDetail />} />
         <Route path="/event/:id/chat" element={<EventChat />} />
+        <Route path="/create" element={<CreateEvent />} />
       </Routes>
       {!hideNav && <BottomNav />}
     </>
