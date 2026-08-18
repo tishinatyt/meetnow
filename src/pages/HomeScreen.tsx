@@ -243,13 +243,17 @@ function MyEventCard({ event }: { event: MyEvent }) {
 
 // ── PublicEventCard ───────────────────────────────────────────────────────────
 
-function PublicEventCard({ event }: { event: PublicEvent }) {
+function PublicEventCard({ event, isNew = false }: { event: PublicEvent; isNew?: boolean }) {
   const navigate = useNavigate()
   const emoji = CATEGORY_EMOJI[event.category] ?? '💬'
   const categoryLabel = CATEGORY_LABEL[event.category] ?? event.category
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+    <div
+      className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col transition-all duration-500 ${
+        isNew ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-200'
+      }`}
+    >
       {/* Cover */}
       {event.cover_photo_url ? (
         <div className="h-32 w-full overflow-hidden">
@@ -332,6 +336,7 @@ export default function HomeScreen() {
 
   const [loadingMy, setLoadingMy] = useState(true)
   const [loadingPublic, setLoadingPublic] = useState(true)
+  const [newEventId, setNewEventId] = useState<string | null>(null)
 
   // ── Fetch "Мої події" ──────────────────────────────────────────────────────
 
@@ -469,6 +474,105 @@ export default function HomeScreen() {
 
   useEffect(() => { fetchMyEvents() }, [fetchMyEvents])
   useEffect(() => { fetchPublicEvents() }, [fetchPublicEvents])
+
+  // ── Realtime: new public events ───────────────────────────────────────────
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('public-events-feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'events', filter: 'is_public=eq.true' },
+        async (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const raw = payload.new as any
+
+          // Fetch organizer info and participant count in parallel
+          const [organizerRes, countRes] = await Promise.all([
+            supabase
+              .from('users')
+              .select('id, name, avatar_url, google_verified')
+              .eq('id', raw.organizer_id)
+              .single(),
+            supabase
+              .from('event_participants')
+              .select('*', { count: 'exact', head: true })
+              .eq('event_id', raw.id),
+          ])
+
+          const newEvent: PublicEvent = {
+            id: raw.id,
+            title: raw.title,
+            category: raw.category,
+            address_text: raw.address_text,
+            event_datetime: raw.event_datetime,
+            min_age: raw.min_age,
+            max_age: raw.max_age,
+            gender_filter: raw.gender_filter,
+            cover_photo_url: raw.cover_photo_url ?? null,
+            max_participants: raw.max_participants,
+            participant_count: countRes.count ?? 0,
+            distance_km: null,
+            organizer: organizerRes.data
+              ? {
+                  id: organizerRes.data.id,
+                  name: organizerRes.data.name,
+                  avatar_url: organizerRes.data.avatar_url ?? null,
+                  google_verified: organizerRes.data.google_verified ?? false,
+                }
+              : null,
+          }
+
+          setAllPublicEvents((prev) => [newEvent, ...prev])
+          setNewEventId(raw.id)
+          // Clear highlight after 3 seconds
+          setTimeout(() => setNewEventId(null), 3000)
+        },
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
+
+  // ── Realtime: participant count changes ───────────────────────────────────
+
+  useEffect(() => {
+    const participantsChannel = supabase
+      .channel('event-participants-feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'event_participants' },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const eventId = (payload.new as any).event_id as string
+          setAllPublicEvents((prev) =>
+            prev.map((e) =>
+              e.id === eventId
+                ? { ...e, participant_count: e.participant_count + 1 }
+                : e,
+            ),
+          )
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'event_participants' },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const eventId = (payload.old as any).event_id as string
+          setAllPublicEvents((prev) =>
+            prev.map((e) =>
+              e.id === eventId
+                ? { ...e, participant_count: Math.max(0, e.participant_count - 1) }
+                : e,
+            ),
+          )
+        },
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(participantsChannel) }
+  }, [])
 
   // ── Derived / filtered lists ───────────────────────────────────────────────
 
@@ -653,7 +757,7 @@ export default function HomeScreen() {
             {!loadingPublic && shownPublic.length > 0 && (
               <div className="grid sm:grid-cols-2 gap-3">
                 {shownPublic.map((event) => (
-                  <PublicEventCard key={event.id} event={event} />
+                  <PublicEventCard key={event.id} event={event} isNew={event.id === newEventId} />
                 ))}
               </div>
             )}
