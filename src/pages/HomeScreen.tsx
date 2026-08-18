@@ -83,6 +83,7 @@ interface PublicEvent {
   category: string
   address_text: string
   event_datetime: string
+  created_at?: string
   min_age: number
   max_age: number
   gender_filter: string
@@ -455,6 +456,7 @@ export default function HomeScreen() {
         category: e.category,
         address_text: e.address_text,
         event_datetime: e.event_datetime,
+        created_at: e.created_at,
         min_age: e.min_age,
         max_age: e.max_age,
         gender_filter: e.gender_filter,
@@ -464,6 +466,10 @@ export default function HomeScreen() {
         distance_km: e.distance_km ?? null,
         organizer: e.organizer ?? null,
       }))
+      // Sort by created_at DESC so newest events appear at top of feed
+      events.sort((a, b) =>
+        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
+      )
       setAllPublicEvents(events)
     } else {
       setAllPublicEvents([])
