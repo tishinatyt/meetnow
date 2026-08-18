@@ -22,7 +22,7 @@ export default function CategoryPlaceholder({ category, className = 'h-32 w-full
   const meta = META[category] ?? META.other
   return (
     <div
-      className={`${className} bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}
+      className={`${className} bg-gradient-to-br ${meta.gradient} flex items-center justify-center opacity-90`}
     >
       <span className="text-5xl opacity-30 select-none">{meta.emoji}</span>
     </div>

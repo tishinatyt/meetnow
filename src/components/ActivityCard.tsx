@@ -86,7 +86,7 @@ export default function ActivityCard({ activity, onMatch }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+    <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
           {avatarUrl ? (
@@ -98,25 +98,25 @@ export default function ActivityCard({ activity, onMatch }: Props) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-gray-900 font-semibold text-sm truncate">{userName}</span>
+            <span className="text-brand-ink font-semibold text-sm truncate">{userName}</span>
             {googleVerified && (
-              <span title="Верифіковано Google" className="text-blue-600 text-xs">✓</span>
+              <span title="Верифіковано Google" className="text-brand-petrol text-xs">✓</span>
             )}
-            <span className="text-gray-400 text-xs ml-auto flex-shrink-0">
+            <span className="text-brand-ink-muted text-xs ml-auto flex-shrink-0">
               {activity.distance_km != null ? `${activity.distance_km.toFixed(1)} км` : ''}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-indigo-600 text-xs bg-indigo-50 px-2 py-0.5 rounded-full">
+            <span className="text-brand-petrol text-xs bg-brand-petrol/10 px-2 py-0.5 rounded-full">
               {emoji} {label}
             </span>
           </div>
 
-          <p className="text-gray-600 text-sm mt-2 line-clamp-2">{activity.description}</p>
+          <p className="text-brand-ink-soft text-sm mt-2 line-clamp-2">{activity.description}</p>
 
           <div className="mt-3 flex items-center justify-between">
-            <div className="text-xs text-gray-400 space-y-0.5">
+            <div className="text-xs text-brand-ink-muted space-y-0.5">
               <div>🕐 {formatTime(activity.when_time)}</div>
               <div>📍 {activity.location}</div>
               <div>
@@ -132,7 +132,7 @@ export default function ActivityCard({ activity, onMatch }: Props) {
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
                   sent
                     ? 'bg-green-50 text-green-600 border border-green-200'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                    : 'bg-brand-petrol hover:bg-brand-petrol-light text-white'
                 }`}
               >
                 {loading ? '...' : sent ? 'Надіслано ✓' : 'Написати'}

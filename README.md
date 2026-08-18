@@ -1,4 +1,4 @@
-# MeetNow ⚡
+# Поруч 📍
 
 PWA для ситуативних зустрічей. React + Vite + Supabase + Tailwind CSS.
 

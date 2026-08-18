@@ -40,12 +40,12 @@ export default function Profile() {
   if (!profile) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-24">
-      <div className="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-200 px-4 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">👤 Профіль</h1>
+    <div className="min-h-screen bg-brand-bg text-brand-ink pb-24">
+      <div className="sticky top-0 bg-brand-bg/95 backdrop-blur border-b border-brand-border px-4 py-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold font-display">👤 Профіль</h1>
         <button
           onClick={() => editing ? handleSave() : setEditing(true)}
-          className="text-indigo-600 text-sm font-medium"
+          className="text-brand-petrol text-sm font-medium"
         >
           {saving ? 'Зберігаємо...' : editing ? 'Зберегти' : 'Редагувати'}
         </button>
@@ -65,7 +65,7 @@ export default function Profile() {
             {editing && (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="absolute bottom-0 right-0 bg-indigo-600 rounded-full p-1.5 text-sm"
+                className="absolute bottom-0 right-0 bg-brand-petrol rounded-full p-1.5 text-sm"
               >
                 {uploading ? '⏳' : '📷'}
               </button>
@@ -75,13 +75,13 @@ export default function Profile() {
 
           {!editing && (
             <>
-              <h2 className="text-2xl font-bold mt-3 text-gray-900">{profile.name}</h2>
-              <div className="flex items-center gap-2 mt-1 text-gray-500">
+              <h2 className="text-2xl font-bold mt-3 text-brand-ink font-display">{profile.name}</h2>
+              <div className="flex items-center gap-2 mt-1 text-brand-ink-soft">
                 <span>{profile.age} р.</span>
                 <span>·</span>
                 <span>{profile.gender === 'male' ? 'Чоловік' : 'Жінка'}</span>
                 {profile.google_verified && (
-                  <span className="text-blue-600 text-xs bg-blue-50 px-2 py-0.5 rounded-full">✓ Google</span>
+                  <span className="text-brand-petrol text-xs bg-brand-petrol/10 px-2 py-0.5 rounded-full">✓ Google</span>
                 )}
               </div>
             </>
@@ -92,21 +92,21 @@ export default function Profile() {
         {editing && (
           <div className="space-y-4 mb-8">
             <div>
-              <label className="block text-sm text-gray-600 mb-1.5 font-medium">Ім'я</label>
+              <label className="block text-sm text-brand-ink-soft mb-1.5 font-medium">Ім'я</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-white border border-brand-border rounded-xl px-4 py-3 text-brand-ink focus:outline-none focus:border-brand-petrol transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1.5 font-medium">Вік</label>
+              <label className="block text-sm text-brand-ink-soft mb-1.5 font-medium">Вік</label>
               <input
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-white border border-brand-border rounded-xl px-4 py-3 text-brand-ink focus:outline-none focus:border-brand-petrol transition-colors"
               />
             </div>
           </div>
@@ -114,13 +114,13 @@ export default function Profile() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
-            <div className="text-3xl font-bold text-indigo-600">0</div>
-            <div className="text-sm text-gray-500 mt-1">Зустрічей</div>
+          <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm text-center">
+            <div className="text-3xl font-bold text-brand-petrol font-display">0</div>
+            <div className="text-sm text-brand-ink-soft mt-1">Зустрічей</div>
           </div>
-          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
-            <div className="text-3xl font-bold text-amber-500">5.0</div>
-            <div className="text-sm text-gray-500 mt-1">⭐ Рейтинг</div>
+          <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm text-center">
+            <div className="text-3xl font-bold text-brand-amber font-display">5.0</div>
+            <div className="text-sm text-brand-ink-soft mt-1">⭐ Рейтинг</div>
           </div>
         </div>
 

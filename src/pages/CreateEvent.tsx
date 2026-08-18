@@ -177,7 +177,7 @@ function CreateMap({ lat, lng, onPick }: CreateMapProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-56 rounded-2xl overflow-hidden border border-gray-200 cursor-crosshair"
+      className="w-full h-56 rounded-2xl overflow-hidden border border-brand-border cursor-crosshair"
       style={{ zIndex: 0 }}
     />
   )
@@ -312,11 +312,6 @@ export default function CreateEvent() {
     setSubmitting(true)
     setErrors({})
 
-    // Build the PostGIS point WKT string the DB expects for the `location` geography column
-    // The RPC get_event_coords expects a geography column — INSERT uses ST_SetSRID(ST_MakePoint(lng,lat),4326)
-    // We send lat/lng as separate numeric columns; the DB trigger/column handles the geography.
-    // Based on the schema from useEvent.ts (location_lat/lng fetched via get_event_coords),
-    // the actual column is `location geography`. We send a WKT POINT string.
     const locationWKT = form.lat !== null && form.lng !== null
       ? `POINT(${form.lng} ${form.lat})`
       : null
@@ -360,42 +355,42 @@ export default function CreateEvent() {
   // ── Shared input classes ────────────────────────────────────────────────────
 
   const inputCls = (field: keyof FormState) =>
-    `w-full bg-gray-50 border ${errors[field] ? 'border-red-400' : 'border-gray-200'} ` +
-    `rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 ` +
-    `focus:outline-none focus:border-indigo-500 transition-colors`
+    `w-full bg-white border ${errors[field] ? 'border-red-400' : 'border-brand-border'} ` +
+    `rounded-xl px-4 py-2.5 text-sm text-brand-ink placeholder-brand-ink-muted ` +
+    `focus:outline-none focus:border-brand-petrol transition-colors`
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-32">
+    <div className="min-h-screen bg-brand-bg text-brand-ink pb-32">
 
       {/* ── Sticky header ──────────────────────────────────────────────────── */}
-      <div className="sticky top-0 bg-white/95 backdrop-blur z-20 border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm">
+      <div className="sticky top-0 bg-brand-bg/95 backdrop-blur z-20 border-b border-brand-border px-4 py-3 flex items-center gap-3 shadow-sm">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="text-gray-400 hover:text-gray-700 transition-colors p-1 -ml-1"
+          className="text-brand-ink-muted hover:text-brand-ink transition-colors p-1 -ml-1"
           aria-label="Назад"
         >
           ←
         </button>
-        <span className="font-semibold text-base flex-1 text-gray-900">Нова подія</span>
+        <span className="font-semibold text-base flex-1 text-brand-ink font-display">Нова подія</span>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="px-4 pt-5 space-y-5 max-w-lg mx-auto">
 
           {/* ── Public / Private toggle ─────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">Тип події</p>
-            <div className="flex rounded-xl overflow-hidden border border-gray-200">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider mb-3">Тип події</p>
+            <div className="flex rounded-xl overflow-hidden border border-brand-border">
               <button
                 type="button"
                 onClick={() => set('is_public', true)}
                 className={`flex-1 py-2.5 text-sm font-medium transition-all ${
                   form.is_public
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                    ? 'bg-brand-petrol text-white'
+                    : 'bg-white text-brand-ink-soft hover:bg-brand-bg'
                 }`}
               >
                 🌐 Публічна подія
@@ -403,16 +398,16 @@ export default function CreateEvent() {
               <button
                 type="button"
                 onClick={() => set('is_public', false)}
-                className={`flex-1 py-2.5 text-sm font-medium transition-all border-l border-gray-200 ${
+                className={`flex-1 py-2.5 text-sm font-medium transition-all border-l border-brand-border ${
                   !form.is_public
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                    ? 'bg-brand-amber text-white'
+                    : 'bg-white text-brand-ink-soft hover:bg-brand-bg'
                 }`}
               >
                 🔒 Приватна подія
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-2">
+            <p className="text-xs text-brand-ink-muted mt-2">
               {form.is_public
                 ? 'Видима всім у стрічці подій. Будь-хто може приєднатись.'
                 : 'Видима тільки запрошеним. Тривалість — 1 година.'}
@@ -420,8 +415,8 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Title ──────────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-1">
-            <label className="text-xs text-gray-400 uppercase tracking-wider" htmlFor="title">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-1">
+            <label className="text-xs text-brand-ink-muted uppercase tracking-wider" htmlFor="title">
               Назва події <span className="text-red-400">*</span>
             </label>
             <input
@@ -437,8 +432,8 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Description ────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-1">
-            <label className="text-xs text-gray-400 uppercase tracking-wider" htmlFor="description">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-1">
+            <label className="text-xs text-brand-ink-muted uppercase tracking-wider" htmlFor="description">
               Опис
             </label>
             <textarea
@@ -453,8 +448,8 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Category ───────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">Категорія</p>
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider mb-3">Категорія</p>
             <div className="grid grid-cols-5 gap-2">
               {CATEGORIES.map((cat) => (
                 <button
@@ -463,8 +458,8 @@ export default function CreateEvent() {
                   onClick={() => set('category', cat.value)}
                   className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border transition-all ${
                     form.category === cat.value
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                      : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300 hover:bg-gray-100'
+                      ? 'border-brand-petrol bg-brand-petrol/10 text-brand-petrol'
+                      : 'border-brand-border bg-brand-bg text-brand-ink-soft hover:border-brand-border-strong hover:bg-white'
                   }`}
                 >
                   <span className="text-xl">{cat.emoji}</span>
@@ -475,8 +470,8 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Cover photo URL ─────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-1">
-            <label className="text-xs text-gray-400 uppercase tracking-wider" htmlFor="cover_photo_url">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-1">
+            <label className="text-xs text-brand-ink-muted uppercase tracking-wider" htmlFor="cover_photo_url">
               Фото обкладинки (URL, необовʼязково)
             </label>
             <input
@@ -488,7 +483,7 @@ export default function CreateEvent() {
               className={inputCls('cover_photo_url')}
             />
             {form.cover_photo_url && (
-              <div className="mt-2 h-28 rounded-xl overflow-hidden border border-gray-200">
+              <div className="mt-2 h-28 rounded-xl overflow-hidden border border-brand-border">
                 <img
                   src={form.cover_photo_url}
                   alt="Прев'ю"
@@ -500,12 +495,12 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Date & time ─────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
-            <p className="text-xs text-gray-400 uppercase tracking-wider">Дата і час</p>
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-3">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider">Дата і час</p>
 
             {/* Start */}
             <div className="space-y-1">
-              <label className="text-xs text-gray-500" htmlFor="event_datetime">
+              <label className="text-xs text-brand-ink-soft" htmlFor="event_datetime">
                 Початок <span className="text-red-400">*</span>
               </label>
               <input
@@ -524,7 +519,7 @@ export default function CreateEvent() {
             {/* End */}
             {form.is_public ? (
               <div className="space-y-1">
-                <label className="text-xs text-gray-500" htmlFor="end_datetime">
+                <label className="text-xs text-brand-ink-soft" htmlFor="end_datetime">
                   Завершення
                 </label>
                 <input
@@ -540,19 +535,19 @@ export default function CreateEvent() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5">
-                <span className="text-amber-500">⏱</span>
-                <span className="text-sm text-amber-700 font-medium">Тривалість: 1 година</span>
+              <div className="flex items-center gap-2 bg-brand-amber/10 border border-brand-amber/20 rounded-xl px-4 py-2.5">
+                <span className="text-brand-amber">⏱</span>
+                <span className="text-sm text-brand-amber font-medium">Тривалість: 1 година</span>
               </div>
             )}
           </div>
 
           {/* ── Location ────────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
-            <p className="text-xs text-gray-400 uppercase tracking-wider">Місце</p>
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-3">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider">Місце</p>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-500" htmlFor="address_text">
+              <label className="text-xs text-brand-ink-soft" htmlFor="address_text">
                 Адреса
               </label>
               <input
@@ -566,7 +561,7 @@ export default function CreateEvent() {
             </div>
 
             <div className="space-y-1.5">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-ink-soft">
                 Клікніть на карту, щоб вказати точне місце{' '}
                 <span className="text-red-400">*</span>
               </p>
@@ -579,17 +574,17 @@ export default function CreateEvent() {
                   Координати вказані: {form.lat.toFixed(5)}, {form.lng.toFixed(5)}
                 </p>
               ) : (
-                <p className="text-xs text-gray-400">Місце не вибрано</p>
+                <p className="text-xs text-brand-ink-muted">Місце не вибрано</p>
               )}
               {errors.lat && <p className="text-xs text-red-500">{errors.lat}</p>}
             </div>
           </div>
 
           {/* ── Max participants ─────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-400 uppercase tracking-wider">Максимум учасників</p>
-              <span className="text-sm font-bold text-indigo-600">{form.max_participants}</span>
+              <p className="text-xs text-brand-ink-muted uppercase tracking-wider">Максимум учасників</p>
+              <span className="text-sm font-bold text-brand-petrol">{form.max_participants}</span>
             </div>
             <input
               type="range"
@@ -598,9 +593,9 @@ export default function CreateEvent() {
               step={1}
               value={form.max_participants}
               onChange={(e) => set('max_participants', Number(e.target.value))}
-              className="w-full accent-indigo-600"
+              className="w-full accent-brand-petrol"
             />
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-brand-ink-muted">
               <span>2</span>
               <span>1000</span>
             </div>
@@ -612,8 +607,8 @@ export default function CreateEvent() {
                   onClick={() => set('max_participants', n)}
                   className={`px-3 py-1 rounded-lg text-xs font-medium border transition-all ${
                     form.max_participants === n
-                      ? 'bg-indigo-600 text-white border-indigo-600'
-                      : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300'
+                      ? 'bg-brand-petrol text-white border-brand-petrol'
+                      : 'bg-brand-bg text-brand-ink-soft border-brand-border hover:border-brand-border-strong'
                   }`}
                 >
                   {n}
@@ -623,11 +618,11 @@ export default function CreateEvent() {
           </div>
 
           {/* ── Age range ───────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
-            <p className="text-xs text-gray-400 uppercase tracking-wider">Віковий діапазон</p>
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4 space-y-3">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider">Віковий діапазон</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 space-y-1">
-                <label className="text-xs text-gray-500" htmlFor="min_age">Від</label>
+                <label className="text-xs text-brand-ink-soft" htmlFor="min_age">Від</label>
                 <input
                   id="min_age"
                   type="number"
@@ -638,9 +633,9 @@ export default function CreateEvent() {
                   className={inputCls('min_age')}
                 />
               </div>
-              <span className="text-gray-400 mt-5">—</span>
+              <span className="text-brand-ink-muted mt-5">—</span>
               <div className="flex-1 space-y-1">
-                <label className="text-xs text-gray-500" htmlFor="max_age">До</label>
+                <label className="text-xs text-brand-ink-soft" htmlFor="max_age">До</label>
                 <input
                   id="max_age"
                   type="number"
@@ -653,24 +648,24 @@ export default function CreateEvent() {
               </div>
             </div>
             {errors.min_age && <p className="text-xs text-red-500">{errors.min_age}</p>}
-            <p className="text-xs text-gray-400">Учасники поза цим діапазоном не зможуть приєднатись</p>
+            <p className="text-xs text-brand-ink-muted">Учасники поза цим діапазоном не зможуть приєднатись</p>
           </div>
 
           {/* ── Gender filter ───────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-3">Стать учасників</p>
-            <div className="flex rounded-xl overflow-hidden border border-gray-200">
+          <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-4">
+            <p className="text-xs text-brand-ink-muted uppercase tracking-wider mb-3">Стать учасників</p>
+            <div className="flex rounded-xl overflow-hidden border border-brand-border">
               {GENDER_OPTIONS.map((opt, idx) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => set('gender_filter', opt.value)}
                   className={`flex-1 py-2.5 text-sm font-medium transition-all ${
-                    idx > 0 ? 'border-l border-gray-200' : ''
+                    idx > 0 ? 'border-l border-brand-border' : ''
                   } ${
                     form.gender_filter === opt.value
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-white text-gray-500 hover:bg-gray-50'
+                      ? 'bg-brand-petrol text-white'
+                      : 'bg-white text-brand-ink-soft hover:bg-brand-bg'
                   }`}
                 >
                   {opt.label}
@@ -689,12 +684,12 @@ export default function CreateEvent() {
         </div>
 
         {/* ── Bottom CTA ──────────────────────────────────────────────────── */}
-        <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-4 safe-area-bottom shadow-sm z-20">
+        <div className="fixed bottom-0 inset-x-0 bg-brand-bg/95 backdrop-blur border-t border-brand-border px-4 py-4 safe-area-bottom shadow-sm z-20">
           <div className="max-w-lg mx-auto">
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+              className="w-full bg-brand-petrol hover:bg-brand-petrol-light disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
             >
               {submitting ? 'Створюємо подію...' : '✨ Створити подію'}
             </button>

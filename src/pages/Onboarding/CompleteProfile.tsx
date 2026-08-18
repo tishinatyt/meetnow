@@ -30,27 +30,27 @@ export default function CompleteProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-6 text-gray-900">
+    <div className="min-h-screen bg-brand-bg flex flex-col justify-center px-6 text-brand-ink">
       <div className="max-w-sm mx-auto w-full">
-        <h2 className="text-2xl font-bold mb-1">Розкажи про себе</h2>
-        <p className="text-gray-500 mb-8">Це бачитимуть інші учасники</p>
+        <h2 className="text-2xl font-bold mb-1 font-display">Розкажи про себе</h2>
+        <p className="text-brand-ink-soft mb-8">Це бачитимуть інші учасники</p>
 
         {error && <div className="mb-4 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-xl border border-red-100">{error}</div>}
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1.5 font-medium">Ім'я</label>
+            <label className="block text-sm text-brand-ink-soft mb-1.5 font-medium">Ім'я</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Як тебе звати?"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-white border border-brand-border rounded-xl px-4 py-3 text-brand-ink placeholder-brand-ink-muted focus:outline-none focus:border-brand-petrol transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-600 mb-1.5 font-medium">Вік</label>
+            <label className="block text-sm text-brand-ink-soft mb-1.5 font-medium">Вік</label>
             <input
               type="number"
               value={age}
@@ -58,12 +58,12 @@ export default function CompleteProfile() {
               placeholder="18"
               min={16}
               max={100}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-white border border-brand-border rounded-xl px-4 py-3 text-brand-ink placeholder-brand-ink-muted focus:outline-none focus:border-brand-petrol transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-600 mb-1.5 font-medium">Стать</label>
+            <label className="block text-sm text-brand-ink-soft mb-1.5 font-medium">Стать</label>
             <div className="flex gap-3">
               {(['male', 'female'] as Gender[]).map((g) => (
                 <button
@@ -71,8 +71,8 @@ export default function CompleteProfile() {
                   onClick={() => setGender(g)}
                   className={`flex-1 py-3 rounded-xl border transition-all ${
                     gender === g
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300'
+                      ? 'bg-brand-petrol border-brand-petrol text-white'
+                      : 'bg-white border-brand-border text-brand-ink-soft hover:border-brand-petrol'
                   }`}
                 >
                   {g === 'male' ? '👨 Чоловік' : '👩 Жінка'}
@@ -84,7 +84,7 @@ export default function CompleteProfile() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl transition-all active:scale-95 mt-4"
+            className="w-full bg-brand-petrol hover:bg-brand-petrol-light disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl transition-all active:scale-95 mt-4"
           >
             {saving ? 'Зберігаємо...' : 'Продовжити'}
           </button>

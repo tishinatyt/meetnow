@@ -72,29 +72,29 @@ export default function Chats() {
   useEffect(() => { fetchChats() }, [fetchChats])
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-24">
+    <div className="min-h-screen bg-brand-bg text-brand-ink pb-24">
       {/* Header */}
-      <div className="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-200 px-4 py-4">
-        <h1 className="text-xl font-bold">💬 Мої чати</h1>
+      <div className="sticky top-0 bg-brand-bg/95 backdrop-blur border-b border-brand-border px-4 py-4">
+        <h1 className="text-xl font-bold font-display">💬 Мої чати</h1>
       </div>
 
       <div className="px-4 pt-4 space-y-2 max-w-lg mx-auto">
         {/* Skeleton */}
         {loading && (
           [1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-2xl h-20 animate-pulse border border-gray-200 shadow-sm" />
+            <div key={i} className="bg-white rounded-2xl h-20 animate-pulse border border-brand-border shadow-sm" />
           ))
         )}
 
         {/* Empty */}
         {!loading && chats.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-brand-ink-muted">
             <div className="text-4xl mb-3">💭</div>
-            <p className="text-gray-500">Ви ще не в жодному чаті</p>
-            <p className="text-sm mt-1 text-gray-400">Приєднайтесь до події на головному екрані</p>
+            <p className="text-brand-ink-soft">Ви ще не в жодному чаті</p>
+            <p className="text-sm mt-1 text-brand-ink-muted">Приєднайтесь до події на головному екрані</p>
             <button
               onClick={() => navigate('/')}
-              className="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 text-sm"
+              className="mt-6 bg-brand-petrol hover:bg-brand-petrol-light text-white font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 text-sm"
             >
               До подій
             </button>
@@ -109,30 +109,30 @@ export default function Chats() {
             <button
               key={item.eventId}
               onClick={() => navigate(`/event/${item.eventId}/chat`)}
-              className="w-full bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center gap-3 text-left hover:border-indigo-300 hover:shadow-md transition-all"
+              className="w-full bg-white rounded-2xl p-4 border border-brand-border shadow-sm flex items-center gap-3 text-left hover:border-brand-petrol hover:shadow-md transition-all"
             >
               {/* Category icon */}
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-2xl flex-shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-brand-petrol/10 flex items-center justify-center text-2xl flex-shrink-0">
                 {emoji}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-gray-900 truncate text-sm">{item.title}</span>
+                  <span className="font-semibold text-brand-ink truncate text-sm">{item.title}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                     item.role === 'organizer'
-                      ? 'bg-indigo-50 text-indigo-600'
+                      ? 'bg-brand-petrol/10 text-brand-petrol'
                       : 'bg-green-50 text-green-600'
                   }`}>
                     {item.role === 'organizer' ? 'Ведучий' : 'Учасник'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 truncate mt-0.5">
+                <p className="text-xs text-brand-ink-muted truncate mt-0.5">
                   {emoji} {categoryLabel} · {item.address_text || 'Місце не вказано'}
                 </p>
               </div>
 
-              <span className="text-indigo-400 text-xl flex-shrink-0">›</span>
+              <span className="text-brand-petrol text-xl flex-shrink-0">›</span>
             </button>
           )
         })}

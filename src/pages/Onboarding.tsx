@@ -4,18 +4,18 @@ export default function Onboarding() {
   const { signInWithGoogle } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 text-gray-900">
+    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-6 text-brand-ink">
       <div className="mb-10 text-center">
-        <div className="text-6xl mb-4">⚡</div>
-        <h1 className="text-4xl font-bold tracking-tight">MeetNow</h1>
-        <p className="mt-3 text-gray-500 text-lg">Ситуативні зустрічі поруч із тобою</p>
-        <p className="mt-1 text-gray-400 text-sm">Чернігів та більше</p>
+        <div className="text-6xl mb-4">📍</div>
+        <h1 className="text-4xl font-bold tracking-tight font-display">Поруч</h1>
+        <p className="mt-3 text-brand-ink-soft text-lg">Ситуативні зустрічі поруч із тобою</p>
+        <p className="mt-1 text-brand-ink-muted text-sm">Чернігів та більше</p>
       </div>
 
       <div className="w-full max-w-sm space-y-4">
         <button
           onClick={signInWithGoogle}
-          className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-semibold py-3.5 px-6 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all border border-gray-200 shadow-sm"
+          className="w-full flex items-center justify-center gap-3 bg-white text-brand-ink font-semibold py-3.5 px-6 rounded-2xl hover:bg-brand-bg active:scale-95 transition-all border border-brand-border shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -27,7 +27,7 @@ export default function Onboarding() {
         </button>
       </div>
 
-      <p className="mt-8 text-center text-gray-400 text-xs max-w-xs">
+      <p className="mt-8 text-center text-brand-ink-muted text-xs max-w-xs">
         Продовжуючи, ти погоджуєшся з умовами використання та політикою конфіденційності
       </p>
     </div>

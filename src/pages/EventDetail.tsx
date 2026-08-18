@@ -115,11 +115,11 @@ export default function EventDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
-        <div className="h-14 bg-white border-b border-gray-200 animate-pulse" />
+      <div className="min-h-screen bg-brand-bg text-brand-ink flex flex-col">
+        <div className="h-14 bg-white border-b border-brand-border animate-pulse" />
         <div className="flex-1 px-4 pt-5 space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white rounded-2xl h-20 animate-pulse border border-gray-200 shadow-sm" />
+            <div key={i} className="bg-white rounded-2xl h-20 animate-pulse border border-brand-border shadow-sm" />
           ))}
         </div>
       </div>
@@ -128,12 +128,12 @@ export default function EventDetail() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-brand-bg text-brand-ink flex flex-col items-center justify-center px-4">
         <div className="text-4xl mb-3">😕</div>
-        <p className="text-gray-500">{error ?? 'Подію не знайдено'}</p>
+        <p className="text-brand-ink-soft">{error ?? 'Подію не знайдено'}</p>
         <button
           onClick={() => navigate(-1)}
-          className="mt-6 text-indigo-600 hover:text-indigo-500 text-sm"
+          className="mt-6 text-brand-petrol hover:text-brand-petrol-light text-sm"
         >
           ← Назад
         </button>
@@ -148,7 +148,7 @@ export default function EventDetail() {
   const isFull = activeParticipants.length >= event.max_participants
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-36">
+    <div className="min-h-screen bg-brand-bg text-brand-ink pb-36">
 
       {/* ── Cover photo ────────────────────────────────────────────────── */}
       <div className="relative h-52 w-full overflow-hidden">
@@ -164,28 +164,35 @@ export default function EventDetail() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
       </div>
 
+      {/* ── Ticket tear line ────────────────────────────────────────────── */}
+      <div className="relative flex items-center -mx-0 px-4 py-1">
+        <div className="absolute -left-2.5 w-5 h-5 rounded-full bg-brand-bg z-10" />
+        <div className="flex-1 border-t-2 border-dashed border-brand-border mx-2" />
+        <div className="absolute -right-2.5 w-5 h-5 rounded-full bg-brand-bg z-10" />
+      </div>
+
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 bg-white/95 backdrop-blur z-20 border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm">
+      <div className="sticky top-0 bg-brand-bg/95 backdrop-blur z-20 border-b border-brand-border px-4 py-3 flex items-center gap-3 shadow-sm">
         <button
           onClick={() => navigate(-1)}
-          className="text-gray-400 hover:text-gray-700 transition-colors p-1 -ml-1"
+          className="text-brand-ink-muted hover:text-brand-ink transition-colors p-1 -ml-1"
           aria-label="Назад"
         >
           ←
         </button>
-        <span className="font-semibold text-base truncate flex-1 text-gray-900">
+        <span className="font-semibold text-base truncate flex-1 text-brand-ink font-display">
           {emoji} {event.title}
         </span>
         <button
           onClick={() => navigate('/')}
-          className="text-gray-400 hover:text-gray-700 transition-colors p-1"
+          className="text-brand-ink-muted hover:text-brand-ink transition-colors p-1"
           aria-label="На головну"
         >
           🏠
         </button>
         <button
           onClick={() => setBookmarked((b) => !b)}
-          className={`transition-colors text-xl ${bookmarked ? 'text-yellow-500' : 'text-gray-300 hover:text-gray-500'}`}
+          className={`transition-colors text-xl ${bookmarked ? 'text-brand-amber' : 'text-brand-border-strong hover:text-brand-ink-muted'}`}
           aria-label="Зберегти"
         >
           🔖
@@ -195,7 +202,7 @@ export default function EventDetail() {
       <div className="px-4 pt-5 space-y-5 max-w-lg mx-auto">
 
         {/* ── Organizer block ─────────────────────────────────────────── */}
-        <div className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <div className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-brand-border shadow-sm">
           <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
             {event.organizer?.avatar_url ? (
               <img
@@ -209,15 +216,15 @@ export default function EventDetail() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-gray-900 truncate">
+              <span className="font-semibold text-brand-ink truncate">
                 {event.organizer?.name ?? 'Організатор'}
               </span>
               {event.organizer?.google_verified && (
-                <span className="text-blue-600 text-xs bg-blue-50 px-1.5 py-0.5 rounded-full">✓</span>
+                <span className="text-brand-petrol text-xs bg-brand-petrol/10 px-1.5 py-0.5 rounded-full">✓</span>
               )}
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-brand-petrol bg-brand-petrol/10 px-2 py-0.5 rounded-full">
                 Ведучий
               </span>
               <span className="text-xs text-green-500">● online</span>
@@ -227,43 +234,43 @@ export default function EventDetail() {
 
         {/* ── Title & description ─────────────────────────────────────── */}
         <div>
-          <h1 className="text-2xl font-bold leading-tight text-gray-900">
+          <h1 className="text-2xl font-bold leading-tight text-brand-ink font-display">
             {emoji} {event.title}
           </h1>
           {event.description && (
-            <p className="mt-2 text-gray-600 text-sm leading-relaxed">{event.description}</p>
+            <p className="mt-2 text-brand-ink-soft text-sm leading-relaxed">{event.description}</p>
           )}
         </div>
 
         {/* ── Date / location / distance ──────────────────────────────── */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-2.5">
+        <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm space-y-2.5">
           <div className="flex items-start gap-3">
             <span className="text-lg mt-0.5">🗓</span>
-            <span className="text-sm text-gray-700">{formatDateTime(event.event_datetime)}</span>
+            <span className="text-sm text-brand-ink-soft">{formatDateTime(event.event_datetime)}</span>
           </div>
           <div className="flex items-start gap-3">
             <span className="text-lg mt-0.5">📍</span>
             <div className="flex-1">
-              <span className="text-sm text-gray-700">{event.address_text || 'Місце не вказано'}</span>
+              <span className="text-sm text-brand-ink-soft">{event.address_text || 'Місце не вказано'}</span>
               {distanceKm !== null && (
-                <span className="ml-2 text-xs text-gray-400">{distanceKm} км від вас</span>
+                <span className="ml-2 text-xs text-brand-ink-muted">{distanceKm} км від вас</span>
               )}
             </div>
           </div>
         </div>
 
         {/* ── Participants ────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-900">Учасники</span>
-            <span className="text-sm font-bold text-indigo-600">
+            <span className="text-sm font-semibold text-brand-ink">Учасники</span>
+            <span className="text-sm font-bold text-brand-petrol">
               {activeParticipants.length}/{event.max_participants} слотів
             </span>
           </div>
 
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mb-3">
+          <div className="w-full h-1.5 bg-brand-border rounded-full mb-3">
             <div
-              className={`h-1.5 rounded-full transition-all ${isFull ? 'bg-red-400' : 'bg-indigo-500'}`}
+              className={`h-1.5 rounded-full transition-all ${isFull ? 'bg-red-400' : 'bg-brand-petrol'}`}
               style={{ width: `${Math.min((activeParticipants.length / event.max_participants) * 100, 100)}%` }}
             />
           </div>
@@ -279,31 +286,31 @@ export default function EventDetail() {
               </div>
             ))}
             {activeParticipants.length > 8 && (
-              <div className="w-9 h-9 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs text-gray-500 shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-brand-border border-2 border-white flex items-center justify-center text-xs text-brand-ink-muted shadow-sm">
                 +{activeParticipants.length - 8}
               </div>
             )}
             {activeParticipants.length === 0 && (
-              <span className="text-xs text-gray-400">Поки немає учасників — будь першим!</span>
+              <span className="text-xs text-brand-ink-muted">Поки немає учасників — будь першим!</span>
             )}
           </div>
         </div>
 
         {/* ── Who fits tags ───────────────────────────────────────────── */}
         <div>
-          <span className="text-xs text-gray-400 uppercase tracking-wider">Хто підходить</span>
+          <span className="text-xs text-brand-ink-muted uppercase tracking-wider">Хто підходить</span>
           <div className="flex flex-wrap gap-2 mt-2">
-            <span className="text-xs bg-gray-100 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full">
+            <span className="text-xs bg-brand-border border border-brand-border-strong text-brand-ink-soft px-3 py-1.5 rounded-full">
               {GENDER_LABEL[event.gender_filter] ?? event.gender_filter}
             </span>
-            <span className="text-xs bg-gray-100 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full">
+            <span className="text-xs bg-brand-border border border-brand-border-strong text-brand-ink-soft px-3 py-1.5 rounded-full">
               👤 {event.min_age}–{event.max_age} р.
             </span>
-            <span className="text-xs bg-indigo-50 border border-indigo-100 text-indigo-600 px-3 py-1.5 rounded-full">
+            <span className="text-xs bg-brand-petrol/10 border border-brand-petrol/20 text-brand-petrol px-3 py-1.5 rounded-full">
               {emoji} {categoryLabel}
             </span>
             {!event.is_public && (
-              <span className="text-xs bg-amber-50 border border-amber-200 text-amber-600 px-3 py-1.5 rounded-full">
+              <span className="text-xs bg-brand-amber/10 border border-brand-amber/20 text-brand-amber px-3 py-1.5 rounded-full">
                 🔒 Приватне
               </span>
             )}
@@ -313,8 +320,8 @@ export default function EventDetail() {
         {/* ── Map ────────────────────────────────────────────────────── */}
         {event.location_lat && event.location_lng ? (
           <div>
-            <span className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Місце</span>
-            <Suspense fallback={<div className="h-48 rounded-2xl bg-gray-100 animate-pulse" />}>
+            <span className="text-xs text-brand-ink-muted uppercase tracking-wider block mb-2">Місце</span>
+            <Suspense fallback={<div className="h-48 rounded-2xl bg-brand-border animate-pulse" />}>
               <EventMap
                 lat={event.location_lat}
                 lng={event.location_lng}
@@ -323,7 +330,7 @@ export default function EventDetail() {
             </Suspense>
           </div>
         ) : event.address_text ? (
-          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center text-gray-500 text-sm">
+          <div className="bg-white rounded-2xl p-4 border border-brand-border shadow-sm text-center text-brand-ink-soft text-sm">
             📍 {event.address_text}
           </div>
         ) : null}
@@ -337,13 +344,13 @@ export default function EventDetail() {
       </div>
 
       {/* ── Bottom CTA (sticky) ────────────────────────────────────── */}
-      <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-4 safe-area-bottom shadow-sm">
+      <div className="fixed bottom-0 inset-x-0 bg-brand-bg/95 backdrop-blur border-t border-brand-border px-4 py-4 safe-area-bottom shadow-sm">
         <div className="max-w-lg mx-auto">
           {isOrganizer ? (
             // Organizer: go straight to chat
             <button
               onClick={() => navigate(`/event/${event.id}/chat`)}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+              className="w-full bg-brand-petrol hover:bg-brand-petrol-light text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
             >
               💬 Перейти в чат
             </button>
@@ -365,7 +372,7 @@ export default function EventDetail() {
             // No slots left
             <button
               disabled
-              className="w-full bg-gray-100 text-gray-400 font-semibold py-4 rounded-2xl"
+              className="w-full bg-brand-border text-brand-ink-muted font-semibold py-4 rounded-2xl"
             >
               🚫 Місць немає
             </button>
@@ -374,7 +381,7 @@ export default function EventDetail() {
             <button
               onClick={handleJoin}
               disabled={joining || !supaUser}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+              className="w-full bg-brand-petrol hover:bg-brand-petrol-light disabled:opacity-50 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
             >
               {joining ? 'Приєднуємось...' : 'Приєднатись'}
             </button>
