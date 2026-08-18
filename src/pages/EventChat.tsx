@@ -220,6 +220,13 @@ export default function EventChat() {
             {participantCount} {participantCount === 1 ? 'учасник' : 'учасників'}
           </div>
         </div>
+        <button
+          onClick={() => navigate('/')}
+          className="text-gray-400 hover:text-gray-700 transition-colors p-1"
+          aria-label="На головну"
+        >
+          🏠
+        </button>
       </div>
 
       {/* Messages list */}

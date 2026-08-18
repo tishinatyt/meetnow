@@ -177,6 +177,13 @@ export default function EventDetail() {
           {emoji} {event.title}
         </span>
         <button
+          onClick={() => navigate('/')}
+          className="text-gray-400 hover:text-gray-700 transition-colors p-1"
+          aria-label="На головну"
+        >
+          🏠
+        </button>
+        <button
           onClick={() => setBookmarked((b) => !b)}
           className={`transition-colors text-xl ${bookmarked ? 'text-yellow-500' : 'text-gray-300 hover:text-gray-500'}`}
           aria-label="Зберегти"

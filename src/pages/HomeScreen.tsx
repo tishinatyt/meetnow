@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { getCurrentPosition } from '@/lib/geo'
@@ -606,7 +606,7 @@ export default function HomeScreen() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Logo */}
-            <h1 className="text-xl font-bold flex-shrink-0 text-gray-900">⚡ MeetNow</h1>
+            <Link to="/" className="text-xl font-bold flex-shrink-0 text-gray-900 hover:opacity-80 transition-opacity">⚡ MeetNow</Link>
 
             {/* City selector */}
             <div className="hidden sm:flex items-center gap-1 text-sm bg-gray-100 rounded-xl px-3 py-1.5 flex-shrink-0 cursor-default border border-gray-200">
