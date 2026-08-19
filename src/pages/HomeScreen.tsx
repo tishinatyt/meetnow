@@ -378,19 +378,14 @@ export default function HomeScreen() {
     if (!supaUser) return
     setLoadingMy(true)
 
-    console.log('[DEBUG] current session:', await supabase.auth.getSession())
-    console.log('[DEBUG] current user id:', (await supabase.auth.getUser()).data.user?.id)
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: participations, error: partError, status: partStatus, statusText: partStatusText } = await (supabase as any)
+    const { data: participations, error: partError } = await (supabase as any)
       .from('event_participants')
       .select('event_id, role')
       .eq('user_id', supaUser.id)
       .eq('status', 'joined')
 
     if (partError) console.error('[fetchMyEvents] participations error:', partError)
-    console.log('[Step1] participations:', participations, 'error:', partError)
-    console.log('[DEBUG] Step1 full response (data+error+status+statusText):', { data: participations, error: partError, status: partStatus, statusText: partStatusText })
 
     if (!participations || participations.length === 0) {
       setMyEvents([])
@@ -404,7 +399,6 @@ export default function HomeScreen() {
     )
     const eventIds = [...roleByEvent.keys()]
 
-    console.log('[Step2] eventIds:', eventIds)
     setMyEventIds(new Set(eventIds))
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -428,8 +422,7 @@ export default function HomeScreen() {
     ])
 
     if (eventsRes.error) console.error('[fetchMyEvents] events error:', eventsRes.error)
-    console.log('[Step2] events result:', eventsRes.data, 'error:', eventsRes.error)
-    console.log('[Step3] participants:', allPartsRes.data, 'error:', allPartsRes.error)
+    if (allPartsRes.error) console.error('[fetchMyEvents] participants error:', allPartsRes.error)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventsById = new Map<string, any>((eventsRes.data ?? []).map((e: any) => [e.id, e]))
@@ -468,7 +461,6 @@ export default function HomeScreen() {
       })
       .filter(Boolean) as MyEvent[]
 
-    console.log('[Final] merged myEvents:', mapped)
     setMyEvents(mapped)
     setLoadingMy(false)
   }, [supaUser])
