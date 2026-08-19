@@ -366,6 +366,15 @@ export default function CreateEvent() {
       status:           'upcoming',
     }
 
+    // DEBUG: verify organizer_id matches actual auth.uid() before INSERT
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    console.log('[CreateEvent] pre-insert auth check:', {
+      organizer_id_being_sent: payload.organizer_id,
+      current_auth_uid: authUser?.id,
+      match: payload.organizer_id === authUser?.id,
+      full_payload: payload,
+    })
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from('events')
