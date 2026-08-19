@@ -378,8 +378,11 @@ export default function HomeScreen() {
     if (!supaUser) return
     setLoadingMy(true)
 
+    console.log('[DEBUG] current session:', await supabase.auth.getSession())
+    console.log('[DEBUG] current user id:', (await supabase.auth.getUser()).data.user?.id)
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: participations, error: partError } = await (supabase as any)
+    const { data: participations, error: partError, status: partStatus, statusText: partStatusText } = await (supabase as any)
       .from('event_participants')
       .select('event_id, role')
       .eq('user_id', supaUser.id)
@@ -387,6 +390,7 @@ export default function HomeScreen() {
 
     if (partError) console.error('[fetchMyEvents] participations error:', partError)
     console.log('[Step1] participations:', participations, 'error:', partError)
+    console.log('[DEBUG] Step1 full response (data+error+status+statusText):', { data: participations, error: partError, status: partStatus, statusText: partStatusText })
 
     if (!participations || participations.length === 0) {
       setMyEvents([])
