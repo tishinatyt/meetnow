@@ -2,16 +2,43 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/meetnow/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#6366f1" />
+    <meta name="theme-color" content="#0F4C4C" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>MeetNow</title>
-    <script type="module" crossorigin src="/assets/index-eKqdQqS5.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/supabase-CGP4Gsz0.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-CU3p-UjF.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+    <meta name="description" content="porooch — ситуативні зустрічі поруч із тобою" />
+    <title>porooch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      // Restore path after SPA redirect from 404.html.
+      // Also strips the /meetnow base prefix on direct navigation so React Router
+      // (no basename) can match routes — critical for OAuth callbacks (?code=...).
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        var l = window.location;
+        var target;
+        if (redirect && redirect !== '/') {
+          // Came via 404.html redirect — use stored path (already has query+hash baked in)
+          target = redirect;
+        } else {
+          // Direct navigation (including OAuth callback at /meetnow/?code=...)
+          // Strip /meetnow base prefix, preserve query string and hash
+          var stripped = l.pathname.replace(/^\/meetnow/, '') || '/';
+          target = stripped + l.search + l.hash;
+        }
+        if (target !== l.pathname + l.search + l.hash) {
+          window.history.replaceState(null, null, target);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/meetnow/assets/index-Sp0n2QKv.js"></script>
+    <link rel="modulepreload" crossorigin href="/meetnow/assets/supabase-CGP4Gsz0.js">
+    <link rel="stylesheet" crossorigin href="/meetnow/assets/index-CAnMCyBw.css">
+  <link rel="manifest" href="/meetnow/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/meetnow/registerSW.js"></script></head>
   <body>
     <div id="root"></div>
   </body>
