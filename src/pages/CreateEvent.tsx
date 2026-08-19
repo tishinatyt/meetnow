@@ -227,6 +227,7 @@ export default function CreateEvent() {
 
   const [errors, setErrors]     = useState<Partial<Record<keyof FormState | 'submit', string>>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [geocoding, setGeocoding] = useState(false)
 
   // When event_datetime changes for a PRIVATE event, auto-set end_datetime = start + 1h
   useEffect(() => {
@@ -257,9 +258,35 @@ export default function CreateEvent() {
     setErrors((e) => ({ ...e, [key]: undefined }))
   }, [])
 
-  const handleMapPick = useCallback((lat: number, lng: number) => {
+  const handleMapPick = useCallback(async (lat: number, lng: number) => {
     setForm((f) => ({ ...f, lat, lng }))
     setErrors((e) => ({ ...e, lat: undefined }))
+
+    // Reverse-geocode via Nominatim (OSM) to auto-fill address_text
+    setGeocoding(true)
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=uk`,
+        { headers: { 'User-Agent': 'meetnow-app/1.0 (porooch)' } }
+      )
+      if (res.ok) {
+        const json = await res.json()
+        const address = json.display_name as string | undefined
+        setForm((f) => ({
+          ...f,
+          address_text: address ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        }))
+        setErrors((e) => ({ ...e, address_text: undefined }))
+      }
+    } catch {
+      // Geocoding failed — leave whatever the user typed, or set fallback
+      setForm((f) => ({
+        ...f,
+        address_text: f.address_text || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+      }))
+    } finally {
+      setGeocoding(false)
+    }
   }, [])
 
   // ── Validation ──────────────────────────────────────────────────────────────
@@ -294,6 +321,10 @@ export default function CreateEvent() {
       errs.min_age = 'Мінімальний вік не може перевищувати максимальний'
     }
 
+    if (!form.address_text.trim()) {
+      errs.address_text = 'Вкажіть адресу або клікніть на карті — вона підставиться автоматично'
+    }
+
     if (form.lat === null || form.lng === null) {
       errs.lat = 'Клікніть на карту, щоб вказати місце події'
     }
@@ -326,7 +357,7 @@ export default function CreateEvent() {
       cover_photo_url:  form.cover_photo_url.trim() || null,
       event_datetime:   new Date(form.event_datetime).toISOString(),
       end_datetime:     form.end_datetime ? new Date(form.end_datetime).toISOString() : null,
-      address_text:     form.address_text.trim() || null,
+      address_text:     form.address_text.trim(),
       location:         locationWKT,
       max_participants: form.max_participants,
       min_age:          form.min_age,
@@ -548,16 +579,29 @@ export default function CreateEvent() {
 
             <div className="space-y-1">
               <label className="text-xs text-brand-ink-soft" htmlFor="address_text">
-                Адреса
+                Адреса <span className="text-red-400">*</span>
               </label>
-              <input
-                id="address_text"
-                type="text"
-                placeholder="Вул. Шевченка, 10, Чернігів"
-                value={form.address_text}
-                onChange={(e) => set('address_text', e.target.value)}
-                className={inputCls('address_text')}
-              />
+              <div className="relative">
+                <input
+                  id="address_text"
+                  type="text"
+                  placeholder="Вул. Шевченка, 10, Чернігів"
+                  value={form.address_text}
+                  onChange={(e) => set('address_text', e.target.value)}
+                  className={`${inputCls('address_text')} ${geocoding ? 'pr-8' : ''}`}
+                />
+                {geocoding && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-ink-muted text-xs animate-pulse">
+                    ⏳
+                  </span>
+                )}
+              </div>
+              {geocoding && (
+                <p className="text-xs text-brand-ink-muted">Визначаємо адресу…</p>
+              )}
+              {errors.address_text && (
+                <p className="text-xs text-red-500">{errors.address_text}</p>
+              )}
             </div>
 
             <div className="space-y-1.5">
