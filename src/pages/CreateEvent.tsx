@@ -262,7 +262,9 @@ export default function CreateEvent() {
     setForm((f) => ({ ...f, lat, lng }))
     setErrors((e) => ({ ...e, lat: undefined }))
 
-    // Reverse-geocode via Nominatim (OSM) to auto-fill address_text
+    // Reverse-geocode via Nominatim (OSM) to auto-fill address_text.
+    // Guaranteed fallback: always sets address_text to coordinates if geocoding fails.
+    const coordFallback = `${lat.toFixed(5)}, ${lng.toFixed(5)}`
     setGeocoding(true)
     try {
       const res = await fetch(
@@ -271,19 +273,19 @@ export default function CreateEvent() {
       )
       if (res.ok) {
         const json = await res.json()
-        const address = json.display_name as string | undefined
-        setForm((f) => ({
-          ...f,
-          address_text: address ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-        }))
-        setErrors((e) => ({ ...e, address_text: undefined }))
+        const address = (json.display_name as string | undefined) || coordFallback
+        setForm((f) => ({ ...f, address_text: address }))
+      } else {
+        // Non-2xx (rate limit, server error, etc.) — use coordinate fallback
+        console.warn('[CreateEvent] Nominatim returned', res.status, '— using coord fallback')
+        setForm((f) => ({ ...f, address_text: f.address_text || coordFallback }))
       }
-    } catch {
-      // Geocoding failed — leave whatever the user typed, or set fallback
-      setForm((f) => ({
-        ...f,
-        address_text: f.address_text || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-      }))
+      setErrors((e) => ({ ...e, address_text: undefined }))
+    } catch (err) {
+      // Network error (CORS, offline, etc.) — guaranteed fallback
+      console.warn('[CreateEvent] Nominatim fetch failed:', err)
+      setForm((f) => ({ ...f, address_text: f.address_text || coordFallback }))
+      setErrors((e) => ({ ...e, address_text: undefined }))
     } finally {
       setGeocoding(false)
     }
@@ -366,13 +368,28 @@ export default function CreateEvent() {
       status:           'upcoming',
     }
 
-    // DEBUG: verify organizer_id matches actual auth.uid() before INSERT
+    // Defensive guard — block if address_text is still empty despite validation
+    if (!payload.address_text) {
+      console.error('[CreateEvent] address_text is empty at INSERT time — blocked')
+      setErrors({ submit: 'Вкажіть адресу події перед відправкою' })
+      setSubmitting(false)
+      return
+    }
+
+    // DEBUG: session validity + organizer_id check before INSERT
+    const { data: sessionData } = await supabase.auth.getSession()
     const { data: { user: authUser } } = await supabase.auth.getUser()
-    console.log('[CreateEvent] pre-insert auth check:', {
+    const now = Math.floor(Date.now() / 1000)
+    const expiresAt = sessionData.session?.expires_at ?? 0
+    console.log('[CreateEvent] session before insert:', {
+      has_access_token: !!sessionData.session?.access_token,
+      expires_at: expiresAt,
+      now_unix: now,
+      token_expired: expiresAt < now,
+      seconds_until_expiry: expiresAt - now,
       organizer_id_being_sent: payload.organizer_id,
       current_auth_uid: authUser?.id,
-      match: payload.organizer_id === authUser?.id,
-      full_payload: payload,
+      ids_match: payload.organizer_id === authUser?.id,
     })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
