@@ -33,7 +33,7 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/meetnow">
       <AuthProvider>
         <ProtectedRoute>
           <AppLayout />

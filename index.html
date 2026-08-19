@@ -13,25 +13,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-      // Restore path after SPA redirect from 404.html.
-      // Also strips the /meetnow base prefix on direct navigation so React Router
-      // (no basename) can match routes — critical for OAuth callbacks (?code=...).
+      // Restore deep-link path after SPA redirect from 404.html.
+      // 404.html stores the full path (including /meetnow prefix); we restore it as-is.
+      // BrowserRouter basename="/meetnow" handles route matching — no manual stripping here.
       (function() {
         var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        var l = window.location;
-        var target;
-        if (redirect && redirect !== '/') {
-          // Came via 404.html redirect — use stored path (already has query+hash baked in)
-          target = redirect;
-        } else {
-          // Direct navigation (including OAuth callback at /meetnow/?code=...)
-          // Strip /meetnow base prefix, preserve query string and hash
-          var stripped = l.pathname.replace(/^\/meetnow/, '') || '/';
-          target = stripped + l.search + l.hash;
-        }
-        if (target !== l.pathname + l.search + l.hash) {
-          window.history.replaceState(null, null, target);
+        if (redirect) {
+          delete sessionStorage.redirect;
+          window.history.replaceState(null, null, redirect);
         }
       })();
     </script>
