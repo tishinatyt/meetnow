@@ -68,6 +68,7 @@ interface MyEvent {
   category: string
   address_text: string
   event_datetime: string
+  created_at: string
   min_age: number
   max_age: number
   gender_filter: string
@@ -406,11 +407,12 @@ export default function HomeScreen() {
       (supabase as any)
         .from('events')
         .select(`
-          id, title, category, address_text, event_datetime,
+          id, title, category, address_text, event_datetime, created_at,
           min_age, max_age, gender_filter, cover_photo_url, max_participants,
           organizer:users!events_organizer_id_fkey(id, name, avatar_url, google_verified)
         `)
-        .in('id', eventIds),
+        .in('id', eventIds)
+        .order('created_at', { ascending: false }),
       (supabase as any)
         .from('event_participants')
         .select(`
@@ -450,6 +452,7 @@ export default function HomeScreen() {
           category: ev.category,
           address_text: ev.address_text,
           event_datetime: ev.event_datetime,
+          created_at: ev.created_at,
           min_age: ev.min_age,
           max_age: ev.max_age,
           gender_filter: ev.gender_filter,
@@ -460,6 +463,8 @@ export default function HomeScreen() {
         }
       })
       .filter(Boolean) as MyEvent[]
+
+    mapped.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     setMyEvents(mapped)
     setLoadingMy(false)
@@ -709,14 +714,29 @@ export default function HomeScreen() {
               </div>
             )}
 
-            {/* Empty state */}
-            {!loadingMy && filteredMy.length === 0 && (
+            {/* Empty state — no events at all */}
+            {!loadingMy && myEvents.length === 0 && (
               <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-8 text-center mb-3">
                 <div className="text-4xl mb-3">📭</div>
-                <p className="text-brand-ink-soft text-sm">Ви ще не в жодній події</p>
-                <p className="text-brand-ink-muted text-xs mt-1">
-                  Створіть свою або приєднайтесь до громадської
+                <p className="text-brand-ink font-semibold text-sm">У вас поки немає подій</p>
+                <p className="text-brand-ink-muted text-xs mt-1 mb-5">
+                  Створіть свою першу подію або приєднайтесь до вже існуючої
                 </p>
+                <Link
+                  to="/create"
+                  className="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-petrol hover:bg-brand-petrol-light text-white transition-all active:scale-95"
+                >
+                  ➕ Створити подію
+                </Link>
+              </div>
+            )}
+
+            {/* Empty state — events exist but search hides them */}
+            {!loadingMy && myEvents.length > 0 && filteredMy.length === 0 && (
+              <div className="bg-white rounded-2xl border border-brand-border shadow-sm p-6 text-center mb-3">
+                <div className="text-3xl mb-2">🔍</div>
+                <p className="text-brand-ink-soft text-sm">Нічого не знайдено</p>
+                <p className="text-brand-ink-muted text-xs mt-1">Спробуйте інший пошуковий запит</p>
               </div>
             )}
 
