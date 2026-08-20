@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -432,6 +432,13 @@ export default function CreateEvent() {
           ←
         </button>
         <span className="font-semibold text-base flex-1 text-brand-ink font-display">Нова подія</span>
+        <Link
+          to="/"
+          className="text-brand-ink-muted hover:text-brand-ink transition-colors p-1"
+          aria-label="На головну"
+        >
+          🏠
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
